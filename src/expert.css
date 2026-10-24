@@ -1,0 +1,2490 @@
+/* TaskSlice's expertise studio. Scoped to preserve the original lesson workspace. */
+.ts-app {
+  max-width: 1320px;
+  margin: auto;
+  padding: 0 60px;
+  color: #263c32;
+  --ts-border: #dfe3d8;
+  --ts-surface: #fffefa;
+  --ts-quiet: #718074;
+  --ts-lime: #d5ed8a;
+}
+.ts-app h1,
+.ts-app h2,
+.ts-app h3 {
+  font-family: "Manrope Variable", sans-serif;
+  letter-spacing: -0.045em;
+}
+.ts-app button {
+  font-family: inherit;
+}
+.ts-header {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  border-bottom: 1px solid var(--ts-border);
+}
+.ts-brand-btn {
+  padding: 0;
+  background: none;
+}
+.ts-brand {
+  font-family: "Manrope Variable", sans-serif;
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -1.6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.ts-brand > span:last-child {
+  color: #7c9e4c;
+  margin-left: -7px;
+}
+.ts-mark {
+  width: 27px;
+  height: 27px;
+  position: relative;
+  display: inline-block;
+}
+.ts-mark i {
+  position: absolute;
+  width: 10px;
+  height: 22px;
+  background: #31523e;
+  transform: rotate(28deg);
+  border-radius: 3px;
+  left: 4px;
+  top: 2px;
+}
+.ts-mark i:nth-child(2) {
+  left: 12px;
+  top: 7px;
+  height: 15px;
+  background: #a8c667;
+}
+.ts-mark i:nth-child(3) {
+  left: 19px;
+  top: 12px;
+  height: 10px;
+  background: #d5ed8a;
+}
+.ts-header nav {
+  display: flex;
+  gap: 30px;
+  margin-left: auto;
+  margin-right: 15px;
+}
+.ts-header nav button {
+  background: none;
+  padding: 10px 0;
+  font-size: 13px;
+  color: #718074;
+  position: relative;
+}
+.ts-header nav button.active {
+  color: #284f3d;
+  font-weight: 700;
+}
+.ts-header nav button.active:after {
+  position: absolute;
+  bottom: 1px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: 4px;
+  height: 4px;
+  content: "";
+  background: #284f3d;
+  border-radius: 50%;
+}
+.ts-btn {
+  background: #2e503d;
+  color: #fffefa;
+  min-height: 46px;
+  padding: 13px 21px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 13px;
+  border: 1px solid transparent;
+  line-height: 1.4;
+  transition:
+    background 0.2s,
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+.ts-btn:hover:not(:disabled) {
+  background: #203e2d;
+  box-shadow: 0 4px 15px #284f3d15;
+  transform: translateY(-2px);
+}
+.ts-btn.outline {
+  background: transparent;
+  border-color: #cdd6c7;
+  color: #2c4838;
+}
+.ts-btn.outline:hover:not(:disabled) {
+  background: #e9eedd;
+}
+.ts-btn.small {
+  min-height: 39px;
+  padding: 10px 16px;
+  font-size: 12px;
+}
+.ts-btn.full {
+  width: 100%;
+}
+.ts-text-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  font-size: 12px;
+  font-weight: 600;
+  background: none;
+  line-height: 1.5;
+}
+.ts-text-btn:hover {
+  color: #5d7a3b;
+}
+.ts-icon {
+  height: 31px;
+  min-width: 31px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: none;
+  color: #69776c;
+  padding: 5px;
+}
+.ts-icon:hover:not(:disabled) {
+  background: #e9ecdf;
+  color: #274936;
+}
+.ts-eyebrow {
+  font-size: 9px;
+  letter-spacing: 1.7px;
+  line-height: 1.7;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.ts-star {
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #73954d;
+}
+.ts-hero {
+  padding: 90px 0 80px;
+  display: grid;
+  grid-template-columns: 1.08fr 1fr;
+  gap: 65px;
+  align-items: center;
+  min-height: 650px;
+}
+.ts-hero h1 {
+  font-size: clamp(44px, 5vw, 66px);
+  line-height: 1.13;
+  font-weight: 600;
+  margin: 22px 0;
+}
+.ts-hero h1 > span {
+  color: #78915b;
+  position: relative;
+}
+.ts-hero h1 > span:after {
+  content: "";
+  height: 9px;
+  border-top: 2px solid #a5b980;
+  border-radius: 50%;
+  position: absolute;
+  left: 0;
+  right: -12px;
+  bottom: -8px;
+  transform: rotate(-2deg);
+}
+.ts-hero-copy > p {
+  color: #718074;
+  line-height: 1.85;
+  font-size: 14px;
+  max-width: 370px;
+  margin: 28px 0;
+}
+.ts-hero-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.ts-hero-proof {
+  margin-top: 35px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  color: #81897b;
+  font-size: 10px;
+  line-height: 1.7;
+}
+.ts-hero-proof strong {
+  font-weight: 500;
+  color: #465b49;
+}
+.ts-overlap {
+  display: flex;
+  padding-left: 3px;
+}
+.ts-overlap i {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 2px solid #f6f5ef;
+  border-radius: 50%;
+  margin-left: -3px;
+  background: #dce8b7;
+  font-size: 16px;
+  color: #435c35;
+  font-style: normal;
+}
+.ts-overlap i:nth-child(2) {
+  background: #e7daca;
+  color: #8a775d;
+}
+.ts-overlap i:nth-child(3) {
+  background: #d7dfcc;
+  color: #4d6551;
+}
+.ts-hero-art {
+  position: relative;
+  padding: 30px 0 35px;
+  max-width: 470px;
+}
+.ts-demo-card {
+  background: #fffefa;
+  padding: 25px 27px 18px;
+  border-radius: 17px;
+  box-shadow: 0 18px 45px #29402e0b;
+  border: 1px solid #e4e7da;
+  position: relative;
+  z-index: 1;
+}
+.ts-demo-top {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 8px;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+.ts-square-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 42px;
+  background: #e9efdb;
+  border-radius: 10px;
+  color: #4b6c3b;
+}
+.ts-demo-top small {
+  display: block;
+  color: #89917f;
+  letter-spacing: 0;
+  font-weight: 400;
+  font-size: 10px;
+  margin-top: 5px;
+}
+.ts-live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #8baa55;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px #90b35712;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.ts-demo-card h3 {
+  font-size: 25px;
+  font-weight: 500;
+  line-height: 1.3;
+  margin: 26px 0 23px;
+}
+.ts-demo-total {
+  padding: 18px 0;
+  border-top: 1px solid #e7e9df;
+  border-bottom: 1px solid #e7e9df;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ts-demo-total > span {
+  font-size: 11px;
+  color: #7b8577;
+}
+.ts-demo-total strong {
+  font-family: "Manrope Variable";
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -1.5px;
+  display: inline-flex;
+}
+.ts-demo-slider {
+  margin: 24px 0 15px;
+}
+.ts-demo-slider > div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+.ts-demo-slider strong {
+  font-size: 13px;
+}
+.ts-app input[type="range"] {
+  width: 100%;
+  accent-color: #557b42;
+  height: 4px;
+  cursor: pointer;
+  margin: 20px 0 12px;
+}
+.ts-demo-slider small {
+  font-size: 10px;
+  color: #89917f;
+}
+.ts-demo-why {
+  background: #f0f3e7;
+  padding: 11px 12px;
+  width: 100%;
+  border-radius: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  text-align: left;
+  font-size: 10px;
+  color: #60714d;
+}
+.ts-demo-why svg:last-child {
+  margin-left: auto;
+}
+.ts-demo-explanation {
+  font-size: 11px;
+  line-height: 1.7;
+  padding-top: 12px;
+  color: #75816c;
+  overflow: hidden;
+}
+.ts-paper-note {
+  position: absolute;
+  z-index: 2;
+  top: -7px;
+  right: -13px;
+  background: #e9e7d6;
+  padding: 17px 20px;
+  box-shadow: 2px 5px 15px #2939270b;
+  transform: rotate(8deg);
+  display: flex;
+  gap: 9px;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #7c7e58;
+}
+.ts-paper-note:before {
+  content: "";
+  position: absolute;
+  background: #f0edd2b0;
+  width: 45px;
+  height: 17px;
+  left: 60px;
+  top: -8px;
+  transform: rotate(-9deg);
+}
+.ts-floating-tag {
+  position: absolute;
+  right: -8px;
+  bottom: -1px;
+  z-index: 2;
+  transform: rotate(-5deg);
+  font-family: Georgia, serif;
+  font-style: italic;
+  color: #758451;
+  font-size: 15px;
+}
+.ts-floating-tag span {
+  font-size: 25px;
+  display: inline-block;
+  margin-right: 7px;
+}
+.ts-loop {
+  position: absolute;
+  width: 115px;
+  bottom: -20px;
+  left: 4px;
+  fill: none;
+  stroke: #a8b17b;
+  stroke-width: 1.5;
+  transform: rotate(12deg);
+}
+.ts-catalog {
+  padding: 55px 0 65px;
+  border-top: 1px solid var(--ts-border);
+}
+.ts-section-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+.ts-section-top h2 {
+  font-size: 32px;
+  font-weight: 500;
+  margin-top: 10px;
+}
+.ts-section-aside {
+  font-size: 11px;
+  color: #8a9283;
+  line-height: 1.8;
+  text-align: right;
+}
+.ts-tool-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.ts-tool-card {
+  padding: 0;
+  text-align: left;
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: 13px;
+  overflow: hidden;
+  position: relative;
+  min-width: 0;
+}
+.ts-tool-art {
+  height: 178px;
+  position: relative;
+  background: #dfe9c9;
+  overflow: hidden;
+}
+.ts-art-lines {
+  position: absolute;
+  left: 40px;
+  bottom: 28px;
+  width: 125px;
+  height: 100px;
+  padding: 20px;
+  background: #f9fbf0;
+  border-radius: 5px;
+  transform: rotate(-10deg);
+  box-shadow: 6px 8px 0 #bdcf9a;
+}
+.ts-art-lines i {
+  display: block;
+  height: 5px;
+  background: #d5dfbf;
+  width: 70%;
+  margin-bottom: 14px;
+  border-radius: 4px;
+}
+.ts-art-lines i:nth-child(2) {
+  width: 90%;
+}
+.ts-art-lines i:nth-child(3) {
+  width: 55%;
+  background: #8da76e;
+}
+.ts-art-symbol {
+  position: absolute;
+  left: 40%;
+  top: 5px;
+  color: #719447;
+  font-size: 150px;
+  font-family: Georgia;
+  line-height: 1;
+  transform: rotate(-10deg);
+}
+.ts-art-mini {
+  position: absolute;
+  right: 30px;
+  bottom: 35px;
+  font-size: 12px;
+  font-family: Georgia, serif;
+  font-style: italic;
+  color: #5a7545;
+  transform: rotate(-6deg);
+}
+.ts-art-stamp {
+  position: absolute;
+  top: 22px;
+  right: 24px;
+  width: 50px;
+  height: 50px;
+  border: 1px solid #8da36c;
+  border-radius: 50%;
+  font-size: 8px;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transform: rotate(16deg);
+  line-height: 1.5;
+  color: #78915b;
+}
+.art-1 {
+  background: #e9e2d3;
+}
+.art-2 {
+  background: #dde5df;
+}
+.ts-tool-card-content {
+  padding: 25px 26px;
+  position: relative;
+}
+.ts-tool-card h3 {
+  font-size: 22px;
+  font-weight: 500;
+  margin: 9px 0 12px;
+}
+.ts-tool-card p {
+  font-size: 12px;
+  color: #819078;
+  max-width: 330px;
+  line-height: 1.8;
+  margin-bottom: 22px;
+}
+.ts-tool-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid #e7e9df;
+  padding-top: 17px;
+  padding-right: 32px;
+  font-size: 10px;
+  color: #839078;
+}
+.ts-tool-meta strong {
+  font-size: 11px;
+  font-weight: 600;
+  color: #42583a;
+  white-space: nowrap;
+}
+.ts-card-arrow {
+  position: absolute;
+  right: 21px;
+  bottom: 17px;
+  background: #eef3e2;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #627f46;
+}
+.ts-create-card {
+  border: 1px dashed #ccd6bb;
+  border-radius: 13px;
+  background: #edf0e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 30px;
+  min-height: 350px;
+}
+.ts-create-doodle {
+  font-size: 68px;
+  font-family: Georgia;
+  color: #8ca65f;
+  line-height: 1;
+  margin-bottom: 24px;
+  transition: transform 0.4s;
+}
+.ts-create-card:hover .ts-create-doodle {
+  transform: rotate(45deg);
+}
+.ts-create-card h3 {
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.ts-create-card p {
+  font-size: 12px;
+  color: #819078;
+  line-height: 1.8;
+  max-width: 240px;
+  margin: 15px 0;
+}
+.ts-how {
+  padding: 30px 0 60px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 30px;
+}
+.ts-how > .ts-eyebrow {
+  grid-column: 1/-1;
+}
+.ts-how h3 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  display: flex;
+  gap: 12px;
+}
+.ts-how h3 > span {
+  font-size: 10px;
+  color: #91a477;
+  font-family: "DM Sans Variable";
+  padding-top: 3px;
+  letter-spacing: 1px;
+}
+.ts-how p {
+  font-size: 12px;
+  color: #819078;
+  line-height: 1.8;
+  margin: 11px 0 0 30px;
+}
+.ts-footer {
+  border-top: 1px solid var(--ts-border);
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  padding: 30px 0;
+  font-size: 10px;
+  color: #87917e;
+  margin-top: 25px;
+}
+.ts-footer .ts-brand {
+  font-size: 19px;
+  letter-spacing: -1px;
+  color: #43553a;
+}
+.ts-footer .ts-mark {
+  transform: scale(0.75);
+  margin-right: -4px;
+}
+.ts-footer > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+}
+.ts-footer a {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 18px;
+}
+.ts-sandbox-dot {
+  height: 5px;
+  width: 5px;
+  border-radius: 50%;
+  background: #9aa881;
+}
+.ts-loading {
+  min-height: 350px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #819078;
+}
+.ts-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 10px;
+  color: #87917e;
+  padding: 28px 0;
+}
+.ts-breadcrumb button {
+  background: none;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0;
+  color: #5b7152;
+}
+.ts-version {
+  margin-left: auto;
+  font-size: 10px;
+  background: #ebefdf;
+  padding: 5px 10px;
+  border-radius: 100px;
+}
+.ts-builder-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  margin: 17px 0 35px;
+}
+.ts-builder-heading h1 {
+  font-size: 39px;
+  font-weight: 500;
+  line-height: 1.2;
+  margin: 11px 0 14px;
+}
+.ts-builder-heading > div > p {
+  font-size: 13px;
+  color: #849078;
+  line-height: 1.8;
+}
+.ts-author {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 10px;
+  color: #87917e;
+  margin-top: 19px;
+  flex-wrap: wrap;
+}
+.ts-author strong {
+  color: #4a5c40;
+  font-weight: 500;
+}
+.ts-author > span:last-child {
+  border-left: 1px solid #d8dfcd;
+  padding-left: 12px;
+  margin-left: 4px;
+}
+.ts-avatar {
+  width: 25px;
+  height: 25px;
+  background: #dfe8c9;
+  color: #749047;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 16px;
+}
+.ts-builder-tag {
+  align-self: center;
+  font-family: Georgia, serif;
+  font-style: italic;
+  color: #95a17e;
+  font-size: 17px;
+  line-height: 1.6;
+  transform: rotate(-7deg);
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  padding-right: 30px;
+}
+.ts-builder-tag > span {
+  font-size: 60px;
+  font-style: normal;
+  line-height: 1;
+}
+.ts-builder-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+  gap: 30px;
+  align-items: start;
+  padding-bottom: 50px;
+}
+.ts-builder-main {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+.ts-panel {
+  padding: 25px;
+  background: #fffefa;
+  border: 1px solid #e0e5d6;
+  border-radius: 12px;
+}
+.ts-panel-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 23px;
+}
+.ts-panel-heading h2 {
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+.ts-panel-heading > .ts-small-pill {
+  margin-left: auto;
+}
+.ts-step {
+  font-size: 9px;
+  font-weight: 500;
+  border: 1px solid #d8e1c9;
+  background: #f5f7ed;
+  color: #7a8e5a;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ts-small-pill {
+  font-size: 8px;
+  color: #79905d;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #edf2e1;
+  padding: 5px 9px;
+  border-radius: 50px;
+  line-height: 1.4;
+}
+.ts-app textarea,
+.ts-app input:not([type="range"]) {
+  background: #fbfcf7;
+  border: 1px solid #dfe4d4;
+  border-radius: 7px;
+  color: #344c39;
+  padding: 12px;
+  font-size: 12px;
+  max-width: 100%;
+  min-width: 0;
+}
+.ts-app textarea::placeholder,
+.ts-app input::placeholder {
+  color: #9ba491;
+  font-weight: 400;
+}
+.ts-app textarea {
+  width: 100%;
+  resize: vertical;
+  line-height: 1.8;
+  min-height: 86px;
+}
+.ts-app .ts-brief-panel > textarea {
+  min-height: 100px;
+}
+.ts-brief-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+.ts-chip-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ts-chip {
+  background: #f0f3e7;
+  border: 1px solid #e4e9d9;
+  padding: 6px 9px;
+  border-radius: 50px;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #809167;
+}
+.ts-chip:hover {
+  background: #e4edcf;
+}
+.ts-assumptions {
+  margin-top: 16px;
+  border-top: 1px solid #e4e9d9;
+  padding-top: 14px;
+  color: #7e8b6a;
+  font-size: 11px;
+  line-height: 1.8;
+  overflow: hidden;
+}
+.ts-assumptions strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+.ts-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+  font-size: 11px;
+  color: #788569;
+}
+.ts-field > span {
+  font-size: 10px;
+  font-weight: 500;
+}
+.ts-field-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 19px;
+}
+.ts-field-row > .ts-field {
+  flex: 1;
+}
+.ts-field-row > .grow {
+  flex: 1.5;
+}
+.ts-number {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.ts-number > input {
+  width: 100%;
+  padding-right: 64px !important;
+}
+.ts-number > span {
+  position: absolute;
+  right: 12px;
+  color: #9ca58f;
+  font-size: 10px;
+  pointer-events: none;
+}
+.ts-table-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 9px;
+  color: #91a07b;
+  margin: 28px 0 9px;
+}
+.ts-table-heading > .ts-why {
+  margin-left: auto;
+}
+.ts-table-heading > span:last-child {
+  margin-left: 10px;
+  margin-right: 43px;
+}
+.ts-why {
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  color: #809167;
+  font-size: 9px;
+}
+.ts-why:hover {
+  color: #36573a;
+}
+.ts-deliverable {
+  display: grid;
+  grid-template-columns: 18px 1fr 62px 24px;
+  gap: 9px;
+  align-items: center;
+  border-bottom: 1px solid #edf0e6;
+  padding: 9px 0;
+}
+.ts-line-index {
+  font-size: 8px;
+  color: #a0aa93;
+}
+.ts-deliverable input {
+  background: transparent !important;
+  border-color: transparent !important;
+  padding: 7px !important;
+}
+.ts-deliverable input:focus {
+  background: #f5f7ed !important;
+  border-color: #d9e1cb !important;
+}
+.ts-deliverable input[type="number"] {
+  text-align: right;
+  border-color: #e6eadb !important;
+  background: #f6f8ef !important;
+}
+.ts-add-row {
+  margin-top: 12px;
+  font-size: 10px;
+  color: #809167;
+}
+.ts-input-divider {
+  height: 1px;
+  background: #e7ebde;
+  margin: 23px 0;
+}
+.ts-revision-control {
+  margin-top: 26px;
+}
+.ts-revision-control > div {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 11px;
+}
+.ts-revision-control .ts-why {
+  margin-left: auto;
+}
+.ts-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid #dfe5d2;
+  border-radius: 50px;
+  padding: 2px;
+}
+.ts-counter strong {
+  min-width: 20px;
+  font-size: 11px;
+  text-align: center;
+}
+.ts-counter .ts-icon {
+  min-width: 25px;
+  width: 25px;
+  height: 25px;
+  padding: 3px;
+}
+.ts-method-panel {
+  padding: 25px 5px;
+}
+.ts-method-panel h2 {
+  font-size: 22px;
+  font-weight: 500;
+  margin-top: 7px;
+}
+.ts-method-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 19px 0;
+}
+.ts-method-tabs button {
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #eaedde;
+  padding: 9px 12px;
+  border-radius: 50px;
+  color: #8b9874;
+  border: 1px solid transparent;
+}
+.ts-method-tabs button.active {
+  border-color: #9db57c;
+  background: #e2eccf;
+  color: #466139;
+}
+.ts-method-explanation {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: #7b8d62;
+  font-size: 12px;
+  line-height: 1.8;
+  padding: 0 0 20px;
+}
+.ts-method-explanation svg {
+  margin-top: 3px;
+}
+.ts-ask {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #dce3cf;
+  background: #fdfdf9;
+  padding: 4px 8px 4px 3px;
+  border-radius: 9px;
+}
+.ts-ask input {
+  flex: 1;
+  border: none !important;
+  background: none !important;
+  width: 100%;
+}
+.ts-ai-hint {
+  padding: 15px;
+  background: #eaf0dd;
+  border-radius: 9px;
+  font-size: 12px;
+  line-height: 1.85;
+  color: #63794c;
+  margin-top: 13px;
+}
+.ts-quote-sidebar {
+  position: sticky;
+  top: 25px;
+}
+.ts-quote-summary {
+  padding: 23px 25px;
+  background: #edf1e1;
+  border: 1px solid #dce5ca;
+  border-radius: 12px;
+}
+.ts-summary-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.ts-summary-heading > .ts-eyebrow {
+  font-size: 8px;
+  letter-spacing: 1.2px;
+}
+.ts-quote-number {
+  margin: 25px 0 23px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ts-quote-number > span {
+  font-size: 10px;
+  color: #84916f;
+}
+.ts-quote-number > strong {
+  font-family: "Manrope Variable";
+  font-size: 46px;
+  font-weight: 500;
+  letter-spacing: -2px;
+  color: #375632;
+  line-height: 1.2;
+}
+.ts-quote-number > strong > span {
+  display: inline-block;
+}
+.ts-cost-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  border-top: 1px solid #d9e2c7;
+  padding: 20px 0;
+  color: #80916b;
+  font-size: 10px;
+}
+.ts-cost-lines > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+.ts-cost-lines strong {
+  white-space: nowrap;
+  font-weight: 500;
+  color: #49613b;
+}
+.ts-cost-lines button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  font-size: 10px;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+}
+.ts-cost-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid #d9e2c7;
+  padding: 15px 0;
+  font-size: 11px;
+}
+.ts-cost-total strong {
+  font-family: "Manrope Variable";
+  font-size: 18px;
+  letter-spacing: -0.5px;
+  font-weight: 600;
+}
+.ts-fine {
+  font-size: 9px !important;
+  line-height: 1.8 !important;
+  color: #8b987b !important;
+  display: block;
+  font-weight: 400;
+}
+.ts-save-area {
+  border-top: 1px solid #d9e2c7;
+  padding-top: 21px;
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.ts-purchase-intro strong {
+  font-size: 13px;
+  font-weight: 500;
+}
+.ts-purchase-intro p {
+  font-size: 10px;
+  color: #8b987b;
+  margin: 7px 0 4px;
+}
+.ts-export-row {
+  display: flex;
+  gap: 9px;
+  width: 100%;
+}
+.ts-export-row > .ts-btn {
+  flex: 1;
+  min-height: 38px;
+  padding: 8px 10px;
+  font-size: 10px;
+}
+.ts-owned {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: #71914d;
+}
+.ts-handwritten {
+  font-family: Georgia, serif;
+  font-style: italic;
+  color: #a2ad87;
+  font-size: 20px;
+  line-height: 1.5;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  margin: 27px 0 16px;
+  transform: rotate(-5deg);
+}
+.ts-handwritten > span {
+  font-size: 40px;
+}
+.ts-sidebar-fine {
+  font-size: 9px;
+  line-height: 1.9;
+  color: #9ba58c;
+  max-width: 270px;
+  margin: auto;
+  text-align: center;
+}
+.ts-error {
+  font-size: 12px;
+  color: #9c503e;
+  border: 1px solid #e8cbbd;
+  background: #fbf0e8;
+  padding: 13px 16px;
+  border-radius: 8px;
+  line-height: 1.7;
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+}
+.ts-saved-notice {
+  font-size: 10px;
+  color: #76905c;
+  line-height: 1.8;
+  margin-top: 6px;
+}
+.ts-notice {
+  font-size: 11px;
+  color: #7e8e6a;
+  line-height: 1.8;
+  padding: 10px 0;
+}
+.ts-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #142b23a8;
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+}
+.ts-modal {
+  position: relative;
+  background: #fffefa;
+  width: 440px;
+  max-width: 100%;
+  border-radius: 18px;
+  padding: 35px;
+  max-height: calc(100dvh - 50px);
+  overflow: auto;
+  box-shadow: 0 20px 80px #12231944;
+}
+.ts-modal > .close {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+}
+.ts-modal h2 {
+  font-size: 28px;
+  font-weight: 500;
+  margin: 18px 0 12px;
+  line-height: 1.3;
+}
+.ts-modal > p {
+  font-size: 12px;
+  line-height: 1.8;
+  color: #87917e;
+}
+.ts-modal .ts-checkout-price {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 23px 0;
+}
+.ts-checkout-price strong {
+  font-size: 34px;
+  font-family: "Manrope Variable";
+  font-weight: 500;
+  letter-spacing: -1px;
+}
+.ts-checkout-price span {
+  font-size: 9px;
+  color: #87917e;
+}
+.ts-benefits {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 25px;
+}
+.ts-benefits li {
+  font-size: 11px;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  margin: 12px 0;
+  color: #71835d;
+}
+.ts-modal > .ts-fine {
+  margin-top: 14px;
+}
+.ts-creator {
+  padding-bottom: 50px;
+}
+.ts-creator-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  margin: 16px 0 35px;
+}
+.ts-creator-heading h1 {
+  font-size: 39px;
+  font-weight: 500;
+  margin: 12px 0;
+  line-height: 1.3;
+}
+.ts-creator-heading p {
+  font-size: 12px;
+  color: #89967b;
+  line-height: 1.8;
+}
+.ts-creator-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(270px, 1fr);
+  gap: 35px;
+  align-items: start;
+}
+.ts-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.ts-editor-section {
+  border: 1px solid #e0e5d5;
+  background: #fffefa;
+  border-radius: 11px;
+  overflow: hidden;
+}
+.ts-editor-section.open {
+  border-color: #cbd9b6;
+}
+.ts-editor-toggle {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 21px 23px;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+.ts-editor-toggle > span:nth-child(2) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ts-editor-toggle strong {
+  font-size: 16px;
+  font-family: "Manrope Variable";
+  font-weight: 500;
+  letter-spacing: -0.4px;
+}
+.ts-editor-toggle small {
+  font-size: 10px;
+  color: #93a080;
+  font-weight: 400;
+}
+.ts-editor-toggle > svg {
+  margin-left: auto;
+  color: #97a67f;
+  transition: transform 0.2s;
+}
+.ts-editor-section.open .ts-editor-toggle > svg {
+  transform: rotate(180deg);
+}
+.ts-editor-body {
+  padding: 0 24px 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+.ts-editor-body .ts-field-row {
+  margin: 0;
+}
+.ts-editor-body > .ts-btn {
+  align-self: flex-start;
+}
+.ts-supported {
+  padding: 13px 15px;
+  background: #f1f5e8;
+  border-radius: 8px;
+}
+.ts-supported p {
+  font-size: 10px;
+  color: #8b9b73;
+  line-height: 1.8;
+  margin-top: 7px;
+}
+.ts-formula {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 15px;
+  background: #edf2e2;
+  border-radius: 8px;
+  font-size: 11px;
+  color: #7c9261;
+  line-height: 1.9;
+}
+.ts-formula > svg {
+  margin-top: 4px;
+}
+.ts-formula strong {
+  font-weight: 600;
+  color: #5c7946;
+}
+.ts-creator-preview {
+  position: sticky;
+  top: 25px;
+}
+.ts-preview-label {
+  font-size: 8px;
+  font-weight: 600;
+  color: #879b6a;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+.ts-preview-label > .ts-live-dot {
+  margin-left: 0;
+}
+.ts-preview-label > span:last-child {
+  margin-left: auto;
+  font-size: 8px;
+  letter-spacing: 0;
+  font-weight: 400;
+  color: #9ba68b;
+}
+.ts-mini-tool {
+  padding: 27px;
+  border: 1px solid #dae5c7;
+  border-radius: 12px;
+  background: #edf2e2;
+}
+.ts-mini-tool h2 {
+  font-size: 26px;
+  line-height: 1.4;
+  font-weight: 500;
+  margin: 20px 0 12px;
+}
+.ts-mini-tool > p {
+  font-size: 11px;
+  color: #899c74;
+  line-height: 1.8;
+}
+.ts-mini-author {
+  display: block;
+  font-size: 10px;
+  margin: 14px 0 23px;
+  color: #728e56;
+}
+.ts-mini-total {
+  padding: 22px 0;
+  border-top: 1px solid #d9e4c8;
+  border-bottom: 1px solid #d9e4c8;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.ts-mini-total > span {
+  font-size: 10px;
+  color: #8e9f79;
+}
+.ts-mini-total strong {
+  font-size: 40px;
+  letter-spacing: -2px;
+  font-family: "Manrope Variable";
+  font-weight: 500;
+  display: inline-flex;
+  color: #456b39;
+}
+.ts-preview-method {
+  display: flex;
+  gap: 10px;
+  font-size: 10px;
+  color: #899e70;
+  line-height: 1.8;
+  border-top: 1px solid #d9e4c8;
+  padding-top: 17px;
+  margin-top: 21px;
+}
+.ts-preview-method svg {
+  margin-top: 3px;
+}
+.ts-creator-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin: 30px 0;
+  color: #9da985;
+  transform: rotate(-6deg);
+}
+.ts-creator-note > span {
+  font-size: 45px;
+}
+.ts-creator-note > p {
+  font:
+    italic 20px/1.6 Georgia,
+    serif;
+}
+.ts-creator-preview > .ts-fine {
+  max-width: 270px;
+  text-align: center;
+  margin: auto;
+}
+.ts-example-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+.ts-example-toolbar .ts-text-btn {
+  font-size: 10px;
+}
+.ts-example {
+  border: 1px solid #e4e9d9;
+  border-radius: 9px;
+  padding: 16px;
+  background: #fafbf5;
+}
+.ts-example-heading {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.ts-example-heading .ts-field {
+  flex: 1;
+}
+.ts-example-heading input {
+  font-size: 11px !important;
+  padding: 8px !important;
+}
+.ts-example-heading .ts-icon {
+  align-self: flex-end;
+  margin-bottom: 3px;
+}
+.ts-example-fields {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
+}
+.ts-example-fields input {
+  width: 100%;
+  padding: 8px !important;
+  font-size: 10px !important;
+  background: #fffefa !important;
+}
+.ts-example-fields .ts-field > span {
+  font-size: 8px;
+  white-space: nowrap;
+}
+.ts-example-result {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  font-size: 10px;
+  line-height: 1.7;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #e0e6d3;
+}
+.ts-example-result.passed {
+  color: #719551;
+}
+.ts-example-result.failed {
+  color: #ab715c;
+}
+.ts-publish-bar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  justify-content: space-between;
+  padding: 18px 0 8px;
+}
+.ts-publish-bar strong {
+  font-size: 12px;
+  font-weight: 500;
+}
+.ts-publish-bar p {
+  font-size: 10px;
+  color: #91a07b;
+  line-height: 1.8;
+  margin-top: 7px;
+}
+.ts-publish-bar .ts-btn {
+  white-space: nowrap;
+  padding: 13px 17px;
+}
+.ts-workspace {
+  padding: 65px 0;
+  min-height: calc(100dvh - 230px);
+}
+.ts-workspace-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 25px;
+  margin: 13px 0 34px;
+}
+.ts-workspace-heading h1 {
+  font-size: 42px;
+  font-weight: 500;
+}
+.ts-workspace-heading p {
+  font-size: 12px;
+  color: #8b9b76;
+  line-height: 1.8;
+  margin-top: 12px;
+}
+.ts-workspace-tabs {
+  display: flex;
+  gap: 26px;
+  border-bottom: 1px solid #dfe5d4;
+  margin-bottom: 30px;
+}
+.ts-workspace-tabs > button {
+  display: flex;
+  gap: 9px;
+  background: none;
+  padding: 14px 0;
+  font-size: 12px;
+  color: #9aa988;
+  border-bottom: 2px solid transparent;
+}
+.ts-workspace-tabs > button.active {
+  border-color: #4f7143;
+  color: #48653d;
+}
+.ts-workspace-tabs > button > span {
+  font-size: 8px;
+  border-radius: 50px;
+  padding: 3px 6px;
+  background: #e8eedb;
+  color: #81996b;
+}
+.ts-empty {
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 35px;
+  background: #f0f3e7;
+  border: 1px dashed #d9e2c8;
+  border-radius: 12px;
+}
+.ts-empty > span {
+  color: #96ad77;
+  margin-bottom: 20px;
+}
+.ts-empty h2 {
+  font-size: 26px;
+  font-weight: 500;
+}
+.ts-empty p {
+  font-size: 12px;
+  color: #92a27c;
+  line-height: 1.8;
+  max-width: 330px;
+  margin: 15px 0 22px;
+}
+.ts-workspace-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ts-project-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: #fffefa;
+  border: 1px solid #dfe6d2;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: left;
+  width: 100%;
+  min-width: 0;
+}
+.ts-project-row:hover {
+  border-color: #adbf94;
+}
+.ts-project-icon {
+  width: 45px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8f0da;
+  color: #82a160;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.ts-project-title {
+  flex: 1;
+  background: none;
+  text-align: left;
+  padding: 0;
+  min-width: 0;
+}
+.ts-project-title h3 {
+  font-size: 16px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.ts-project-title p {
+  font-size: 10px;
+  color: #9aab83;
+  line-height: 1.8;
+  margin-top: 6px;
+}
+.ts-project-row > strong {
+  font-size: 17px;
+  font-family: "Manrope Variable";
+  letter-spacing: -0.4px;
+  font-weight: 500;
+}
+.ts-workspace-footnote {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  font-size: 9px;
+  color: #a0ad8c;
+  margin-top: 25px;
+  line-height: 1.8;
+}
+.ts-sr {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+@media (min-width: 1500px) {
+  .ts-app {
+    max-width: 1400px;
+    padding: 0 80px;
+  }
+  .ts-hero {
+    gap: 110px;
+  }
+  .ts-hero-art {
+    max-width: 490px;
+  }
+}
+@media (max-width: 1100px) {
+  .ts-app {
+    padding: 0 35px;
+  }
+  .ts-hero {
+    gap: 40px;
+  }
+  .ts-hero h1 {
+    font-size: 52px;
+  }
+  .ts-hero-art {
+    padding-left: 0;
+  }
+  .ts-builder-layout,
+  .ts-creator-layout {
+    gap: 22px;
+    grid-template-columns: minmax(0, 1.5fr) minmax(265px, 1fr);
+  }
+  .ts-panel {
+    padding: 21px;
+  }
+  .ts-builder-heading h1,
+  .ts-creator-heading h1 {
+    font-size: 33px;
+  }
+  .ts-quote-summary {
+    padding: 21px;
+  }
+  .ts-quote-number > strong {
+    font-size: 39px;
+  }
+  .ts-builder-tag {
+    display: none;
+  }
+  .ts-brief-actions {
+    align-items: flex-start;
+  }
+  .ts-example-fields {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .ts-editor-body {
+    padding: 0 20px 23px;
+  }
+  .ts-hero-proof {
+    margin-top: 23px;
+  }
+  .ts-demo-total strong {
+    font-size: 29px;
+  }
+}
+@media (max-width: 800px) {
+  .ts-app {
+    padding: 0 24px;
+  }
+  .ts-header {
+    height: 82px;
+    gap: 15px;
+  }
+  .ts-header nav {
+    gap: 18px;
+    margin: 0 0 0 auto;
+  }
+  .ts-header nav button {
+    font-size: 11px;
+  }
+  .ts-header .header-create {
+    font-size: 10px;
+    min-height: 36px;
+    padding: 9px 13px;
+  }
+  .ts-brand {
+    font-size: 23px;
+  }
+  .ts-hero {
+    gap: 32px;
+    padding: 60px 0;
+    min-height: 0;
+  }
+  .ts-hero h1 {
+    font-size: 43px;
+  }
+  .ts-hero-copy > p {
+    font-size: 12px;
+  }
+  .ts-hero .ts-eyebrow {
+    font-size: 7px;
+    letter-spacing: 1.3px;
+  }
+  .ts-demo-card {
+    padding: 19px;
+  }
+  .ts-demo-card h3 {
+    font-size: 22px;
+  }
+  .ts-demo-top {
+    font-size: 6px;
+    gap: 8px;
+  }
+  .ts-demo-top small {
+    font-size: 8px;
+  }
+  .ts-square-icon {
+    width: 32px;
+    height: 34px;
+  }
+  .ts-demo-total {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  .ts-demo-total strong {
+    font-size: 30px;
+  }
+  .ts-paper-note {
+    font-size: 10px;
+    padding: 12px;
+    right: -7px;
+  }
+  .ts-floating-tag {
+    font-size: 12px;
+    right: -5px;
+  }
+  .ts-hero-actions > .ts-btn {
+    font-size: 11px;
+    padding: 12px 15px;
+  }
+  .ts-tool-card-content {
+    padding: 20px;
+  }
+  .ts-tool-card h3 {
+    font-size: 20px;
+  }
+  .ts-tool-meta {
+    font-size: 9px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .ts-art-lines {
+    left: 25px;
+    width: 105px;
+  }
+  .ts-art-symbol {
+    left: 42%;
+    font-size: 130px;
+    top: 18px;
+  }
+  .ts-art-mini {
+    right: 20px;
+    bottom: 24px;
+    font-size: 11px;
+  }
+  .ts-create-card h3 {
+    font-size: 23px;
+  }
+  .ts-how {
+    gap: 20px;
+  }
+  .ts-how h3 {
+    font-size: 13px;
+  }
+  .ts-how p {
+    font-size: 11px;
+    margin-left: 0;
+  }
+  .ts-footer {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  .ts-footer > span {
+    font-size: 9px;
+  }
+  .ts-footer > div {
+    font-size: 8px;
+  }
+  .ts-footer a {
+    margin-left: 8px;
+  }
+  .ts-builder-layout,
+  .ts-creator-layout {
+    grid-template-columns: 1fr;
+  }
+  .ts-builder-heading h1,
+  .ts-creator-heading h1 {
+    font-size: 33px;
+  }
+  .ts-quote-sidebar {
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 20px;
+  }
+  .ts-quote-summary {
+    grid-row: span 2;
+  }
+  .ts-handwritten {
+    margin-top: 40px;
+  }
+  .ts-sidebar-fine {
+    margin: 0 auto;
+  }
+  .ts-creator-preview {
+    position: static;
+    max-width: 430px;
+    margin: auto;
+    width: 100%;
+  }
+  .ts-creator-layout {
+    gap: 35px;
+  }
+  .ts-creator-heading {
+    align-items: flex-start;
+  }
+  .ts-creator-heading > .ts-btn {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .ts-method-panel {
+    padding-bottom: 5px;
+  }
+  .ts-project-row {
+    padding: 15px;
+    gap: 12px;
+  }
+  .ts-project-row > strong {
+    font-size: 14px;
+  }
+  .ts-workspace-heading h1 {
+    font-size: 35px;
+  }
+}
+@media (max-width: 560px) {
+  .ts-app {
+    padding: 0 20px;
+  }
+  .ts-header {
+    height: 78px;
+    gap: 10px;
+    flex-wrap: wrap;
+    position: relative;
+    padding-bottom: 0;
+  }
+  .ts-header nav {
+    gap: 17px;
+    margin-left: auto;
+  }
+  .ts-header nav button {
+    font-size: 10px;
+    padding: 10px 0;
+  }
+  .ts-header .header-create {
+    display: none;
+  }
+  .ts-brand {
+    font-size: 24px;
+  }
+  .ts-hero {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 46px 0 50px;
+  }
+  .ts-hero h1 {
+    font-size: 53px;
+    letter-spacing: -2.8px;
+  }
+  .ts-hero-copy > p {
+    font-size: 13px;
+    max-width: 340px;
+    margin: 24px 0;
+  }
+  .ts-hero .ts-eyebrow {
+    font-size: 8px;
+  }
+  .ts-hero-actions {
+    gap: 9px;
+  }
+  .ts-hero-actions > .ts-btn {
+    font-size: 12px;
+  }
+  .ts-hero-proof {
+    display: none;
+  }
+  .ts-hero-art {
+    width: 100%;
+    max-width: 360px;
+    margin: 10px auto 0;
+    padding: 25px 8px 20px;
+  }
+  .ts-demo-card {
+    padding: 22px;
+  }
+  .ts-demo-top {
+    font-size: 7px;
+  }
+  .ts-demo-top small {
+    font-size: 9px;
+  }
+  .ts-demo-card h3 {
+    font-size: 23px;
+    margin: 22px 0 18px;
+  }
+  .ts-demo-total {
+    flex-direction: row;
+    align-items: center;
+  }
+  .ts-demo-total strong {
+    font-size: 31px;
+  }
+  .ts-paper-note {
+    right: 0;
+    top: 0;
+  }
+  .ts-floating-tag {
+    bottom: -12px;
+    right: 5px;
+  }
+  .ts-loop {
+    bottom: -24px;
+    left: 20px;
+    width: 90px;
+  }
+  .ts-catalog {
+    padding: 35px 0;
+  }
+  .ts-section-top {
+    gap: 10px;
+    margin-bottom: 23px;
+  }
+  .ts-section-top h2 {
+    font-size: 27px;
+  }
+  .ts-section-top .ts-eyebrow {
+    font-size: 7px;
+    letter-spacing: 1.25px;
+  }
+  .ts-section-aside {
+    display: none;
+  }
+  .ts-tool-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .ts-tool-art {
+    height: 165px;
+  }
+  .ts-tool-card-content {
+    padding: 22px;
+  }
+  .ts-tool-meta {
+    flex-direction: row;
+    align-items: center;
+    font-size: 9px;
+    padding-right: 30px;
+  }
+  .ts-tool-card h3 {
+    font-size: 22px;
+  }
+  .ts-create-card {
+    min-height: 280px;
+  }
+  .ts-create-doodle {
+    font-size: 50px;
+    margin-bottom: 13px;
+  }
+  .ts-create-card h3 {
+    font-size: 24px;
+  }
+  .ts-how {
+    grid-template-columns: 1fr;
+    gap: 25px;
+    padding: 20px 0 30px;
+  }
+  .ts-how > .ts-eyebrow {
+    font-size: 8px;
+  }
+  .ts-how h3 {
+    font-size: 16px;
+  }
+  .ts-how p {
+    margin: 8px 0 0 29px;
+    max-width: 270px;
+    font-size: 12px;
+  }
+  .ts-footer {
+    padding: 25px 0;
+    gap: 14px;
+  }
+  .ts-footer > .ts-brand {
+    font-size: 19px;
+  }
+  .ts-footer > span {
+    font-size: 9px;
+    margin-left: auto;
+  }
+  .ts-footer > div {
+    width: 100%;
+    margin-left: 0;
+    justify-content: center;
+    font-size: 9px;
+  }
+  .ts-breadcrumb {
+    padding: 23px 0;
+    font-size: 9px;
+    gap: 8px;
+  }
+  .ts-breadcrumb button {
+    font-size: 9px;
+  }
+  .ts-builder-heading {
+    margin: 10px 0 26px;
+  }
+  .ts-builder-heading h1 {
+    font-size: 32px;
+    line-height: 1.25;
+    max-width: 320px;
+  }
+  .ts-builder-heading .ts-eyebrow {
+    font-size: 7px;
+    letter-spacing: 1.35px;
+  }
+  .ts-builder-heading > div > p {
+    font-size: 12px;
+  }
+  .ts-author {
+    font-size: 9px;
+    gap: 7px;
+  }
+  .ts-author > span:last-child {
+    font-size: 8px;
+  }
+  .ts-builder-layout {
+    gap: 23px;
+    padding-bottom: 15px;
+  }
+  .ts-panel {
+    padding: 19px 16px;
+  }
+  .ts-panel-heading {
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .ts-panel-heading h2 {
+    font-size: 17px;
+  }
+  .ts-panel-heading .ts-small-pill {
+    font-size: 7px;
+    padding: 4px 6px;
+  }
+  .ts-brief-actions {
+    gap: 14px;
+  }
+  .ts-brief-actions > .ts-btn {
+    width: 100%;
+    font-size: 11px;
+  }
+  .ts-chip {
+    font-size: 9px;
+  }
+  .ts-field-row {
+    gap: 11px;
+  }
+  .ts-field-row .grow {
+    flex: 1;
+  }
+  .ts-app input:not([type="range"]) {
+    font-size: 11px;
+    padding: 10px;
+  }
+  .ts-table-heading .ts-why {
+    font-size: 8px;
+  }
+  .ts-table-heading > span:last-child {
+    margin-left: 0;
+    margin-right: 35px;
+  }
+  .ts-deliverable {
+    grid-template-columns: 15px 1fr 48px 22px;
+    gap: 5px;
+  }
+  .ts-deliverable input {
+    font-size: 10px !important;
+  }
+  .ts-revision-control > div {
+    gap: 8px;
+  }
+  .ts-revision-control .ts-why {
+    font-size: 8px;
+  }
+  .ts-counter {
+    gap: 1px;
+  }
+  .ts-counter .ts-icon {
+    min-width: 22px;
+    width: 22px;
+  }
+  .ts-quote-sidebar {
+    display: block;
+    position: static;
+  }
+  .ts-quote-summary {
+    padding: 24px;
+  }
+  .ts-quote-number > strong {
+    font-size: 47px;
+  }
+  .ts-handwritten {
+    margin: 27px 0 15px;
+  }
+  .ts-sidebar-fine {
+    max-width: 280px;
+  }
+  .ts-method-panel {
+    padding: 12px 0;
+  }
+  .ts-method-panel h2 {
+    font-size: 23px;
+  }
+  .ts-method-tabs {
+    gap: 5px;
+  }
+  .ts-method-tabs button {
+    font-size: 9px;
+    padding: 8px 10px;
+    gap: 6px;
+  }
+  .ts-ask input {
+    font-size: 10px !important;
+  }
+  .ts-creator-heading {
+    flex-wrap: wrap;
+    margin-top: 8px;
+    gap: 18px;
+  }
+  .ts-creator-heading h1 {
+    font-size: 34px;
+  }
+  .ts-creator-heading p {
+    font-size: 12px;
+  }
+  .ts-editor-toggle {
+    padding: 19px 16px;
+    gap: 10px;
+  }
+  .ts-editor-toggle strong {
+    font-size: 16px;
+  }
+  .ts-editor-toggle small {
+    font-size: 9px;
+    line-height: 1.7;
+  }
+  .ts-editor-body {
+    padding: 0 17px 22px;
+  }
+  .ts-editor-body > .ts-btn {
+    width: 100%;
+    font-size: 11px;
+  }
+  .ts-example {
+    padding: 13px;
+  }
+  .ts-example-fields {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .ts-example-fields .ts-field > span {
+    font-size: 8px;
+  }
+  .ts-example-toolbar .ts-text-btn {
+    font-size: 9px;
+  }
+  .ts-publish-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  .ts-publish-bar > .ts-btn {
+    width: 100%;
+  }
+  .ts-creator-preview {
+    max-width: 100%;
+  }
+  .ts-workspace {
+    padding-top: 42px;
+  }
+  .ts-workspace-heading {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .ts-workspace-heading h1 {
+    font-size: 34px;
+  }
+  .ts-workspace-tabs {
+    gap: 20px;
+  }
+  .ts-workspace-tabs > button {
+    font-size: 11px;
+    gap: 6px;
+  }
+  .ts-empty {
+    padding: 30px 22px;
+  }
+  .ts-empty h2 {
+    font-size: 24px;
+  }
+  .ts-project-row {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .ts-project-title {
+    flex-basis: 65%;
+  }
+  .ts-project-title h3 {
+    font-size: 15px;
+  }
+  .ts-project-row > strong {
+    margin-left: 57px;
+  }
+  .ts-project-row > .ts-owned {
+    margin-left: 57px;
+  }
+  .ts-project-row > .ts-icon {
+    margin-left: auto;
+  }
+  .ts-project-row > .ts-small-pill {
+    margin-left: 57px;
+  }
+  .ts-modal {
+    padding: 28px 23px;
+  }
+  .ts-modal h2 {
+    font-size: 27px;
+  }
+  .ts-checkout-price {
+    flex-wrap: wrap;
+    gap: 8px !important;
+  }
+  .ts-modal-backdrop {
+    padding: 18px;
+  }
+  .ts-modal .ts-fine {
+    font-size: 9px !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ts-app * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
+@media print {
+  .ts-app .ts-header,
+  .ts-app .ts-footer {
+    display: none;
+  }
+}
+@media (min-width: 1101px) {
+  .ts-hero h1 {
+    font-size: clamp(44px, 4.6vw, 62px);
+  }
+}
