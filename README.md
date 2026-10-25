@@ -20,7 +20,7 @@ For a fresh setup, copy `.env.example` to `.env` and fill only the relevant serv
 ## Try the buyer experience
 
 1. Open **Explore solutions**. Describe an image-renaming or booking problem, or choose a category. Fixture interpretation is deterministic and visibly labelled. Unsupported problems do not receive invented tools.
-2. Select **Pattern Rename** and **Map Rename**, then **Run same sample**. The same three actual PNG files run through both handlers. Compare resulting filenames and folder preservation; download the ZIP and mapping CSV. Hash and count checks come from the actual files.
+2. Choose **Image renaming** and select **Pattern Rename**, **Map Rename**, or a checked compatible provider, then **Run same sample**. The same three actual PNG files run through both handlers. Compare resulting filenames and folder preservation; download the ZIP and mapping CSV. Hash and count checks come from the actual files.
 3. Open an application. Upload your own JPEG/PNG files, change the filename pattern and order, or import a mapping CSV. Map Rename also accepts an image folder. The preview permits three images. Source and output image bytes are unchanged; image content is not sent to Gemini.
 4. Create a TaskSlice account before purchasing or saving. It is separate from PayPal. Passwords are hashed with scrypt; your purchases and builder records follow your account across sign-ins.
 5. **Get this application** opens PayPal sandbox checkout. Reference products cost $5, $7 and $9 USD respectively. The server controls price and verifies canonical payment amount, currency and recipient. This buys hosted access, not source ownership. Access lasts 30 days from the first access check after verified capture, without automatic renewal.
@@ -43,11 +43,11 @@ The account cookie is shared across ports on the same hostname, so sign in again
 
 ## Connect a provider
 
-Open **For builders** and follow six steps: register your website, connect server access, run the reference server, test integration, preview and publish locally. Read the complete implemented protocol in [public/provider-guide.md](public/provider-guide.md). The runnable provider is `examples/provider-reference.mjs`.
+Open **For builders** and follow six steps: register your website, connect server access, run the reference server, test integration, preview and publish your listing. Read the complete implemented protocol in [public/provider-guide.md](public/provider-guide.md). The minimal access example is `examples/provider-reference.mjs`. A complete separate image-delivery website is now available in `examples/batchstudio/`: start it with `npm run start:batchstudio`, then follow [the BatchStudio Render guide](docs/BATCHSTUDIO_RENDER_GUIDE.md) to deploy a second service and import its manifest.
 
 Provider credentials are issued once, stored only as hashes by TaskSlice, and belong on the provider server. The protocol uses short-lived one-use launch codes, server-to-server exchange, and current entitlement checks on every protected operation. Integration checks call the running reference app; they are not simulated green checkmarks. A changed manifest invalidates the previous check and is retained as a new version.
 
-Independent HTTPS URLs can publish previews and receive private adaptation requests. **Independent paid checkout is disabled until seller onboarding and correct payee routing exist.** The single configured sandbox seller operates the three reference apps only. External contract tests are restricted to the configured local reference origin; arbitrary submitted URLs are not fetched. A URL alone cannot protect a paid application.
+Independent HTTPS URLs can publish previews and receive private adaptation requests. **Independent paid checkout is disabled until seller onboarding and correct payee routing exist.** The single configured sandbox seller operates the reference apps and, optionally, one explicitly configured same-operator BatchStudio demonstration ($6 / 30 days). The provider must belong to `TASKSLICE_REFERENCE_OWNER_ACCOUNT_ID`, match `TASKSLICE_DEMO_PROVIDER_ID`, and pass connection checks before checkout is offered. Contract tests and shared samples contact only exact origins approved through `PROVIDER_ALLOWED_ORIGINS` (HTTPS in production); arbitrary submitted URLs are not fetched. A URL alone cannot protect a paid application.
 
 The uppercase reference server demonstrates access integration only. It is not the proposed product catalogue or a requirement to build basic tools.
 
@@ -113,3 +113,11 @@ The homepage example now opens a prefilled Pattern Rename sample. A bundled samp
 Reference-app requests now have an owner inbox. Set `TASKSLICE_REFERENCE_OWNER_ACCOUNT_ID` in Render to the existing TaskSlice account ID shown in that account's builder inbox setup section. Without configuration, requests explicitly await owner setup. No signup automatically becomes the reference-app owner.
 
 See [docs/REQUEST_FLOW_GUIDE.md](docs/REQUEST_FLOW_GUIDE.md) for the walkthrough and Render setup. The updated suite passes 41 offline tests; this change made zero live Gemini calls.
+
+## Comparison contracts and request walkthrough
+
+Compatible providers join comparisons from their versioned sample contract, declared formats, and current check report. The initial contracts cover image renaming and booking capacity; they are deliberately separate. See [the provider sample protocol](docs/PROVIDER_SAMPLE_CONTRACT.md). Provider failures appear as failures without hiding successful tools. Only bundled sample files are forwarded to external providers.
+
+The builder page includes a five-stage practice flow: Try → Request → Builder reviews → Reply → Buyer checks. **Reproduce current result** repeats existing behaviour. A feature request or reply does not automatically implement a new feature.
+
+Deploying the separate BatchStudio preview does not require AI or payment keys. Follow [the Render setup and testing guide](docs/BATCHSTUDIO_RENDER_GUIDE.md); full persistent accounts/purchases require durable storage on the main service. Free Render local files are ephemeral.

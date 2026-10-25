@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>BatchStudio — a little order, delivered.</title>
+    <meta
+      name="description"
+      content="Prepare a neatly named photo delivery. A working, separately hosted TaskSlice provider demo."
+    />
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/">▥ BatchStudio<span>DEMO</span></a
+      ><a id="market-link" href="#">Find us on TaskSlice ↗</a>
+    </header>
+    <main>
+      <div class="intro">
+        <span class="eyebrow">PHOTO DELIVERY, WITHOUT THE FILE CHAOS</span>
+        <h1>A little order.<br /><em>Ready to deliver.</em></h1>
+        <p>
+          Rename your images, keep their folders, and take a neatly packed ZIP
+          with you. Image contents stay unchanged.
+        </p>
+        <div class="status" id="access" role="status">
+          Checking your TaskSlice connection…
+        </div>
+      </div>
+      <section class="workspace">
+        <div class="step">
+          <span>01</span>
+          <h2>Bring a small batch.</h2>
+        </div>
+        <div class="upload">
+          <strong id="file-description"
+            >Three supplied PNGs. Zero setup.</strong
+          >
+          <p>
+            Try the example or choose JPEG/PNG files. Free preview: 3 images.
+            Active TaskSlice access: up to 100 per run, 2 MB each and 12 MB
+            total.
+          </p>
+          <label class="button secondary"
+            >Choose images<input
+              id="files"
+              type="file"
+              accept="image/png,image/jpeg"
+              multiple /></label
+          ><label class="button secondary"
+            >Choose image folder<input
+              id="folder"
+              type="file"
+              accept="image/png,image/jpeg"
+              multiple
+              webkitdirectory /></label
+          ><button class="text" id="sample">Use supplied sample</button>
+        </div>
+        <div class="step">
+          <span>02</span>
+          <h2>Make the names yours.</h2>
+        </div>
+        <div class="fields">
+          <label
+            >Project label<input
+              id="label"
+              value="Wedding"
+              maxlength="60" /></label
+          ><label
+            >Date in filenames<input id="date" type="date" value="2026-10-25"
+          /></label>
+        </div>
+        <label
+          >Filename pattern<input
+            id="pattern"
+            value="{label}_{date}_{seq}"
+            maxlength="100"
+          /><small
+            >Use {label}, {date} and the required {seq}. The image extension
+            stays unchanged.</small
+          ></label
+        ><label class="check"
+          ><input id="folders" type="checkbox" checked />Keep the original
+          folders</label
+        >
+        <details>
+          <summary>Optional mapping CSV</summary>
+          <label
+            >oldName,newName<textarea
+              id="mapping"
+              maxlength="30000"
+              placeholder="oldName,newName&#10;camera/IMG_1042.png,selected/hero.png"
+            ></textarea>
+          </label>
+        </details>
+        <div class="actions">
+          <button class="button" id="run">Run sample →</button
+          ><span>Actual output. No AI required.</span>
+        </div>
+        <p id="error" class="error" role="alert" hidden></p>
+        <div id="result" hidden role="status">
+          <div class="step">
+            <span>03</span>
+            <h2>Your delivery is ready.</h2>
+          </div>
+          <div id="rows"></div>
+          <p id="checks"></p>
+          <a class="button" id="download" href="#"
+            >Download image ZIP + mapping CSV ↓</a
+          >
+        </div>
+      </section>
+      <aside class="connection">
+        <span class="eyebrow">A REAL APPLICATION, CONNECTED TO TASKSLICE</span>
+        <h2>Try it here. Unlock larger batches through TaskSlice.</h2>
+        <p>
+          This website runs separately from the marketplace. Larger batches and
+          their downloads are checked against current TaskSlice access on the
+          server. Free previews remain available.
+        </p>
+        <a id="launch-link" class="button secondary" href="#"
+          >Open TaskSlice listing ↗</a
+        >
+        <details>
+          <summary>Provider integration example</summary>
+          <p>
+            The application manifest below can be registered in TaskSlice’s
+            builder workspace. The provider credential belongs only in this
+            service’s server environment.
+          </p>
+          <button class="text" id="copy-manifest">
+            Copy application manifest
+          </button>
+          <pre id="manifest"></pre>
+        </details>
+      </aside>
+    </main>
+    <footer>
+      BatchStudio is a TaskSlice-operated sandbox demonstration. Independent
+      seller payouts are not enabled. Generated files expire after 24 hours and
+      downloads belong to this browser session.
+    </footer>
+  </body>
+</html>

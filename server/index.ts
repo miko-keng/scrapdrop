@@ -374,6 +374,10 @@ registerMarket(app, db, {
         tool.price,
         JSON.stringify({
           title: tool.title,
+          provider: tool.provider,
+          productId: tool.id,
+          operatorOwned: !!tool.operatorOwned,
+          currency: "USD",
           version: tool.version,
           days: tool.days,
           package: "30 days from first activation",

@@ -12,5 +12,11 @@
     "noEmit": true,
     "types": ["node", "vite/client"]
   },
-  "include": ["src", "server", "tests", "vite.config.ts"]
+  "include": [
+    "src",
+    "server",
+    "tests",
+    "vite.config.ts",
+    "examples/batchstudio/server.ts"
+  ]
 }

@@ -1,3 +1,4 @@
+import type { SampleContract } from "./contracts";
 export type Family = "batch-file-renaming" | "booking-pages" | "custom";
 export type MarketTool = {
   id: string;
@@ -21,6 +22,10 @@ export type MarketTool = {
   owned?: boolean;
   expires?: number;
   state?: string;
+  sampleContract?: SampleContract | null;
+  sampleReady?: boolean;
+  purchasable?: boolean;
+  operatorOwned?: boolean;
 };
 export const tools: MarketTool[] = [
   {
@@ -47,6 +52,8 @@ export const tools: MarketTool[] = [
     reference: true,
     available: true,
     version: 1,
+    sampleReady: true,
+    sampleContract: "image-rename-v1",
   },
   {
     id: "map-rename",
@@ -74,6 +81,8 @@ export const tools: MarketTool[] = [
     reference: true,
     available: true,
     version: 1,
+    sampleReady: true,
+    sampleContract: "image-rename-v1",
   },
   {
     id: "booking-board",
@@ -100,6 +109,8 @@ export const tools: MarketTool[] = [
     reference: true,
     available: true,
     version: 1,
+    sampleReady: true,
+    sampleContract: "booking-capacity-v1",
   },
 ];
 export const money = (cents: number) =>

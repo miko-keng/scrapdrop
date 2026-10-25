@@ -1,0 +1,21 @@
+# Deploy this custom Blueprint separately from the existing TaskSlice service.
+# Or create a Node Web Service manually with these settings.
+services:
+  - type: web
+    name: taskslice-batchstudio-demo
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev
+    startCommand: npm run start:batchstudio
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: TASKSLICE_URL
+        value: https://taskslice.onrender.com
+      - key: BATCHSTUDIO_DB_PATH
+        value: /tmp/batchstudio.sqlite

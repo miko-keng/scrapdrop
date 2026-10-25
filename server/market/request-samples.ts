@@ -9,6 +9,8 @@ export function snapshotSample(job: any) {
     );
   return {
     source: "bundled-images",
+    toolTitle: job.toolTitle,
+    sampleContract: job.sampleContract,
     toolId: job.toolId,
     version: job.version,
     options: job.sampleInput.options,

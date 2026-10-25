@@ -35,6 +35,11 @@ import {
 } from "lucide-react";
 import { api, getConfig, send, setCSRF } from "./api";
 import type { Config } from "./shared/types";
+import {
+  comparisonKey,
+  sampleContracts,
+  type SampleContract,
+} from "./market/contracts";
 import { money, type MarketTool, type Family } from "./market/model";
 import "./market/style.css";
 import { GuidedExample, SampleAttachment } from "./market/RequestFlow";
@@ -63,6 +68,11 @@ function Brand() {
       taskslice<span>.</span>
     </span>
   );
+}
+async function launchApplication(tool: MarketTool, nav: (url: string) => void) {
+  const launch = await send(`/market/tools/${tool.id}/launch`, {});
+  if (launch.url.startsWith("/")) nav(launch.url);
+  else location.assign(launch.url);
 }
 const Spin = () => <LoaderCircle size={17} className="spin" />;
 function ErrorBox({ text }: { text: string }) {
@@ -411,7 +421,8 @@ function Explore({
     [compare, setCompare] = useState<string[]>([]),
     [result, setResult] = useState<any[]>([]),
     [mapping, setMapping] = useState(""),
-    [showMapping, setShowMapping] = useState(false);
+    [showMapping, setShowMapping] = useState(false),
+    [comparison, setComparison] = useState<SampleContract>("image-rename-v1");
   useEffect(() => {
     api<MarketTool[]>("/market/tools")
       .then(setCatalog)
@@ -457,19 +468,25 @@ function Explore({
   const visible = (matches || catalog).filter(
     (t) => family === "all" || t.family === family,
   );
+  const comparable = catalog.filter((t) => comparisonKey(t));
+  const groups = [...new Set(comparable.map((t) => t.sampleContract!))];
+  const activeContract = groups.includes(comparison) ? comparison : groups[0];
   function select(t: MarketTool) {
-    if (t.family !== "batch-file-renaming" || !t.reference) {
+    const key = comparisonKey(t);
+    if (!key) {
       nav(`/tools/${t.id}`);
       return;
     }
     setResult([]);
-    setCompare((old) =>
-      old.includes(t.id)
-        ? old.filter((x) => x !== t.id)
-        : old.length < 2
-          ? [...old, t.id]
-          : [old[1], t.id],
-    );
+    if (key !== activeContract) {
+      setComparison(key);
+      setCompare([t.id]);
+    } else
+      setCompare((old) =>
+        old.includes(t.id)
+          ? old.filter((id) => id !== t.id)
+          : [...old.slice(-2), t.id],
+      );
   }
   return (
     <>
@@ -625,7 +642,9 @@ function Explore({
             <span className="mk-kicker">SAME TASK. DIFFERENT APPROACHES.</span>
             <h2>Put the fit to the test.</h2>
             <p>
-              Compare the two rename tools with the same three-image sample.
+              Compare applications that support the same verified sample
+              operation. Each runs the same input; results and limits come from
+              the actual run.
             </p>
           </div>
           <span className="mk-handwritten">
@@ -638,13 +657,37 @@ function Explore({
           <div className="mk-sample-files">
             <FileImage size={20} />
             <span>
-              Sunday Studio sample
-              <small>3 PNG files · camera/ and portraits/ folders</small>
+              {activeContract
+                ? sampleContracts[activeContract].title
+                : "No connected samples yet"}
+              <small>
+                {activeContract
+                  ? sampleContracts[activeContract].sample
+                  : "Providers appear here after their sample connection passes."}
+              </small>
             </span>
           </div>
+          <label className="mk-comparison-group">
+            Compare task
+            <select
+              aria-label="Comparison task"
+              value={activeContract || ""}
+              onChange={(e) => {
+                setComparison(e.target.value as SampleContract);
+                setCompare([]);
+                setResult([]);
+              }}
+            >
+              {groups.map((key) => (
+                <option key={key} value={key}>
+                  {sampleContracts[key].title}
+                </option>
+              ))}
+            </select>
+          </label>
           <div className="mk-compare-choices">
-            {catalog
-              .filter((t) => t.reference && t.family === "batch-file-renaming")
+            {comparable
+              .filter((t) => comparisonKey(t) === activeContract)
               .map((t) => (
                 <button
                   className={compare.includes(t.id) ? "selected" : ""}
@@ -670,17 +713,20 @@ function Explore({
             {busy ? <Spin /> : <Play size={15} />}Run same sample
           </button>
         </div>
-        <button
-          className="mk-text"
-          onClick={() => setShowMapping(!showMapping)}
-        >
-          <Code2 size={13} />
-          Optional mapping CSV
-          <ChevronDown size={13} />
-        </button>
-        {showMapping && (
+        {activeContract === "image-rename-v1" && (
+          <button
+            className="mk-text"
+            onClick={() => setShowMapping(!showMapping)}
+          >
+            <Code2 size={13} />
+            Optional mapping CSV
+            <ChevronDown size={13} />
+          </button>
+        )}
+        {showMapping && activeContract === "image-rename-v1" && (
           <label className="mk-field">
-            Map Rename only. Pattern Rename uses the shared naming pattern.
+            Applied by tools declaring CSV mapping support; other tools use the
+            naming pattern.
             <textarea
               value={mapping}
               onChange={(e) => setMapping(e.target.value)}
@@ -703,10 +749,11 @@ function Explore({
           <div className="mk-compare-empty">
             <Layers size={25} />
             <p>
-              Choose one or both tools, then run the sample.
+              Choose up to three compatible tools, then run the sample.
               <br />
-              You'll see actual filenames, downloadable outputs and
-              byte-preservation checks.
+              {activeContract === "image-rename-v1"
+                ? "You'll see actual filenames, downloadable outputs and byte-preservation checks."
+                : "You'll see which reservation attempts fit within the available capacity."}
             </p>
           </div>
         )}
@@ -867,7 +914,7 @@ function ToolCard({
           <span>
             {tool.reference ? "First-party reference app" : tool.provider}
             <small>
-              {tool.reference
+              {tool.reference || tool.purchasable
                 ? `${money(tool.price)} USD · 30-day access`
                 : tool.state || "Preview only"}
             </small>
@@ -876,14 +923,14 @@ function ToolCard({
             className={"mk-circle " + (selected ? "selected" : "")}
             onClick={onCompare}
             aria-label={
-              tool.reference && tool.family === "batch-file-renaming"
+              !!comparisonKey(tool)
                 ? `${selected ? "Remove" : "Compare"} ${tool.title}`
                 : `Try ${tool.title}`
             }
           >
             {selected ? (
               <Check size={17} />
-            ) : tool.reference && tool.family === "batch-file-renaming" ? (
+            ) : !!comparisonKey(tool) ? (
               <Plus size={17} />
             ) : (
               <ArrowUpRight size={17} />
@@ -901,6 +948,17 @@ function TrialResult({
   result: any;
   onOpen?: () => void;
 }) {
+  if (r.status === "failed")
+    return (
+      <div className="mk-result mk-result-failed" role="alert">
+        <h3>{r.toolTitle}</h3>
+        <p>{r.message}</p>
+        <small>
+          This run failed; no successful output or quality score is claimed.
+          Other tools in the comparison can still succeed.
+        </small>
+      </div>
+    );
   return (
     <div className="mk-result">
       <div className="mk-result-head">
@@ -1220,7 +1278,9 @@ function ToolPage({
           <span className="mk-kicker">
             {tool.reference
               ? "A WORKING FIRST-PARTY REFERENCE APP"
-              : "INDEPENDENT PROVIDER WEBSITE"}
+              : tool.operatorOwned
+                ? "TASKSLICE-OPERATED EXTERNAL DEMO"
+                : "INDEPENDENT PROVIDER WEBSITE"}
           </span>
           <h1>{tool.title}</h1>
           <p>{tool.description}</p>
@@ -1243,9 +1303,9 @@ function ToolPage({
             <div className="mk-panel">
               <h2>Explore the provider’s website.</h2>
               <p>
-                This listing is {tool.state}. It cannot sell access until the
-                provider has supported seller onboarding. TaskSlice does not
-                unlock arbitrary external websites.
+                {tool.operatorOwned
+                  ? "This separately hosted demo uses the configured TaskSlice sandbox seller. Paid operations are checked by the provider server."
+                  : `This listing is ${tool.state}. Independent paid sales require seller onboarding; a listing alone does not unlock an external website.`}
               </p>
               <a
                 className="mk-btn"
@@ -1256,6 +1316,22 @@ function ToolPage({
                 Open provider preview
                 <ExternalLink size={15} />
               </a>
+              {tool.sampleReady && (
+                <>
+                  <p>
+                    Try the provider’s verified sample here. Only bundled
+                    example data is sent to this provider.
+                  </p>
+                  <button
+                    className="mk-btn outline"
+                    disabled={busy}
+                    onClick={() => void run()}
+                  >
+                    <Play size={14} />
+                    Run provider sample
+                  </button>
+                </>
+              )}
             </div>
           ) : tool.family === "batch-file-renaming" ? (
             <div className="mk-panel">
@@ -1603,7 +1679,7 @@ function ToolPage({
               different. Your request starts a private conversation; it does not
               automatically build a feature or collect payment.
             </p>
-            {tool.reference && tool.family === "batch-file-renaming" && (
+            {tool.sampleReady && tool.sampleContract === "image-rename-v1" && (
               <div className="mk-request-baseline">
                 <button
                   className="mk-btn outline"
@@ -1612,7 +1688,7 @@ function ToolPage({
                 >
                   <Play size={14} />
                   {requestSample
-                    ? "Re-run request sample"
+                    ? "Reproduce current result"
                     : "Run sample for this request"}
                 </button>
                 <small>
@@ -1670,9 +1746,13 @@ function ToolPage({
               ? "YOUR NEXT USEFUL THING"
               : "TRY IT. THEN MAKE IT YOURS."}
           </span>
-          <h2>{tool.reference ? money(tool.price) : "Preview only"}</h2>
+          <h2>
+            {tool.reference || tool.purchasable
+              ? money(tool.price)
+              : "Preview only"}
+          </h2>
           <p>
-            {tool.reference
+            {tool.reference || tool.purchasable
               ? "USD · one payment · no auto-renewal"
               : "External website · no TaskSlice checkout"}
           </p>
@@ -1691,7 +1771,9 @@ function ToolPage({
               <Check size={14} />
               {tool.family === "booking-pages"
                 ? "Private attendee management & CSV export"
-                : "Saved naming presets & ZIP/CSV delivery"}
+                : tool.reference
+                  ? "Saved naming presets & ZIP/CSV delivery"
+                  : "Protected larger batches & ZIP/CSV delivery"}
             </li>
             <li>
               <Check size={14} />
@@ -1711,14 +1793,18 @@ function ToolPage({
               {!application && (
                 <button
                   className="mk-btn full"
-                  onClick={() => nav(tool.appUrl)}
+                  onClick={() =>
+                    void launchApplication(tool, nav).catch((e) =>
+                      setError(e.message),
+                    )
+                  }
                 >
                   Open application
                   <ArrowUpRight size={16} />
                 </button>
               )}
             </>
-          ) : tool.reference ? (
+          ) : tool.reference || tool.purchasable ? (
             <button
               className="mk-btn full"
               onClick={() => {
@@ -2058,6 +2144,7 @@ function Builder({
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false),
     [dirty, setDirty] = useState(false),
+    [manifestText, setManifestText] = useState(""),
     [checks, setChecks] = useState<any>(null),
     [response, setResponse] = useState<Record<string, string>>({}),
     [form, setForm] = useState({
@@ -2070,14 +2157,15 @@ function Builder({
       capabilities: ["text-conversion"],
       inputs: ["text/plain"],
       outputs: ["text/plain"],
+      sampleContract: null as SampleContract | null,
     });
   const steps = [
     "Register your website",
     "Connect server access",
-    "Run the reference app",
+    "Run your application",
     "Test the integration",
     "Preview your listing",
-    "Publish locally",
+    "Publish listing",
   ];
   async function refresh() {
     if (!session.account) return;
@@ -2126,7 +2214,7 @@ function Builder({
       setChecks(data);
       setNotice(
         data.passed
-          ? "Contract checks passed against your running provider. Seller onboarding is still required for paid sales."
+          ? "Contract checks passed against your running provider. Verified sample operations can join comparisons. Independent paid sales still require seller onboarding."
           : "Some checks failed. Start the reference server with this draft’s credential and the correct TaskSlice URL.",
       );
       await refresh();
@@ -2149,9 +2237,13 @@ function Builder({
       setBusy(false);
     }
   }
+  const operatedDemo = !!drafts.find((d) => d.id === draftId)?.operatorOwned;
   function openDraft(d: any) {
     setDraftId(d.id);
-    setForm(d.manifest);
+    setForm({
+      ...d.manifest,
+      sampleContract: d.manifest.sampleContract || null,
+    });
     setChecks(d.checks);
     setCredential("");
     setDirty(false);
@@ -2276,6 +2368,74 @@ function Builder({
                 Connect a website that already works. The example fields below
                 point to the runnable local reference app.
               </p>
+              <details className="mk-manifest-import">
+                <summary>Connect BatchStudio using its manifest</summary>
+                <p>
+                  Deploy the separate BatchStudio service, open its Provider
+                  integration example, copy the application manifest, and paste
+                  it here. This fills the declaration; checks still have to
+                  pass.
+                </p>
+                <textarea
+                  aria-label="Application manifest JSON"
+                  value={manifestText}
+                  maxLength={15000}
+                  onChange={(e) => setManifestText(e.target.value)}
+                  placeholder="Paste the JSON from BatchStudio"
+                />
+                <button
+                  className="mk-btn outline"
+                  onClick={() => {
+                    try {
+                      const parsed = JSON.parse(manifestText);
+                      if (
+                        !parsed ||
+                        !["title", "description", "appUrl", "previewUrl"].every(
+                          (key) => typeof parsed[key] === "string",
+                        ) ||
+                        ![
+                          "batch-file-renaming",
+                          "booking-pages",
+                          "custom",
+                        ].includes(parsed.family) ||
+                        !["capabilities", "inputs", "outputs"].every(
+                          (key) =>
+                            Array.isArray(parsed[key]) &&
+                            parsed[key].every(
+                              (value: unknown) => typeof value === "string",
+                            ),
+                        ) ||
+                        (parsed.sampleContract &&
+                          !Object.keys(sampleContracts).includes(
+                            parsed.sampleContract,
+                          ))
+                      )
+                        throw new Error("Invalid manifest");
+                      setError("");
+                      update({
+                        title: parsed.title,
+                        description: parsed.description,
+                        appUrl: parsed.appUrl,
+                        previewUrl: parsed.previewUrl,
+                        family: parsed.family,
+                        capabilities: parsed.capabilities,
+                        inputs: parsed.inputs,
+                        outputs: parsed.outputs,
+                        sampleContract: parsed.sampleContract || null,
+                      });
+                      setNotice(
+                        "Manifest loaded. Review the declaration, then save the draft.",
+                      );
+                    } catch {
+                      setError(
+                        "Paste a valid application manifest JSON object.",
+                      );
+                    }
+                  }}
+                >
+                  Use this manifest
+                </button>
+              </details>
               <label>
                 Application name
                 <input
@@ -2367,6 +2527,40 @@ function Builder({
                   />
                 </label>
               </div>
+              <label>
+                Compatible sample operation
+                <select
+                  value={form.sampleContract || ""}
+                  onChange={(e) => {
+                    const key = e.target.value as SampleContract;
+                    const contract = sampleContracts[key];
+                    update(
+                      contract
+                        ? {
+                            sampleContract: key,
+                            family: contract.family,
+                            inputs: [...contract.inputs],
+                            outputs: [...contract.outputs],
+                          }
+                        : { sampleContract: null },
+                    );
+                  }}
+                >
+                  <option value="">
+                    No shared sample contract (preview only)
+                  </option>
+                  {Object.entries(sampleContracts).map(([key, contract]) => (
+                    <option key={key} value={key}>
+                      {contract.title} · v1
+                    </option>
+                  ))}
+                </select>
+                <small>
+                  Providers automatically join comparisons after the declared
+                  operation passes connection checks. A category alone is not
+                  enough.
+                </small>
+              </label>
               <button
                 className="mk-btn"
                 disabled={busy}
@@ -2389,6 +2583,19 @@ function Builder({
                 <ArrowRight size={15} />
                 <span>TaskSlice access check</span>
               </div>
+              {draftId && (
+                <div className="mk-note">
+                  <strong>Provider ID</strong>
+                  <p>
+                    <code>{draftId}</code>
+                  </p>
+                  <small>
+                    Use this ID in BatchStudio’s TASKSLICE_PROVIDER_ID
+                    environment variable. Only the site operator can enable the
+                    self-operated sandbox seller demo.
+                  </small>
+                </div>
+              )}
               {credential ? (
                 <div className="mk-secret">
                   <label>
@@ -2441,33 +2648,69 @@ function Builder({
             </>
           ) : step === 3 ? (
             <>
-              <p>
-                From the TaskSlice project folder, start the supplied reference
-                website in a second terminal. Replace the placeholder with your
-                own private credential.
-              </p>
-              <pre>{`export TASKSLICE_URL="${location.origin}"\nexport TASKSLICE_PROVIDER_KEY="YOUR_PRIVATE_PROVIDER_KEY"\nnode examples/provider-reference.mjs`}</pre>
-              <p>
-                The reference website runs at{" "}
-                <a
-                  href={session.referenceOrigin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {session.referenceOrigin}
-                  <ExternalLink size={12} />
-                </a>
-                . It has a free uppercase-text preview and a protected
-                operation.
-              </p>
+              {form.sampleContract === "image-rename-v1" ? (
+                <>
+                  <p>
+                    BatchStudio is a complete, separately hosted example. For
+                    Render, create a second Node web service from this
+                    repository, build with npm ci --include=dev and start with
+                    npm run start:batchstudio. Set TASKSLICE_URL to this
+                    marketplace, and add your private TASKSLICE_PROVIDER_KEY and
+                    TASKSLICE_PROVIDER_ID on that service.
+                  </p>
+                  <p>
+                    For local development from the TaskSlice project folder:
+                  </p>
+                  <pre>{`export TASKSLICE_URL="${location.origin}"\nexport TASKSLICE_PROVIDER_KEY="YOUR_PRIVATE_PROVIDER_KEY"\nexport TASKSLICE_PROVIDER_ID="${draftId || "YOUR_PROVIDER_ID"}"\nPORT=4419 npm run start:batchstudio`}</pre>
+                  <p>
+                    The local example runs at http://127.0.0.1:4419. On Render,
+                    use its actual HTTPS URL in your declaration. The site
+                    operator must approve that exact origin before integration
+                    tests can run. Open the provider website and try three
+                    images before continuing.
+                  </p>
+                  <a
+                    className="mk-text"
+                    href={form.previewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Open your application preview <ExternalLink size={12} />
+                  </a>
+                </>
+              ) : (
+                <>
+                  <p>
+                    Your own application should run on its hosting service
+                    before testing. To learn the access protocol locally, start
+                    the minimal text example from the TaskSlice project folder
+                    with your private credential.
+                  </p>
+                  <pre>{`export TASKSLICE_URL="${location.origin}"\nexport TASKSLICE_PROVIDER_KEY="YOUR_PRIVATE_PROVIDER_KEY"\nnode examples/provider-reference.mjs`}</pre>
+                  <p>
+                    The minimal example runs at{" "}
+                    <a
+                      href={session.referenceOrigin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {session.referenceOrigin} <ExternalLink size={12} />
+                    </a>
+                    . It has a free uppercase-text preview and a protected
+                    operation. It does not implement image or booking sample
+                    contracts.
+                  </p>
+                </>
+              )}
               <pre>{`// Provider server: check access, then execute.\nconst response = await fetch(\n  TASKSLICE_URL + '/api/market/provider/verify', {\n    method: 'POST',\n    headers: {\n      Authorization: 'Bearer ' + SERVER_ONLY_KEY,\n      'Content-Type': 'application/json'\n    },\n    body: JSON.stringify({ token, operation })\n  }\n);\nif (!response.ok) return denyAccess();`}</pre>
               <small>
-                This local integration contract is implemented. The complete
-                runnable code is in examples/provider-reference.mjs. It does not
-                deploy your app or enable multi-seller payouts.
+                Keep this access check on your application server. The runnable
+                examples are in examples/batchstudio and
+                examples/provider-reference.mjs. Independent seller payouts are
+                not enabled.
               </small>
               <button className="mk-btn outline" onClick={() => setStep(4)}>
-                My reference server is running
+                My application is running
                 <ArrowRight size={15} />
               </button>
             </>
@@ -2476,12 +2719,13 @@ function Builder({
               <p>
                 These checks call your running reference provider and its real
                 server-side access check. They use isolated test entitlements,
-                never Gemini or a PayPal purchase.
+                never Gemini or a PayPal purchase. An image sample contract
+                checks the actual returned image ZIP.
               </p>
               <div className="mk-note">
-                Only the configured reference origin can be tested in this local
-                build. Other HTTPS websites can publish previews; TaskSlice does
-                not fetch arbitrary private-network URLs.
+                The site operator must approve the exact provider origin in
+                PROVIDER_ALLOWED_ORIGINS. Only approved origins are called;
+                redirects and oversized results are rejected.
               </div>
               <button
                 className="mk-btn"
@@ -2555,22 +2799,23 @@ function Builder({
                 </a>
                 <span className="mk-small-pill">
                   {checks?.passed
-                    ? "Integration checked · seller onboarding pending"
+                    ? operatedDemo
+                      ? "Integration checked · TaskSlice-operated demo"
+                      : "Integration checked · seller onboarding pending"
                     : "Preview only"}
                 </span>
               </div>
               <p>
-                Paid checkout stays disabled for independent providers until
-                supported PayPal seller onboarding is available. Your buyers
-                will not be charged by the demo merchant for your software.
+                {operatedDemo
+                  ? "This is explicitly configured as a TaskSlice-operated sandbox demo. Its $6 access package uses the same configured reference seller after connection checks pass."
+                  : "Paid checkout stays disabled for independent providers until supported PayPal seller onboarding is available. Your buyers will not be charged by the demo merchant for your software."}
               </p>
             </>
           ) : (
             <>
               <p>
-                Publishing adds your website to this local catalogue. It does
-                not publish code to the internet or create a seller payment
-                account.
+                Publishing adds your website to this marketplace. It does not
+                publish code to the internet or create a seller payment account.
               </p>
               <div className="mk-publish-checks">
                 <p>
@@ -2590,7 +2835,9 @@ function Builder({
                 </p>
                 <p>
                   <LockKeyhole size={15} />
-                  Independent-provider checkout: not enabled
+                  {operatedDemo
+                    ? "TaskSlice-operated sandbox demo: $6 / 30 days after verified connection"
+                    : "Independent-provider checkout: not enabled"}
                 </p>
               </div>
               <button
@@ -2598,8 +2845,7 @@ function Builder({
                 disabled={busy || !draftId || dirty}
                 onClick={() => void publish()}
               >
-                {busy ? <Spin /> : <ArrowUpRight size={16} />}Publish preview
-                listing
+                {busy ? <Spin /> : <ArrowUpRight size={16} />}Publish listing
               </button>
               <small>
                 A listing alone cannot enforce payment inside somebody else’s
@@ -2793,7 +3039,11 @@ function Workspace({
                 </p>
                 <button
                   className="mk-btn outline"
-                  onClick={() => nav(t.appUrl)}
+                  onClick={() =>
+                    void launchApplication(t, nav).catch((e) =>
+                      setError(e.message),
+                    )
+                  }
                 >
                   Open application
                   <ArrowUpRight size={15} />

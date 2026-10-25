@@ -13,6 +13,13 @@ import {
 import { csv, renameImages, sampleImages, sha } from "./files";
 import { interpretProblem, draftCapability } from "./ai";
 import { snapshotSample, replaySample } from "./request-samples";
+import { canCompare, sampleContracts } from "../../src/market/contracts";
+import {
+  providerOriginAllowed,
+  providerCall,
+  runProviderSample,
+  validateImageResult,
+} from "./provider-samples";
 import { aiStatus, isLiveAI } from "../ai-mode";
 import { matchTools, tools, type MarketTool } from "../../src/market/model";
 const fail = (message: string, status = 400): never => {
@@ -31,8 +38,27 @@ const manifestSchema = z
     capabilities: z.array(z.string().regex(/^[a-z-]{3,50}$/)).max(10),
     inputs: z.array(z.string().max(50)).min(1).max(6),
     outputs: z.array(z.string().max(50)).min(1).max(6),
+    sampleContract: z
+      .enum(["image-rename-v1", "booking-capacity-v1"])
+      .nullable()
+      .optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((manifest, ctx) => {
+    const c =
+      manifest.sampleContract && sampleContracts[manifest.sampleContract];
+    if (
+      c &&
+      (manifest.family !== c.family ||
+        !c.inputs.every((input) => manifest.inputs.includes(input)) ||
+        !c.outputs.every((output) => manifest.outputs.includes(output)))
+    )
+      ctx.addIssue({
+        code: "custom",
+        message:
+          "The sample contract must match the declared task family and formats.",
+      });
+  });
 const bookingInput = z
   .object({
     title: z.string().trim().min(3).max(100),
@@ -145,6 +171,15 @@ export function registerMarket(
     const custom = (db.prepare("SELECT * FROM market_providers").all() as any[])
       .map((p) => {
         const body = JSON.parse(p.body);
+        const checked =
+          p.checked_hash === sha(JSON.stringify(body.manifest || body));
+        const sampleReady =
+          checked &&
+          !!body.sampleContract &&
+          providerOriginAllowed(body.appUrl, context.production);
+        const operatorOwned =
+          p.id === process.env.TASKSLICE_DEMO_PROVIDER_ID &&
+          isReferenceOwner(p.account);
         return body.published
           ? {
               id: p.id,
@@ -157,19 +192,25 @@ export function registerMarket(
               capabilities: body.capabilities,
               inputs: body.inputs,
               outputs: body.outputs,
-              price: 0,
+              price: operatorOwned ? 600 : 0,
               days: 30,
-              trialLimit: 0,
-              paidLimit: 0,
+              trialLimit: body.sampleContract === "image-rename-v1" ? 3 : 1,
+              paidLimit: operatorOwned ? 100 : 0,
+              sampleContract: body.sampleContract || null,
+              sampleReady,
+              operatorOwned,
+              purchasable: operatorOwned && sampleReady,
               appUrl: body.appUrl,
               previewUrl: body.previewUrl,
               reference: false,
               available: true,
               version: body.version || 1,
               state:
-                p.checked_hash === sha(JSON.stringify(body.manifest || body))
-                  ? "integration checked"
-                  : "preview only",
+                operatorOwned && sampleReady
+                  ? "TaskSlice-operated sandbox demo"
+                  : checked
+                    ? "integration checked · preview only"
+                    : "preview only",
             }
           : null;
       })
@@ -307,15 +348,12 @@ export function registerMarket(
       .parse(req.body);
     res.json(await draftCapability(text));
   });
-  app.post("/api/market/trials", (req, res) => {
+  app.post("/api/market/trials", async (req, res) => {
     cleanup();
     context.limit(`trial:${owner(res)}`, 30, 3600000);
     const input = z
       .object({
-        toolIds: z
-          .array(z.enum(["pattern-rename", "map-rename", "booking-board"]))
-          .min(1)
-          .max(2),
+        toolIds: z.array(z.string().min(1).max(100)).min(1).max(3),
         sample: z.boolean(),
         files: z
           .array(
@@ -339,134 +377,169 @@ export function registerMarket(
       .parse(req.body);
     if (new Set(input.toolIds).size !== input.toolIds.length)
       fail("Choose different tools to compare.");
-    if (input.toolIds.includes("booking-board") && input.toolIds.length > 1)
-      fail("Only compatible tools can share a comparison.");
-    const files = input.sample ? sampleImages() : input.files || [];
-    const results = input.toolIds.map((toolId) => {
-      const tool = tools.find((t) => t.id === toolId)!;
-      const acc = accountId(db, res.locals.learner),
-        paid = acc && entitlement(db, acc, toolId);
-      if (
-        toolId !== "booking-board" &&
-        (!files.length ||
-          files.length > (paid ? tool.paidLimit : tool.trialLimit))
-      )
-        fail(
-          `Use 1–${paid ? tool.paidLimit : tool.trialLimit} images for ${tool.title}.`,
-        );
-      const fingerprint = sha(
-        JSON.stringify({
-          toolId,
-          version: tool.version,
-          files,
-          options: { ...input, files: undefined, toolIds: undefined },
-        }),
+    const selected = input.toolIds.map(toolById);
+    if (!canCompare(selected))
+      fail("Choose tools with the same verified sample operation and formats.");
+    if (!input.sample && selected.some((tool) => !tool.reference))
+      fail(
+        "External comparison uses bundled sample files only. Upload your own files directly on the provider website.",
       );
-      const cached = db
-        .prepare(
-          "SELECT body FROM market_jobs WHERE owner=? AND tool=? AND fingerprint=? AND expires>? ORDER BY created DESC,rowid DESC LIMIT 1",
+    const files = input.sample ? sampleImages() : input.files || [];
+    const results = await Promise.all(
+      selected.map(async (tool) => {
+        const toolId = tool.id;
+        const acc = accountId(db, res.locals.learner),
+          paid = acc && entitlement(db, acc, toolId);
+        if (
+          tool.sampleContract === "image-rename-v1" &&
+          (!files.length ||
+            files.length > (paid ? tool.paidLimit : tool.trialLimit))
         )
-        .get(owner(res), toolId, fingerprint, Date.now()) as any;
-      if (cached) {
-        const previous = JSON.parse(cached.body);
-        if (!input.sample || toolId === "booking-board" || previous.sampleInput)
-          return { ...previous, cached: true };
-      }
-      const jobId = id("job"),
-        start = performance.now(),
-        expires = Date.now() + 86400000;
-      let result: any,
-        artifacts: any[] = [];
-      if (toolId === "booking-board") {
-        let seats = 0;
-        const outcomes = Array.from({ length: 4 }, () =>
-          seats < 3 ? (seats++, true) : false,
+          fail(
+            `Use 1–${paid ? tool.paidLimit : tool.trialLimit} images for ${tool.title}.`,
+          );
+        const fingerprint = sha(
+          JSON.stringify({
+            toolId,
+            version: tool.version,
+            files,
+            options: { ...input, files: undefined, toolIds: undefined },
+          }),
         );
-        result = {
-          kind: "booking",
-          capacity: 3,
-          accepted: outcomes.filter(Boolean).length,
-          rejected: outcomes.filter((v) => !v).length,
-          checks: { capacityEnforced: seats === 3 },
-          note: "Real capacity-rule simulation. Publishing a persistent booking page requires access.",
-        };
-      } else {
-        const renamed = renameImages(
+        const cached = db
+          .prepare(
+            "SELECT body FROM market_jobs WHERE owner=? AND tool=? AND fingerprint=? AND expires>? ORDER BY created DESC,rowid DESC LIMIT 1",
+          )
+          .get(owner(res), toolId, fingerprint, Date.now()) as any;
+        if (cached) {
+          const previous = JSON.parse(cached.body);
+          if (
+            previous.status !== "failed" &&
+            (!input.sample ||
+              tool.sampleContract === "booking-capacity-v1" ||
+              previous.sampleInput)
+          )
+            return { ...previous, cached: true };
+        }
+        const jobId = id("job"),
+          start = performance.now(),
+          expires = Date.now() + 86400000;
+        let result: any,
+          artifacts: any[] = [];
+        let failedMessage = "";
+        if (tool.sampleContract === "booking-capacity-v1" && tool.reference) {
+          let seats = 0;
+          const outcomes = Array.from({ length: 4 }, () =>
+            seats < 3 ? (seats++, true) : false,
+          );
+          result = {
+            kind: "booking",
+            capacity: 3,
+            accepted: outcomes.filter(Boolean).length,
+            rejected: outcomes.filter((v) => !v).length,
+            checks: { capacityEnforced: seats === 3 },
+            note: "Real capacity-rule simulation. Publishing a persistent booking page requires access.",
+          };
+        } else {
+          let renamed: any;
+          try {
+            renamed = tool.reference
+              ? renameImages(
+                  toolId,
+                  files,
+                  toolId === "pattern-rename"
+                    ? { ...input, mapping: "", preserveFolders: false }
+                    : input,
+                )
+              : await runProviderSample(tool, input);
+          } catch (error) {
+            if (tool.reference) throw error;
+            failedMessage =
+              "The provider could not return a valid sample. It may be unavailable or its output did not satisfy the contract.";
+          }
+          if (failedMessage) result = { message: failedMessage };
+          else if (renamed.kind === "booking") result = renamed;
+          else {
+            result = {
+              kind: "files",
+              rows: renamed.rows,
+              unmatched: renamed.unmatched,
+              unusedMappings: renamed.unusedMappings,
+              checks: renamed.checks,
+            };
+            artifacts = [
+              {
+                id: id("artifact"),
+                name: `${toolId}.zip`,
+                type: "application/zip",
+                bytes: renamed.zip,
+              },
+              {
+                id: id("artifact"),
+                name: `${toolId}-mapping.csv`,
+                type: "text/csv",
+                bytes: Buffer.from(renamed.mapping),
+              },
+            ];
+          }
+        }
+        const body = {
+          id: jobId,
           toolId,
-          files,
-          toolId === "pattern-rename"
-            ? { ...input, mapping: "", preserveFolders: false }
-            : input,
-        );
-        result = {
-          kind: "files",
-          rows: renamed.rows,
-          unmatched: renamed.unmatched,
-          unusedMappings: renamed.unusedMappings,
-          checks: renamed.checks,
-        };
-        artifacts = [
-          {
-            id: id("artifact"),
-            name: `${toolId}.zip`,
-            type: "application/zip",
-            bytes: renamed.zip,
-          },
-          {
-            id: id("artifact"),
-            name: `${toolId}-mapping.csv`,
-            type: "text/csv",
-            bytes: Buffer.from(renamed.mapping),
-          },
-        ];
-      }
-      const body = {
-        id: jobId,
-        toolId,
-        toolTitle: tool.title,
-        status: "succeeded",
-        version: tool.version,
-        elapsedMs: Math.max(1, Math.round(performance.now() - start)),
-        ...result,
-        sampleInput:
-          input.sample && toolId !== "booking-board"
-            ? {
-                source: "bundled-images",
-                options: {
-                  label: input.label,
-                  date: input.date,
-                  pattern: input.pattern,
-                  preserveFolders: input.preserveFolders,
-                  mapping: toolId === "pattern-rename" ? "" : input.mapping,
-                },
-              }
-            : null,
-        artifacts: artifacts.map(({ id, name, type }) => ({ id, name, type })),
-        expires,
-      };
-      transaction(db, () => {
-        db.prepare("INSERT INTO market_jobs VALUES(?,?,?,?,?,?,?)").run(
-          jobId,
-          owner(res),
-          toolId,
-          fingerprint,
-          JSON.stringify(body),
-          Date.now(),
+          toolTitle: tool.title,
+          status: failedMessage ? "failed" : "succeeded",
+          sampleContract: tool.sampleContract,
+          version: tool.version,
+          elapsedMs: Math.max(1, Math.round(performance.now() - start)),
+          ...result,
+          sampleInput:
+            input.sample &&
+            tool.sampleContract === "image-rename-v1" &&
+            !failedMessage
+              ? {
+                  source: "bundled-images",
+                  options: {
+                    label: input.label,
+                    date: input.date,
+                    pattern: input.pattern,
+                    preserveFolders: input.preserveFolders,
+                    mapping: toolId === "pattern-rename" ? "" : input.mapping,
+                  },
+                }
+              : null,
+          artifacts: artifacts.map(({ id, name, type }) => ({
+            id,
+            name,
+            type,
+          })),
           expires,
-        );
-        for (const artifact of artifacts)
-          db.prepare("INSERT INTO market_artifacts VALUES(?,?,?,?,?,?,?)").run(
-            artifact.id,
-            owner(res),
+        };
+        transaction(db, () => {
+          db.prepare("INSERT INTO market_jobs VALUES(?,?,?,?,?,?,?)").run(
             jobId,
-            artifact.name,
-            artifact.type,
-            artifact.bytes,
+            owner(res),
+            toolId,
+            fingerprint,
+            JSON.stringify(body),
+            Date.now(),
             expires,
           );
-      });
-      return body;
-    });
+          for (const artifact of artifacts)
+            db.prepare(
+              "INSERT INTO market_artifacts VALUES(?,?,?,?,?,?,?)",
+            ).run(
+              artifact.id,
+              owner(res),
+              jobId,
+              artifact.name,
+              artifact.type,
+              artifact.bytes,
+              expires,
+            );
+        });
+        return body;
+      }),
+    );
     res.json({ results });
   });
   app.get("/api/market/artifacts/:id", (req, res) => {
@@ -485,7 +558,7 @@ export function registerMarket(
   app.post("/api/market/tools/:id/order", async (req, res) => {
     const account = requireAccount(res),
       tool = toolById(String(req.params.id));
-    if (!tool.reference)
+    if (!tool.reference && !tool.purchasable)
       fail(
         "This provider is preview-only until seller onboarding is available.",
         409,
@@ -680,6 +753,9 @@ export function registerMarket(
           checks: p.checks ? JSON.parse(p.checks) : null,
           checked:
             p.checked_hash === sha(JSON.stringify(JSON.parse(p.body).manifest)),
+          operatorOwned:
+            p.id === process.env.TASKSLICE_DEMO_PROVIDER_ID &&
+            isReferenceOwner(p.account),
         })),
       requests: db
         .prepare(
@@ -701,7 +777,7 @@ export function registerMarket(
         u.password ||
         !(
           ["https:"].includes(u.protocol) ||
-          (u.origin === referenceOrigin() && !context.production)
+          (!context.production && providerOriginAllowed(raw, false))
         )
       )
         fail(
@@ -734,12 +810,14 @@ export function registerMarket(
         u.username ||
         u.password ||
         (u.protocol !== "https:" &&
-          (u.origin !== referenceOrigin() || context.production))
+          (!providerOriginAllowed(raw, false) || context.production))
       )
         fail("Use HTTPS or the configured reference origin.");
     }
     const old = JSON.parse(p.body);
-    db.prepare("UPDATE market_providers SET body=?,updated=? WHERE id=?").run(
+    db.prepare(
+      "UPDATE market_providers SET body=?,updated=?,checked_hash=NULL,checks=NULL WHERE id=?",
+    ).run(
       JSON.stringify({
         ...manifest,
         manifest,
@@ -761,9 +839,9 @@ export function registerMarket(
     const p = providerRecord(res, String(req.params.id)),
       body = JSON.parse(p.body);
     context.limit(`integration:${p.id}`, 10, 3600000);
-    if (new URL(body.appUrl).origin !== referenceOrigin())
+    if (!providerOriginAllowed(body.appUrl, context.production))
       fail(
-        "External endpoints are preview-only in this local MVP. Contract tests run only against the configured reference origin.",
+        "This provider origin is not approved for server-side tests. The site operator must add its exact HTTPS origin to PROVIDER_ALLOWED_ORIGINS.",
       );
     const checks: any[] = [];
     const sharedRequest = id("contract-operation");
@@ -786,33 +864,53 @@ export function registerMarket(
         );
       const requestKey = scenario === "replay" ? sharedRequest : id("test-op");
       try {
-        if (scenario === "replay") {
-          await fetch(referenceOrigin() + "/taskslice/contract", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token, requestKey, input: "hello" }),
-            signal: AbortSignal.timeout(5000),
+        const contractInput =
+          body.sampleContract === "image-rename-v1"
+            ? {
+                files: sampleImages(),
+                options: {
+                  label: "Wedding",
+                  date: "2026-10-25",
+                  pattern: "{label}_{date}_{seq}",
+                  preserveFolders: true,
+                  mapping: "",
+                },
+              }
+            : body.sampleContract === "booking-capacity-v1"
+              ? { capacity: 3, attempts: 4 }
+              : "hello";
+        if (scenario === "replay")
+          await providerCall(body.appUrl, "/taskslice/contract", {
+            token,
+            requestKey,
+            input: contractInput,
           });
-        }
-        const response = await fetch(
-          referenceOrigin() + "/taskslice/contract",
+        const { response, payload: actual } = await providerCall(
+          body.appUrl,
+          "/taskslice/contract",
           {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              token: scenario === "missing" ? "" : token,
-              requestKey,
-              input: scenario === "malformed" ? null : "hello",
-            }),
-            signal: AbortSignal.timeout(5000),
+            token: scenario === "missing" ? "" : token,
+            requestKey,
+            input: scenario === "malformed" ? null : contractInput,
           },
         );
-        const actual = (await response.json()) as any;
         const expected = scenario === "valid" || scenario === "replay";
+        let validOutput = actual.output === "HELLO";
+        if (expected && body.sampleContract === "image-rename-v1") {
+          try {
+            validateImageResult(actual, sampleImages());
+            validOutput = true;
+          } catch {
+            validOutput = false;
+          }
+        }
+        if (expected && body.sampleContract === "booking-capacity-v1")
+          validOutput =
+            JSON.stringify(actual.outcomes) === "[true,true,true,false]";
         const passed = expected
           ? response.ok &&
             actual.allowed === true &&
-            actual.output === "HELLO" &&
+            validOutput &&
             (scenario !== "replay" || actual.repeated === true)
           : !response.ok && actual.allowed === false;
         checks.push({
@@ -853,20 +951,19 @@ export function registerMarket(
     const p = providerRecord(res, String(req.params.id));
     const body = JSON.parse(p.body);
     body.published = true;
-    db.prepare("UPDATE market_providers SET body=?,updated=? WHERE id=?").run(
-      JSON.stringify(body),
-      Date.now(),
-      p.id,
-    );
+    db.prepare(
+      "UPDATE market_providers SET body=?,updated=? WHERE id=?",
+    ).run(JSON.stringify(body), Date.now(), p.id);
     res.json({
       id: p.id,
       state:
         p.checked_hash === sha(JSON.stringify(body.manifest))
           ? "integration checked"
           : "preview only",
-      purchasable: false,
-      message:
-        "Published as preview-only. Multi-seller PayPal onboarding is not enabled; no checkout will route to the demo seller.",
+      purchasable: !!listed().find((t) => t.id === p.id)?.purchasable,
+      message: listed().find((t) => t.id === p.id)?.purchasable
+        ? "Published as a TaskSlice-operated sandbox demo using the configured reference seller."
+        : "Published as preview-only. Independent seller onboarding is not enabled; payments cannot route to the reference seller.",
     });
   });
   app.post("/api/market/tools/:id/launch", (req, res) => {
@@ -946,7 +1043,7 @@ export function registerMarket(
     ).run(response, row.id);
     res.json({ ok: true });
   });
-  app.post("/api/market/adaptations/:id/sample", (req, res) => {
+  app.post("/api/market/adaptations/:id/sample", async (req, res) => {
     const account = requireAccount(res),
       row = requestRecord(String(req.params.id), account);
     context.limit(`request-replay:${account}`, 30, 3600000);
@@ -956,7 +1053,29 @@ export function registerMarket(
       .parse(req.body);
     const body = JSON.parse(row.body);
     if (!body.sample) fail("No reproducible sample is attached.");
-    res.json(replaySample(body.sample, input.alternative));
+    if (
+      input.alternative ||
+      tools.some((tool) => tool.id === body.sample.toolId)
+    )
+      return res.json(replaySample(body.sample, input.alternative));
+    const tool = toolById(body.sample.toolId);
+    if (!tool.sampleReady || tool.version !== body.sample.version)
+      fail(
+        "The original provider version is not currently available for replay.",
+        409,
+      );
+    const output: any = await runProviderSample(tool, body.sample.options);
+    res.json({
+      ...output,
+      zip: undefined,
+      mapping: undefined,
+      replay: true,
+      toolId: tool.id,
+      toolTitle: tool.title,
+      version: tool.version,
+      artifacts: [],
+      elapsedMs: 1,
+    });
   });
   app.get("/api/market/example", (_req, res) => {
     const account = accountId(db, res.locals.learner);

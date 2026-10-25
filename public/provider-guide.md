@@ -2,17 +2,17 @@
 
 TaskSlice lists working hosted applications. You retain your website and hosting. Buyers receive time-limited access, not your source code. The three TaskSlice reference applications demonstrate the buyer experience; your app can solve a different problem.
 
-## Current local release
+## Current release
 
 Independent applications can register, publish a preview, receive adaptation requests and test the access protocol. Independent paid checkout is disabled until PayPal seller onboarding exists. A successful protocol test is not a merchant approval, security certification or proof of all your app's features.
 
-Contract tests run only against the configured local reference origin (default http://127.0.0.1:4418). External HTTPS websites can be listed as previews; TaskSlice does not fetch or execute arbitrary submitted URLs. You do not upload executable source code to this marketplace.
+Contract tests run only against operator-approved origins in `PROVIDER_ALLOWED_ORIGINS` (HTTPS required in production), plus the configured local reference origin during development (default http://127.0.0.1:4418). Checked compatible providers can join shared sample comparisons. TaskSlice does not fetch or execute arbitrary submitted URLs. You do not upload executable source code to this marketplace.
 
 ## 1. Register your application
 
 Create a TaskSlice account, open **For builders**, and enter the app name, description, app URL, preview URL, task family, input and output formats, and capability identifiers. Save the draft. A server credential is shown once. Store it in your provider server's secret configuration; never embed it in browser JavaScript, a public repository, an image, or a listing.
 
-Use HTTPS for external URLs. Only the configured reference origin may use HTTP during local development. Publishing a URL alone does not protect paid functionality.
+Use HTTPS for external URLs. Only approved loopback origins may use HTTP during local development. Publishing a URL alone does not protect paid functionality.
 
 ## 2. Run the included integration example
 
@@ -58,7 +58,7 @@ The current allowance is defined per product, not a universal billable usage met
 
 ## 4. Test your connection
 
-With the matching reference server running, click **Test the integration**. TaskSlice sends synthetic text and temporary test access credentials to `/taskslice/contract` and checks:
+With the matching approved provider running, click **Test the integration**. TaskSlice sends contract-specific sample input (or synthetic text for the minimal reference app) and temporary test access credentials to `/taskslice/contract` and checks:
 
 1. Missing access rejected.
 2. Valid access produces the actual expected output.
@@ -85,3 +85,19 @@ Independent sales require merchant onboarding and correct payee routing, a compl
 The builder page includes **Try buyer-to-builder example**. Run the bundled Pattern Rename sample, send a private practice request to preserve folders, switch to the labelled example builder, re-run the exact sample and send a response. The example buyer can then try the existing Map Rename alternative. This works inside TaskSlice without starting the separate integration server, Gemini or a payment. Both practice roles belong to the signed-in account; the practice provider cannot be published.
 
 Real incoming requests for your registered applications appear in **Feature request inbox**. Attached bundled samples include settings and output names, so you can reproduce the buyer's result. Personal uploads are not shared. Reference-app inbox setup is documented in `docs/REQUEST_FLOW_GUIDE.md` in the repository.
+
+## A complete separate website: BatchStudio Demo
+
+The repository also includes `examples/batchstudio/`, a separate image-delivery website. Start it using `npm run start:batchstudio`. Deploy it as a second Render Web Service with build `npm ci --include=dev`, start `npm run start:batchstudio`, Node 24, `HOST=0.0.0.0`, `TASKSLICE_URL` pointing to this marketplace, and `BATCHSTUDIO_DB_PATH=/tmp/batchstudio.sqlite` for a temporary preview. Render supplies the public URL automatically. Its free three-image preview works without provider credentials.
+
+On that website expand **Provider integration example**, copy the manifest, then import it in builder step 1. Register the provider, put the one-time credential in BatchStudio's server `TASKSLICE_PROVIDER_KEY` and its provider ID in `TASKSLICE_PROVIDER_ID`. The TaskSlice operator must add the exact provider origin to `PROVIDER_ALLOWED_ORIGINS` before connection checks can reach it. After all seven checks pass, publish the listing. It joins the Image renaming comparison automatically using the `image-rename-v1` contract. Booking capacity uses a different contract. External comparisons forward only supplied sample files, not private buyer uploads.
+
+For the optional same-operator sandbox purchase demonstration, the TaskSlice operator sets `TASKSLICE_DEMO_PROVIDER_ID` to this provider and `TASKSLICE_REFERENCE_OWNER_ACCOUNT_ID` to its existing owning account. A checked listing then offers a fixed $6 / 30-day package through the existing sandbox seller. This setting is only for the same operator's own app; independent seller payments remain disabled. Larger batches require current access verified on BatchStudio's server, including for download.
+
+Free Render local storage disappears on restart/redeploy. For lasting account/provider IDs and purchases, the main TaskSlice database needs durable storage before you register records and save IDs into environment variables. Render persistent disks require a paid service; configuring this example does not purchase one. BatchStudio's temporary sessions/downloads can be recreated by relaunching from a surviving TaskSlice purchase. Browser sessions last one hour; output expires after 24 hours and is private to its creating session.
+
+Full repository instructions: `docs/BATCHSTUDIO_RENDER_GUIDE.md` and `docs/PROVIDER_SAMPLE_CONTRACT.md`. The custom second-service Blueprint is `render.batchstudio.yaml`.
+
+## Understand the request example
+
+The guided flow is Try → Request → Builder reviews → Reply → Buyer checks. **Reproduce current result** replays existing behaviour for an attached sample. The requested feature is not implemented by pressing it. A builder can reply with a proposal or suggest an existing alternative; adding a new feature still requires changing and deploying the actual application.

@@ -40,8 +40,11 @@ export function SampleAttachment({ record }: { record: any }) {
     <div className="mk-attached-sample">
       <FileResult
         sample={sample}
-        title={`Attached example · ${sample.toolId === "pattern-rename" ? "Pattern Rename" : "Map Rename"} v${sample.version}`}
+        title={`Attached example · ${sample.toolTitle || (sample.toolId === "pattern-rename" ? "Pattern Rename" : "Map Rename")} v${sample.version}`}
       />
+      <strong className="mk-current-label">
+        Current behaviour — before the requested change
+      </strong>
       <small>
         Supplied sample files · label “{sample.options.label}” ·{" "}
         {sample.options.date} · pattern {sample.options.pattern}. Personal
@@ -65,7 +68,7 @@ export function SampleAttachment({ record }: { record: any }) {
         }}
       >
         <RotateCcw size={14} />
-        {busy ? "Re-running…" : "Re-run attached sample"}
+        {busy ? "Reproducing…" : "Reproduce current result"}
       </button>
       {error && (
         <p role="alert" className="mk-error">
@@ -152,6 +155,31 @@ export function GuidedExample({
       </div>
       {open && (
         <>
+          <ol className="mk-walkthrough-stages" aria-label="Walkthrough stages">
+            {["Try", "Request", "Builder reviews", "Reply", "Buyer checks"].map(
+              (label, index) => (
+                <li
+                  key={label}
+                  className={
+                    index <=
+                    (!record
+                      ? result
+                        ? 1
+                        : 0
+                      : !record.response
+                        ? 2
+                        : alternative
+                          ? 4
+                          : 3)
+                      ? "complete"
+                      : ""
+                  }
+                >
+                  {index + 1}. {label}
+                </li>
+              ),
+            )}
+          </ol>
           <div className="mk-flow-tabs" role="group" aria-label="Example roles">
             <button
               className={view === "buyer" ? "selected" : ""}
@@ -178,9 +206,7 @@ export function GuidedExample({
           )}
           {view === "buyer" ? (
             <div>
-              <h3>
-                “I need organised filenames, but I want to keep my folders.”
-              </h3>
+              <h3>Try the current tool, then describe what should change.</h3>
               {!record ? (
                 <>
                   <p>
@@ -308,7 +334,13 @@ export function GuidedExample({
               <div>
                 <span className="mk-kicker">PRACTICE BUILDER INBOX</span>
                 <h3>Request: preserve the buyer’s folders</h3>
+                <strong>Requested change</strong>
                 <p>{JSON.parse(record.body).request}</p>
+                <p>
+                  Reproduce the current result first. Your reply can propose a
+                  change or recommend an existing alternative; replying does not
+                  implement a feature.
+                </p>
                 <SampleAttachment record={record} />
                 <label>
                   Your example response
