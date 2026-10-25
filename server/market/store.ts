@@ -19,6 +19,10 @@ CREATE TABLE IF NOT EXISTS market_boards(id TEXT PRIMARY KEY,account TEXT NOT NU
 CREATE TABLE IF NOT EXISTS market_reservations(id TEXT PRIMARY KEY,board TEXT NOT NULL,name TEXT NOT NULL,email TEXT NOT NULL,request_key TEXT NOT NULL,created INTEGER NOT NULL,UNIQUE(board,request_key));
 CREATE TABLE IF NOT EXISTS market_requests(id TEXT PRIMARY KEY,buyer TEXT NOT NULL,tool TEXT NOT NULL,provider TEXT,body TEXT NOT NULL,response TEXT,status TEXT NOT NULL,created INTEGER NOT NULL);
 `);
+  // Route earlier reference requests to the explicit reference inbox without changing buyer ownership.
+  db.prepare(
+    "UPDATE market_requests SET provider='reference:'||tool WHERE provider IS NULL",
+  ).run();
 }
 export const accountId = (db: Store, learner: string) =>
   (

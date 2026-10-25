@@ -79,3 +79,9 @@ Buyers can request a specific adaptation. Read and respond inside your builder w
 ## 6. Production work before independent sales
 
 Independent sales require merchant onboarding and correct payee routing, a completed sandbox capture/webhook/refund test, persistent provider sessions, application-specific idempotency, account recovery, operational monitoring and a deployment review. Keep your existing public preview available while that work is done. Never route your software's payment to the reference seller.
+
+## Try the buyer-to-builder walkthrough first
+
+The builder page includes **Try buyer-to-builder example**. Run the bundled Pattern Rename sample, send a private practice request to preserve folders, switch to the labelled example builder, re-run the exact sample and send a response. The example buyer can then try the existing Map Rename alternative. This works inside TaskSlice without starting the separate integration server, Gemini or a payment. Both practice roles belong to the signed-in account; the practice provider cannot be published.
+
+Real incoming requests for your registered applications appear in **Feature request inbox**. Attached bundled samples include settings and output names, so you can reproduce the buyer's result. Personal uploads are not shared. Reference-app inbox setup is documented in `docs/REQUEST_FLOW_GUIDE.md` in the repository.

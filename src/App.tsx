@@ -37,6 +37,7 @@ import { api, getConfig, send, setCSRF } from "./api";
 import type { Config } from "./shared/types";
 import { money, type MarketTool, type Family } from "./market/model";
 import "./market/style.css";
+import { GuidedExample, SampleAttachment } from "./market/RequestFlow";
 const ExpertiseApp = lazy(() => import("./ExpertiseApp"));
 type Session = {
   account: null | { id: string; name: string; email: string };
@@ -48,6 +49,8 @@ type Session = {
   };
   demo: boolean;
   referenceOrigin: string;
+  referenceInboxConfigured: boolean;
+  referenceOwner: boolean;
 };
 function Brand() {
   return (
@@ -534,7 +537,7 @@ function Explore({
             You can also choose a category below.
           </small>
         </div>
-        <HeroArt />
+        <HeroArt nav={nav} />
       </section>
       <section className="mk-catalog">
         <div className="mk-section-heading">
@@ -726,7 +729,7 @@ function Explore({
     </>
   );
 }
-function HeroArt() {
+function HeroArt({ nav }: { nav: (url: string) => void }) {
   const [renamed, setRenamed] = useState(false);
   return (
     <div className="mk-hero-art">
@@ -744,13 +747,10 @@ function HeroArt() {
       >
         <div className="mk-demo-top">
           <Folder size={18} />
-          <span>ONE SMALL PROBLEM</span>
+          <span>EXAMPLE · PATTERN RENAME</span>
           <span className="mk-dot" />
         </div>
-        <h3>
-          A messy batch.
-          <br />A thoughtful little tool.
-        </h3>
+        <h3>Organise a photographer’s delivery.</h3>
         <div className="mk-demo-files">
           {["IMG_1042.png", "IMG_1081.png", "DSC_0024.png"].map((name, i) => (
             <div key={name}>
@@ -761,7 +761,7 @@ function HeroArt() {
                 animate={{ opacity: 1, x: 0 }}
               >
                 {renamed
-                  ? `Sunday-studio_${String(i + 1).padStart(3, "0")}.png`
+                  ? `Wedding_2026-10-25_${String(i + 1).padStart(3, "0")}.png`
                   : name}
               </motion.span>
               {renamed ? (
@@ -774,12 +774,19 @@ function HeroArt() {
         </div>
         <button onClick={() => setRenamed(!renamed)}>
           <span>{renamed ? <Check size={15} /> : <Play size={14} />}</span>
-          {renamed
-            ? "A little order. Ready to go."
-            : "See what a good fit looks like"}
+          {renamed ? "Show original filenames" : "Preview the filename change"}
           <ArrowRight size={16} />
         </button>
-        <small>Illustrative preview · try real files below</small>
+        <small>
+          Illustration: camera filenames become project + date + sequence.
+        </small>
+        <button
+          className="mk-example-open"
+          onClick={() => nav("/tools/pattern-rename?example=photographer")}
+        >
+          Try Pattern Rename with sample files
+          <ArrowRight size={14} />
+        </button>
       </motion.div>
       <span className="mk-art-caption">↗ Go on. Give it a try.</span>
     </div>
@@ -899,7 +906,7 @@ function TrialResult({
       <div className="mk-result-head">
         <span className="mk-pass">
           <CheckCircle2 size={14} />
-          Actual sample result
+          {r.replay ? "Re-run of attached sample" : "Actual sample result"}
         </span>
         <span>
           {r.cached ? "Cached · " : ""}
@@ -966,8 +973,9 @@ function TrialResult({
         </button>
       )}
       <small>
-        Observed on this sample, not a universal quality score. Output expires
-        after 24 hours.
+        {r.replay
+          ? "Reproduced from the attached settings. This does not implement a requested feature."
+          : "Observed on this sample, not a universal quality score. Output expires after 24 hours."}
       </small>
     </div>
   );
@@ -992,15 +1000,24 @@ function ToolPage({
     [busy, setBusy] = useState(false),
     [sample, setSample] = useState(true),
     [files, setFiles] = useState<any[]>([]),
-    [label, setLabel] = useState("Sunday-studio"),
+    [label, setLabel] = useState(
+      new URLSearchParams(location.search).has("example")
+        ? "Wedding"
+        : "Sunday-studio",
+    ),
     [pattern, setPattern] = useState("{label}_{date}_{seq}"),
-    [date, setDate] = useState("2026-10-24"),
+    [date, setDate] = useState(
+      new URLSearchParams(location.search).has("example")
+        ? "2026-10-25"
+        : "2026-10-24",
+    ),
     [folders, setFolders] = useState(true),
     [mapping, setMapping] = useState(""),
     [result, setResult] = useState<any>(null),
     [checkout, setCheckout] = useState(false),
     [notice, setNotice] = useState(""),
     [request, setRequest] = useState(""),
+    [requestSample, setRequestSample] = useState<any>(null),
     [presets, setPresets] = useState<any[]>([]),
     [boards, setBoards] = useState<any[]>([]),
     [boardTitle, setBoardTitle] = useState("Creative lettering workshop"),
@@ -1056,6 +1073,7 @@ function ToolPage({
       setFiles(data);
       setSample(false);
       setResult(null);
+      setRequestSample(null);
     } catch (e) {
       setError((e as Error).message);
     }
@@ -1075,6 +1093,7 @@ function ToolPage({
         mapping,
       });
       setResult(r.results[0]);
+      setRequestSample(r.results[0].sampleInput ? r.results[0] : null);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -1128,14 +1147,40 @@ function ToolPage({
       setBusy(false);
     }
   }
+  async function runRequestSample() {
+    setBusy(true);
+    setError("");
+    try {
+      const run = await send("/market/trials", {
+        toolIds: [id],
+        sample: true,
+        label,
+        date,
+        pattern,
+        preserveFolders: folders,
+        mapping,
+      });
+      setRequestSample(run.results[0]);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
   async function adapt() {
     if (!requireAccount()) return;
     setBusy(true);
     setError("");
     try {
-      await send("/market/adaptations", { toolId: id, request });
+      const sent = await send("/market/adaptations", {
+        toolId: id,
+        request,
+        ...(requestSample ? { sampleJobId: requestSample.id } : {}),
+      });
       setNotice(
-        "Request saved. Track it in My workspace. No payment is collected for custom work.",
+        sent.delivery === "awaiting-owner-setup"
+          ? "Request and sample saved. The TaskSlice reference-app inbox is awaiting owner setup; track it in My workspace."
+          : "Request saved in the builder inbox. Track the response in My workspace. No payment was collected.",
       );
       setRequest("");
     } catch (e) {
@@ -1549,34 +1594,72 @@ function ToolPage({
           )}
           {result && <TrialResult result={result} />}
           <div className="mk-panel mk-adapt">
-            <span className="mk-kicker">ALMOST THE RIGHT FIT?</span>
-            <h2>Ask for the missing piece.</h2>
+            <span className="mk-kicker">
+              REQUEST A FEATURE FROM THIS BUILDER
+            </span>
+            <h2>Need this tool to do something more?</h2>
             <p>
-              Start a conversation about this specific tool. Requests are
-              private and no custom-work payment is collected here.
+              Show what the tool does today, then explain what should be
+              different. Your request starts a private conversation; it does not
+              automatically build a feature or collect payment.
             </p>
-            <label className="mk-sr" htmlFor="adaptation">
-              Describe the adaptation you need
-            </label>
+            {tool.reference && tool.family === "batch-file-renaming" && (
+              <div className="mk-request-baseline">
+                <button
+                  className="mk-btn outline"
+                  disabled={busy}
+                  onClick={() => void runRequestSample()}
+                >
+                  <Play size={14} />
+                  {requestSample
+                    ? "Re-run request sample"
+                    : "Run sample for this request"}
+                </button>
+                <small>
+                  Uses supplied PNGs and the naming settings above. Personal
+                  uploads are not attached.
+                </small>
+                {requestSample && (
+                  <>
+                    {result?.id === requestSample.id ? (
+                      <p className="mk-note">
+                        Using the sample result shown above. No second run is
+                        needed.
+                      </p>
+                    ) : (
+                      <TrialResult result={requestSample} />
+                    )}
+                    <p className="mk-note">
+                      This result and its settings will be attached. The builder
+                      can reproduce it before discussing your requested change.
+                    </p>
+                  </>
+                )}
+              </div>
+            )}
+            <label htmlFor="adaptation">What should be different?</label>
             <textarea
               id="adaptation"
               value={request}
               maxLength={1500}
               onChange={(e) => setRequest(e.target.value)}
-              placeholder="This works for my images. Could you also support…"
+              placeholder="For example: keep my camera/ and portraits/ folders in the output ZIP."
             />
             <button
               className="mk-text"
               disabled={busy || request.trim().length < 15}
               onClick={() => void adapt()}
             >
-              Send adaptation request
+              {requestSample
+                ? "Send request with this sample"
+                : "Send feature request"}
               <ArrowUpRight size={15} />
             </button>
             {tool.reference && (
               <small>
-                Reference-app requests stay in this local project; they are not
-                sent to an external builder.
+                {session.referenceInboxConfigured
+                  ? "Sent to the TaskSlice reference-app owner inbox."
+                  : "Reference-app requests are saved and await a connected TaskSlice owner inbox."}
               </small>
             )}
           </div>
@@ -2000,7 +2083,9 @@ function Builder({
     if (!session.account) return;
     const data = await api("/market/builder");
     setDrafts(data.providers);
-    setRequests(data.requests);
+    setRequests(
+      data.requests.filter((r: any) => !JSON.parse(r.body).guidedDemo),
+    );
   }
   useEffect(() => {
     refresh().catch((e) => setError(e.message));
@@ -2088,6 +2173,11 @@ function Builder({
           Connect a working application. Follow a real integration guide. Let
           buyers see what it can do.
         </p>
+        <GuidedExample
+          accountId={undefined}
+          requireAccount={requireAccount}
+          nav={nav}
+        />
         <div className="mk-builder-principles">
           <div>
             <Code2 size={25} />
@@ -2141,6 +2231,12 @@ function Builder({
           <BookOpen size={15} />
         </a>
       </div>
+      <GuidedExample
+        accountId={session.account.id}
+        requireAccount={requireAccount}
+        nav={nav}
+      />
+      <p className="mk-kicker">CONNECT YOUR OWN APPLICATION</p>
       <ErrorBox text={error} />
       <div className="mk-builder-layout">
         <aside className="mk-tutorial-nav">
@@ -2536,49 +2632,71 @@ function Builder({
           </div>
         </div>
       </div>
-      {requests.length > 0 && (
-        <section className="mk-builder-requests">
-          <h2>Adaptation requests</h2>
-          {requests.map((r) => {
-            const body = JSON.parse(r.body);
-            return (
-              <div className="mk-panel" key={r.id}>
-                <h3>{body.toolTitle}</h3>
-                <p>{body.request}</p>
-                {r.response && (
-                  <p className="mk-note">Your response: {r.response}</p>
-                )}
-                <textarea
-                  aria-label="Your adaptation response"
-                  value={response[r.id] || ""}
-                  onChange={(e) =>
-                    setResponse({ ...response, [r.id]: e.target.value })
+      <section className="mk-builder-requests">
+        <h2>Feature request inbox</h2>
+        {!requests.length && (
+          <p className="mk-note">
+            No requests yet. Requests for applications you own appear here with
+            their attached examples.
+          </p>
+        )}
+        {session.referenceOwner && (
+          <p className="mk-note">
+            This account also receives requests for TaskSlice’s reference
+            applications.
+          </p>
+        )}
+        {!session.referenceInboxConfigured && (
+          <details className="mk-owner-setup">
+            <summary>Connect the TaskSlice reference-app inbox</summary>
+            <p>
+              The site operator can connect this account by setting
+              TASKSLICE_REFERENCE_OWNER_ACCOUNT_ID in Render to the account
+              reference below. This does not grant you ownership by itself.
+            </p>
+            <code>{session.account.id}</code>
+          </details>
+        )}
+        {requests.map((r) => {
+          const body = JSON.parse(r.body);
+          return (
+            <div className="mk-panel" key={r.id}>
+              <h3>{body.toolTitle}</h3>
+              <p>{body.request}</p>
+              <SampleAttachment record={r} />
+              {r.response && (
+                <p className="mk-note">Your response: {r.response}</p>
+              )}
+              <textarea
+                aria-label="Your adaptation response"
+                value={response[r.id] || ""}
+                onChange={(e) =>
+                  setResponse({ ...response, [r.id]: e.target.value })
+                }
+                placeholder="Scope, price estimate and expected delivery…"
+              />
+              <button
+                className="mk-text"
+                disabled={(response[r.id] || "").length < 10}
+                onClick={async () => {
+                  try {
+                    await send(`/market/adaptations/${r.id}/respond`, {
+                      response: response[r.id],
+                    });
+                    await refresh();
+                    setNotice("Response saved for the buyer.");
+                  } catch (e) {
+                    setError((e as Error).message);
                   }
-                  placeholder="Scope, price estimate and expected delivery…"
-                />
-                <button
-                  className="mk-text"
-                  disabled={(response[r.id] || "").length < 10}
-                  onClick={async () => {
-                    try {
-                      await send(`/market/adaptations/${r.id}/respond`, {
-                        response: response[r.id],
-                      });
-                      await refresh();
-                      setNotice("Response saved for the buyer.");
-                    } catch (e) {
-                      setError((e as Error).message);
-                    }
-                  }}
-                >
-                  Reply to buyer
-                  <ArrowUpRight size={14} />
-                </button>
-              </div>
-            );
-          })}
-        </section>
-      )}
+                }}
+              >
+                Reply to buyer
+                <ArrowUpRight size={14} />
+              </button>
+            </div>
+          );
+        })}
+      </section>
     </section>
   );
 }
@@ -2639,7 +2757,7 @@ function Workspace({
           ["tools", "My applications"],
           ["jobs", "Trial outputs"],
           ["boards", "Booking pages"],
-          ["requests", "Adaptations"],
+          ["requests", "Feature requests"],
         ].map(([key, label]) => (
           <button
             key={key}
@@ -2744,13 +2862,20 @@ function Workspace({
                 <span className="mk-small-pill">{r.status}</span>
                 <h3>{body.toolTitle}</h3>
                 <p>{body.request}</p>
+                {body.guidedDemo && (
+                  <span className="mk-small-pill">
+                    Guided practice · both roles are yours
+                  </span>
+                )}
+                <SampleAttachment record={r} />
                 {r.response ? (
                   <div className="mk-note">Builder response: {r.response}</div>
                 ) : (
                   <small>
-                    {r.provider
-                      ? "Waiting for the builder’s response."
-                      : "Reference-app request saved locally; no external builder has been notified."}
+                    {r.provider?.startsWith("reference:") &&
+                    !session.referenceInboxConfigured
+                      ? "Saved; the TaskSlice owner inbox is awaiting setup."
+                      : "Waiting for the builder’s response."}
                   </small>
                 )}
               </div>
@@ -2759,9 +2884,9 @@ function Workspace({
         </div>
       ) : (
         <EmptyMarket
-          title="A specific request goes a long way."
-          text="Ask a builder to adapt a tool that almost fits. You can track their response here."
-          action="Find a starting point"
+          title="Your feature requests appear here."
+          text="Open a tool, run a sample, and tell its builder what should be different. The saved request and reply stay together here."
+          action="Find a tool to try"
           onClick={() => nav("/")}
         />
       )}

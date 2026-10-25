@@ -2589,3 +2589,122 @@
   overflow-wrap: anywhere;
   font-size: 13px;
 }
+
+.mk-demo > .mk-example-open {
+  background: #2c503d;
+  color: #fff;
+  margin-top: 12px;
+  justify-content: center;
+  font-size: 12px;
+  gap: 10px;
+}
+.mk-guided {
+  margin: 28px 0 40px;
+  border: 1px solid #ceddb5;
+  background: linear-gradient(120deg, #f6f8ee, #fffefa);
+}
+.mk-guided .mk-section-heading {
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 12px;
+}
+.mk-guided .mk-section-heading h2 {
+  font-size: 27px;
+  max-width: 600px;
+}
+.mk-guided .mk-section-heading p {
+  max-width: 650px;
+}
+.mk-guided .mk-section-heading > .mk-btn {
+  flex-shrink: 0;
+}
+.mk-flow-tabs {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+.mk-flow-tabs button {
+  padding: 12px 18px;
+  border: 1px solid #d7dfcc;
+  border-radius: 30px;
+  background: #fffefa;
+}
+.mk-flow-tabs button.selected {
+  background: #294f3a;
+  color: #fff;
+}
+.mk-evidence {
+  margin: 18px 0;
+  padding: 16px;
+  border: 1px solid #dfe5d6;
+  border-radius: 14px;
+  background: #fffefa;
+}
+.mk-evidence > .mk-output-list {
+  margin: 12px 0;
+}
+.mk-evidence .mk-checks {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.mk-attached-sample {
+  margin: 16px 0;
+  padding: 0 0 16px;
+  border-bottom: 1px solid #e0e5d8;
+}
+.mk-attached-sample > small {
+  display: block;
+  overflow-wrap: anywhere;
+  margin: 10px 0;
+}
+.mk-attached-sample > .mk-text {
+  margin: 8px 0;
+}
+.mk-request-baseline {
+  margin: 22px 0;
+}
+.mk-request-baseline > small {
+  display: block;
+  margin: 12px 0;
+}
+.mk-request-baseline .mk-result {
+  margin: 20px 0;
+}
+.mk-owner-setup {
+  margin: 16px 0 28px;
+  padding: 16px;
+  border: 1px solid #dce3d3;
+  border-radius: 12px;
+}
+.mk-owner-setup summary {
+  cursor: pointer;
+}
+.mk-owner-setup code {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+@media (max-width: 800px) {
+  .mk-guided .mk-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .mk-guided .mk-section-heading h2 {
+    font-size: 23px;
+  }
+  .mk-guided .mk-btn {
+    white-space: normal;
+  }
+  .mk-evidence .mk-output-list > div {
+    grid-template-columns: minmax(0, 1fr) 12px minmax(0, 1fr);
+    gap: 6px;
+  }
+  .mk-evidence strong,
+  .mk-evidence span {
+    overflow-wrap: anywhere;
+  }
+  .mk-evidence {
+    padding: 12px;
+  }
+}

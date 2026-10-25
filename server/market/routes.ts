@@ -12,6 +12,7 @@ import {
 } from "./store";
 import { csv, renameImages, sampleImages, sha } from "./files";
 import { interpretProblem, draftCapability } from "./ai";
+import { snapshotSample, replaySample } from "./request-samples";
 import { aiStatus, isLiveAI } from "../ai-mode";
 import { matchTools, tools, type MarketTool } from "../../src/market/model";
 const fail = (message: string, status = 400): never => {
@@ -92,10 +93,52 @@ export function registerMarket(
     res.locals.csrf = csrf;
     return csrf;
   }
+  const referenceOwner = () => {
+    const configured = process.env.TASKSLICE_REFERENCE_OWNER_ACCOUNT_ID || "";
+    return configured && profile(configured) ? configured : "";
+  };
+  const isReferenceOwner = (account: string) =>
+    !!referenceOwner() && referenceOwner() === account;
+  function requestRecord(
+    requestId: string,
+    account: string,
+    responding = false,
+  ) {
+    const row = db
+      .prepare("SELECT * FROM market_requests WHERE id=?")
+      .get(requestId) as any;
+    if (!row) return fail("Request not found.", 404);
+    const recipient = row.provider?.startsWith("reference:")
+      ? isReferenceOwner(account)
+      : !!db
+          .prepare("SELECT id FROM market_providers WHERE id=? AND account=?")
+          .get(row.provider || "", account);
+    if (!recipient && (responding || row.buyer !== account))
+      fail("Request not found.", 404);
+    return row;
+  }
+  function attachedSample(jobId: string, account: string, toolId: string) {
+    const job = db
+      .prepare(
+        "SELECT body FROM market_jobs WHERE id=? AND owner=? AND tool=? AND expires>?",
+      )
+      .get(jobId, account, toolId, Date.now()) as any;
+    if (!job)
+      fail(
+        "Sample not found, expired or owned by another account. Run the sample again.",
+        404,
+      );
+    return snapshotSample(JSON.parse(job.body));
+  }
   function providerRecord(res: Response, providerId: string) {
     const p = db
       .prepare("SELECT * FROM market_providers WHERE id=? AND account=?")
       .get(providerId, requireAccount(res)) as any;
+    if (p && JSON.parse(p.body).guidedDemo)
+      fail(
+        "Guided examples cannot be published or connected as real providers.",
+        409,
+      );
     return p || fail("Provider draft not found.", 404);
   }
   function listed() {
@@ -167,6 +210,8 @@ export function registerMarket(
       ai: { ...aiStatus(), available: isLiveAI() },
       demo: context.demo,
       referenceOrigin: referenceOrigin(),
+      referenceInboxConfigured: !!referenceOwner(),
+      referenceOwner: isReferenceOwner(accountId(db, res.locals.learner) || ""),
     }),
   );
   app.post("/api/market/auth/:action", (req, res) => {
@@ -319,10 +364,14 @@ export function registerMarket(
       );
       const cached = db
         .prepare(
-          "SELECT body FROM market_jobs WHERE owner=? AND tool=? AND fingerprint=? AND expires>?",
+          "SELECT body FROM market_jobs WHERE owner=? AND tool=? AND fingerprint=? AND expires>? ORDER BY created DESC,rowid DESC LIMIT 1",
         )
         .get(owner(res), toolId, fingerprint, Date.now()) as any;
-      if (cached) return { ...JSON.parse(cached.body), cached: true };
+      if (cached) {
+        const previous = JSON.parse(cached.body);
+        if (!input.sample || toolId === "booking-board" || previous.sampleInput)
+          return { ...previous, cached: true };
+      }
       const jobId = id("job"),
         start = performance.now(),
         expires = Date.now() + 86400000;
@@ -379,6 +428,19 @@ export function registerMarket(
         version: tool.version,
         elapsedMs: Math.max(1, Math.round(performance.now() - start)),
         ...result,
+        sampleInput:
+          input.sample && toolId !== "booking-board"
+            ? {
+                source: "bundled-images",
+                options: {
+                  label: input.label,
+                  date: input.date,
+                  pattern: input.pattern,
+                  preserveFolders: input.preserveFolders,
+                  mapping: toolId === "pattern-rename" ? "" : input.mapping,
+                },
+              }
+            : null,
         artifacts: artifacts.map(({ id, name, type }) => ({ id, name, type })),
         expires,
       };
@@ -610,18 +672,22 @@ export function registerMarket(
             "SELECT * FROM market_providers WHERE account=? ORDER BY updated DESC",
           )
           .all(account) as any[]
-      ).map((p) => ({
-        id: p.id,
-        ...JSON.parse(p.body),
-        checks: p.checks ? JSON.parse(p.checks) : null,
-        checked:
-          p.checked_hash === sha(JSON.stringify(JSON.parse(p.body).manifest)),
-      })),
+      )
+        .filter((p) => !JSON.parse(p.body).guidedDemo)
+        .map((p) => ({
+          id: p.id,
+          ...JSON.parse(p.body),
+          checks: p.checks ? JSON.parse(p.checks) : null,
+          checked:
+            p.checked_hash === sha(JSON.stringify(JSON.parse(p.body).manifest)),
+        })),
       requests: db
         .prepare(
-          "SELECT r.* FROM market_requests r JOIN market_providers p ON r.provider=p.id WHERE p.account=? ORDER BY r.created DESC",
+          "SELECT r.* FROM market_requests r LEFT JOIN market_providers p ON r.provider=p.id WHERE p.account=? OR (?=1 AND r.provider LIKE 'reference:%') ORDER BY r.created DESC",
         )
-        .all(account),
+        .all(account, isReferenceOwner(account) ? 1 : 0),
+      referenceOwner: isReferenceOwner(account),
+      referenceInboxConfigured: !!referenceOwner(),
     });
   });
   app.post("/api/market/providers", (req, res) => {
@@ -828,9 +894,13 @@ export function registerMarket(
         toolId: z.string(),
         request: z.string().trim().min(15).max(1500),
         budget: z.string().max(40).optional(),
+        sampleJobId: z.string().max(100).optional(),
       })
       .parse(req.body);
     const tool = toolById(body.toolId);
+    const sample = body.sampleJobId
+      ? attachedSample(body.sampleJobId, account, tool.id)
+      : null;
     const requestId = id("request");
     db.prepare(
       "INSERT INTO market_requests VALUES(?,?,?,?,?,NULL,'open',?)",
@@ -838,15 +908,23 @@ export function registerMarket(
       requestId,
       account,
       tool.id,
-      tool.reference ? null : tool.id,
+      tool.reference ? `reference:${tool.id}` : tool.id,
       JSON.stringify({
+        sample,
         request: body.request,
         budget: body.budget || "",
         toolTitle: tool.title,
       }),
       Date.now(),
     );
-    res.json({ id: requestId, status: "open" });
+    res.json({
+      id: requestId,
+      status: "open",
+      delivery:
+        tool.reference && !referenceOwner()
+          ? "awaiting-owner-setup"
+          : "builder-inbox",
+    });
   });
   app.get("/api/market/adaptations", (_req, res) =>
     res.json(
@@ -859,12 +937,7 @@ export function registerMarket(
   );
   app.post("/api/market/adaptations/:id/respond", (req, res) => {
     const account = requireAccount(res),
-      row = db
-        .prepare(
-          "SELECT r.* FROM market_requests r JOIN market_providers p ON p.id=r.provider WHERE r.id=? AND p.account=?",
-        )
-        .get(String(req.params.id), account) as any;
-    if (!row) fail("Request not found.", 404);
+      row = requestRecord(String(req.params.id), account, true);
     const { response } = z
       .object({ response: z.string().trim().min(10).max(2000) })
       .parse(req.body);
@@ -872,5 +945,74 @@ export function registerMarket(
       "UPDATE market_requests SET response=?,status='responded' WHERE id=?",
     ).run(response, row.id);
     res.json({ ok: true });
+  });
+  app.post("/api/market/adaptations/:id/sample", (req, res) => {
+    const account = requireAccount(res),
+      row = requestRecord(String(req.params.id), account);
+    context.limit(`request-replay:${account}`, 30, 3600000);
+    const input = z
+      .object({ alternative: z.literal("map-rename").optional() })
+      .strict()
+      .parse(req.body);
+    const body = JSON.parse(row.body);
+    if (!body.sample) fail("No reproducible sample is attached.");
+    res.json(replaySample(body.sample, input.alternative));
+  });
+  app.get("/api/market/example", (_req, res) => {
+    const account = accountId(db, res.locals.learner);
+    res.json({
+      request: account
+        ? db
+            .prepare("SELECT * FROM market_requests WHERE id=? AND buyer=?")
+            .get(`guided-request:${account}`, account) || null
+        : null,
+    });
+  });
+  app.post("/api/market/example", (req, res) => {
+    const account = requireAccount(res);
+    context.limit(`guided-example:${account}`, 15, 3600000);
+    const { sampleJobId } = z
+      .object({ sampleJobId: z.string().max(100) })
+      .strict()
+      .parse(req.body);
+    const sample = attachedSample(sampleJobId, account, "pattern-rename");
+    const providerId = `guided-provider:${account}`,
+      requestId = `guided-request:${account}`;
+    transaction(db, () => {
+      db.prepare(
+        "INSERT OR IGNORE INTO market_providers VALUES(?,?,?,?,NULL,NULL,?)",
+      ).run(
+        providerId,
+        account,
+        JSON.stringify({
+          title: "Pattern Rename practice example",
+          guidedDemo: true,
+          published: false,
+        }),
+        hash(randomBytes(32).toString("hex")),
+        Date.now(),
+      );
+      db.prepare(
+        "INSERT OR IGNORE INTO market_requests VALUES(?,?,?,?,?,NULL,'open',?)",
+      ).run(
+        requestId,
+        account,
+        "pattern-rename",
+        providerId,
+        JSON.stringify({
+          guidedDemo: true,
+          toolTitle: "Pattern Rename · guided example",
+          request:
+            "Could this keep my camera/ and portraits/ folders in the output ZIP?",
+          sample,
+        }),
+        Date.now(),
+      );
+    });
+    res.json({
+      request: db
+        .prepare("SELECT * FROM market_requests WHERE id=? AND buyer=?")
+        .get(requestId, account),
+    });
   });
 }

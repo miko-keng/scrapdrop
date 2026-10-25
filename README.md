@@ -25,7 +25,7 @@ For a fresh setup, copy `.env.example` to `.env` and fill only the relevant serv
 4. Create a TaskSlice account before purchasing or saving. It is separate from PayPal. Passwords are hashed with scrypt; your purchases and builder records follow your account across sign-ins.
 5. **Get this application** opens PayPal sandbox checkout. Reference products cost $5, $7 and $9 USD respectively. The server controls price and verifies canonical payment amount, currency and recipient. This buys hosted access, not source ownership. Access lasts 30 days from the first access check after verified capture, without automatic renewal.
 6. Paid rename access allows 100 images per run and saved naming presets. Booking Board allows up to 20 saved booking pages. Set a future session date and capacity; share the booking link, inspect the private attendee list and export CSV. Attendee reservations are free and do not send email.
-7. Return through **My workspace**. Trial downloads expire after 24 hours. Ask for a specific adaptation from the tool page and track responses in your workspace. Reference-app requests remain local; nothing is sent to an external company.
+7. Return through **My workspace**. Trial downloads expire after 24 hours. Ask for a specific adaptation from the tool page and track responses in your workspace. Reference-app requests route to the configured TaskSlice owner inbox.
 
 The sample tools are deliberately small examples. Independent providers can register applications in other fields through **For builders**.
 
@@ -105,3 +105,11 @@ See `MARKETPLACE_BUILD_REPORT.md` for executed checks and limits. A real sandbox
 Public production requires account recovery/email verification, independent PayPal seller onboarding, external-origin ownership validation and request restrictions, operational limits, shared storage if scaled, provider credential rotation and a deployment review. This build stays local and does not deploy or host arbitrary provider source.
 
 The earlier quote app is retained in `src/ExpertiseApp.tsx` and `LEGACY_EXPERTISE_README.md`; the earlier lessons remain under `/lessons`. New marketplace navigation is the supported entry point.
+
+## Connected sample and request walkthrough
+
+The homepage example now opens a prefilled Pattern Rename sample. A bundled sample result can be attached to a feature request, reproduced by the receiving builder, and followed through the buyer workspace. **For builders** includes a complete, labelled buyer-to-builder practice example using real sample runs and a private saved request/reply.
+
+Reference-app requests now have an owner inbox. Set `TASKSLICE_REFERENCE_OWNER_ACCOUNT_ID` in Render to the existing TaskSlice account ID shown in that account's builder inbox setup section. Without configuration, requests explicitly await owner setup. No signup automatically becomes the reference-app owner.
+
+See [docs/REQUEST_FLOW_GUIDE.md](docs/REQUEST_FLOW_GUIDE.md) for the walkthrough and Render setup. The updated suite passes 41 offline tests; this change made zero live Gemini calls.
