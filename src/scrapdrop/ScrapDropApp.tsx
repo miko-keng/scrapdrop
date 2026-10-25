@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { motion, MotionConfig } from "motion/react";
+import { motion, MotionConfig, useReducedMotion } from "motion/react";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -38,6 +38,7 @@ import {
 } from "./model";
 import type { Config } from "../shared/types";
 import "./style.css";
+import "./studio-theme.css";
 import { Art, CutDiagram } from "./ProjectArt";
 const KitViewer = lazy(() => import("./KitViewer"));
 const Loader = () => <LoaderCircle size={17} className="sd-spin" />;
@@ -367,14 +368,14 @@ export default function ScrapDropApp() {
                     ANOTHER BEGINNING.
                   </span>
                   <h1>
-                    A little leftover.
+                    Small scraps.
                     <br />
-                    <em>A lot of possibility.</em>
+                    <em>Big possibilities.</em>
                   </h1>
                   <p>
-                    A piece of card. A length of ribbon. Something lovely
-                    waiting to happen. Find a project, make it yours, and pick
-                    up just what you need.
+                    Turn the studio’s leftover materials into your next lovely
+                    thing. Choose a project, make it yours in 3D, and collect a
+                    kit with every piece.
                   </p>
                   <div className="sd-hero-actions">
                     <button
@@ -405,52 +406,14 @@ export default function ScrapDropApp() {
                     <span>03 Pick up your kit</span>
                   </div>
                 </div>
-                <div className="sd-hero-stage">
-                  <span className="sd-paper-note">
-                    Not quite a scrap.
-                    <br />
-                    <em>Not anymore.</em>
-                  </span>
-                  <span className="sd-stage-label">
-                    <span className="sd-live-dot" />A PROJECT YOU CAN MAKE
-                  </span>
-                  {hero ? (
-                    <Suspense
-                      fallback={
-                        <div className="sd-stage-loading">
-                          <Loader />
-                        </div>
-                      }
-                    >
-                      <KitViewer kit={hero} />
-                    </Suspense>
-                  ) : (
-                    <div className="sd-stage-loading">
-                      <Package size={90} />
-                      <p>More materials are on their way.</p>
-                    </div>
-                  )}
-                  <div className="sd-hero-project">
-                    <div>
-                      <small>
-                        {hero
-                          ? `${hero.materials[0].shade.toUpperCase()} ${hero.materials[0].type.toUpperCase()} + ${hero.materials[1].shade.toUpperCase()} RIBBON`
-                          : "CONFIRMED MATERIALS"}
-                      </small>
-                      <strong>The little gift box</strong>
-                      <span>Drag to look around · design preview</span>
-                    </div>
-                    {hero && (
-                      <button
-                        className="sd-round"
-                        onClick={() => open(hero.config)}
-                        aria-label="Customize the gift box"
-                      >
-                        <ArrowUpRight />
-                      </button>
-                    )}
+                {hero ? (
+                  <HeroProject kit={hero} onOpen={() => open(hero.config)} />
+                ) : (
+                  <div className="sd-hero-stage sd-stage-loading">
+                    <Package size={90} />
+                    <p>More materials are on their way.</p>
                   </div>
-                </div>
+                )}
               </section>
               <section className="sd-intro-row">
                 <span className="sd-kicker">
@@ -478,7 +441,7 @@ export default function ScrapDropApp() {
                       <div className="sd-stock-mini" key={m.id}>
                         <div
                           className={"sd-scrap " + m.type}
-                          style={{ background: m.color }}
+                          style={{ backgroundColor: m.color }}
                         />
                         <strong>{m.shade}</strong>
                         <small>
@@ -542,6 +505,89 @@ export default function ScrapDropApp() {
     </MotionConfig>
   );
 }
+function HeroProject({ kit, onOpen }: { kit: Kit; onOpen: () => void }) {
+  const [play, setPlay] = useState(0),
+    [exploded, setExploded] = useState(false);
+  const reduced = useReducedMotion();
+  useEffect(() => {
+    if (reduced) return;
+    setExploded(true);
+    const timer = setTimeout(() => setExploded(false), 1900);
+    return () => clearTimeout(timer);
+  }, [play, reduced]);
+  return (
+    <div className="sd-hero-stage">
+      <div className="sd-stage-orbit" aria-hidden="true" />
+      <span className="sd-stage-label">THE SCRAP → THE POSSIBILITY</span>
+      <span className="sd-maker-seal" aria-hidden="true">
+        a little
+        <br />
+        <b>RE-MADE</b>
+        <br />
+        by you ✳
+      </span>
+      <div className="sd-material-ticket">
+        <span className="sd-ticket-pieces" aria-hidden="true">
+          <i style={{ backgroundColor: kit.materials[0].color }} />
+          <i style={{ backgroundColor: kit.materials[1].color }} />
+        </span>
+        <span>
+          {kit.materials[0].shade} card
+          <br />
+          <b>+ {kit.materials[1].shade.toLowerCase()} ribbon</b>
+        </span>
+        <ArrowRight size={18} />
+      </div>
+      <Suspense
+        fallback={
+          <div className="sd-stage-loading">
+            <Loader />
+          </div>
+        }
+      >
+        <KitViewer kit={kit} exploded={exploded} presentation />
+      </Suspense>
+      <button
+        className="sd-transform-play"
+        onClick={() =>
+          reduced ? setExploded((v) => !v) : setPlay((n) => n + 1)
+        }
+        aria-label={
+          reduced
+            ? exploded
+              ? "Show the finished gift box"
+              : "Inspect the separate pieces"
+            : "Replay scraps assembling into the gift box"
+        }
+      >
+        <RotateCcw size={13} />
+        {reduced
+          ? exploded
+            ? "Show finished box"
+            : "Inspect the pieces"
+          : "See it come together"}
+      </button>
+      <div className="sd-hero-project">
+        <div>
+          <small>FROM TWO MATERIALS TO…</small>
+          <strong>{kit.template.title}</strong>
+          <span>Make it yours · {money(kit.total)}</span>
+        </div>
+        <button
+          className="sd-round"
+          onClick={onOpen}
+          aria-label="Customize the gift box"
+        >
+          <ArrowUpRight />
+        </button>
+      </div>
+      <span className="sd-stage-footnote">
+        Interactive design illustration · drag to explore
+      </span>
+    </div>
+  );
+}
+
 function Brief({
   shop,
   onOpen,
@@ -706,7 +752,14 @@ function Brief({
               onClick={() => onOpen(kit.config)}
               aria-label={`Customize ${kit.template.title}`}
             >
-              <Art kit={kit} />
+              <Art kit={kit} scene />
+              <span className="sd-scene-caption" aria-hidden="true">
+                {kit.template.id === "giftbox"
+                  ? "FOR SOMEONE SPECIAL"
+                  : kit.template.id === "wrap"
+                    ? "A NEW CHAPTER"
+                    : "ONE MORE PAGE"}
+              </span>
               <span className="sd-card-badge">
                 <Clock size={12} />
                 {kit.template.minutes} min hands-on
@@ -841,7 +894,7 @@ function Studio({
         </span>
       </div>
       <div className="sd-studio-grid">
-        <section className="sd-studio-stage">
+        <section className={"sd-studio-stage sd-scene-" + display.template.id}>
           <div className="sd-stage-top">
             <span className="sd-kicker">
               <span className="sd-live-dot" />
@@ -940,7 +993,7 @@ function Studio({
                       setSelected(m.id);
                     }}
                   >
-                    <i style={{ background: m.color }}>
+                    <i style={{ backgroundColor: m.color }}>
                       {value.materialId === m.id && <Check size={20} />}
                     </i>
                     <span>{m.shade}</span>
@@ -972,7 +1025,7 @@ function Studio({
                       setSelected(m.id);
                     }}
                   >
-                    <i style={{ background: m.color }}>
+                    <i style={{ backgroundColor: m.color }}>
                       {value.ribbonId === m.id && <Check size={20} />}
                     </i>
                     <span>{m.shade}</span>
@@ -1133,7 +1186,7 @@ function Studio({
                 ) : (
                   <div
                     className={"sd-scrap " + m.type}
-                    style={{ background: m.color }}
+                    style={{ backgroundColor: m.color }}
                   />
                 )}
                 <span>
@@ -2073,7 +2126,7 @@ function ShopWorkspace({
                   ) : (
                     <div
                       className={"sd-scrap " + m.type}
-                      style={{ background: m.color }}
+                      style={{ backgroundColor: m.color }}
                     />
                   )}
                   <span>

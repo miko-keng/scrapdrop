@@ -1,0 +1,603 @@
+/* ScrapDrop studio: original paper surfaces, bold objects, quiet controls. */
+.sd-app {
+  --ink: #243e34;
+  --muted: #656b60;
+  --paper: #faf7ef;
+  --line: #dfdfd3;
+  --cobalt: #324bd5;
+  --coral: #ef866d;
+  --butter: #f5df87;
+}
+.sd-app .sd-header {
+  border-bottom-color: #d9dcd0;
+}
+.sd-app .sd-brand {
+  font-weight: 750;
+  letter-spacing: -0.065em;
+}
+.sd-app .sd-brand > svg {
+  background: var(--butter);
+  border-radius: 50%;
+  padding: 5px;
+  width: 32px;
+  height: 32px;
+}
+.sd-app .sd-kicker {
+  color: #59684f;
+}
+.sd-app .sd-hero {
+  grid-template-columns: 1fr 1.03fr;
+  gap: 4%;
+  padding: 48px 0 65px;
+  min-height: 680px;
+}
+.sd-app .sd-hero h1 {
+  font-size: clamp(52px, 6.2vw, 89px);
+  font-weight: 650;
+  line-height: 1.04;
+  letter-spacing: -0.075em;
+}
+.sd-app .sd-hero h1 em {
+  color: var(--cobalt);
+}
+.sd-app .sd-hero-copy > .sd-kicker {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  gap: 10px;
+  margin-bottom: 27px;
+}
+.sd-app .sd-asterisk {
+  color: #bd4f38;
+  font-size: 35px;
+}
+.sd-app .sd-hero-copy > p {
+  max-width: 370px;
+  font-size: 16px;
+  line-height: 1.8;
+  margin: 26px 0;
+}
+.sd-app .sd-hero-actions .sd-btn {
+  background: var(--cobalt);
+  border-color: var(--cobalt);
+  box-shadow: 0 4px 0 #243790;
+  padding: 16px 24px;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+.sd-app .sd-hero-actions .sd-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #243790;
+}
+.sd-app .sd-hero-actions > span {
+  color: #586447;
+}
+.sd-app .sd-hero-foot {
+  color: #586447;
+  margin-top: 34px;
+  font-size: 10px;
+}
+.sd-app .sd-hero-stage {
+  height: 555px;
+  min-height: 555px;
+  margin: 10px 0;
+  background: #eeeccf;
+  border-radius: 12px;
+  isolation: isolate;
+  box-shadow: 8px 9px 0 #e7e2d3;
+  background-image: radial-gradient(#52634215 0.6px, transparent 0.6px);
+  background-size: 5px 5px;
+}
+.sd-app .sd-stage-orbit {
+  position: absolute;
+  width: 78%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--cobalt);
+  top: 63px;
+  left: 11%;
+  transform: rotate(-12deg);
+}
+.sd-app .sd-stage-orbit:before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #fff7d955;
+  border-radius: 50%;
+  transform: scale(0.87);
+}
+.sd-app .sd-stage-label {
+  top: 24px;
+  left: 24px;
+  font-size: 9px;
+  color: #3d4b34;
+  font-weight: 650;
+}
+.sd-app .sd-hero-stage > .sd-viewer {
+  top: 76px;
+  height: 350px;
+  z-index: 1;
+}
+.sd-app .sd-maker-seal {
+  position: absolute;
+  right: -12px;
+  top: -15px;
+  width: 105px;
+  height: 105px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--coral);
+  color: #552b24;
+  border-radius: 50%;
+  font-size: 10px;
+  line-height: 1.3;
+  text-align: center;
+  transform: rotate(12deg);
+  z-index: 3;
+  box-shadow:
+    0 0 0 5px var(--paper),
+    0 0 0 6px #e38a73;
+}
+.sd-app .sd-maker-seal b {
+  font-size: 16px;
+  letter-spacing: -0.05em;
+}
+.sd-app .sd-material-ticket {
+  position: absolute;
+  top: 67px;
+  left: -17px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fffaf0;
+  padding: 12px 15px;
+  box-shadow: 2px 4px 0 #25322c19;
+  transform: rotate(-6deg);
+  z-index: 2;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.sd-app .sd-material-ticket b {
+  font-size: 10px;
+  font-weight: 400;
+  color: #66705e;
+}
+.sd-app .sd-ticket-pieces {
+  position: relative;
+  width: 37px;
+  height: 40px;
+}
+.sd-app .sd-ticket-pieces i {
+  position: absolute;
+  width: 28px;
+  height: 34px;
+  transform: rotate(-7deg);
+  box-shadow: 1px 2px 2px #0002;
+}
+.sd-app .sd-ticket-pieces i + i {
+  width: 9px;
+  height: 39px;
+  transform: rotate(22deg);
+  left: 22px;
+}
+.sd-app .sd-transform-play {
+  position: absolute;
+  right: 20px;
+  top: 395px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #fffaf0;
+  color: var(--ink);
+  border: 1px solid #d6dac4;
+  padding: 6px 10px;
+  border-radius: 30px;
+  font-size: 10px;
+  z-index: 3;
+}
+.sd-app .sd-transform-play:hover {
+  background: var(--butter);
+}
+.sd-app .sd-hero-project {
+  bottom: 31px;
+  left: 20px;
+  right: 20px;
+  border-radius: 5px;
+  padding: 15px 18px;
+  background: #fffdf6;
+  border: 0;
+}
+.sd-app .sd-hero-project strong {
+  font-size: 23px;
+}
+.sd-app .sd-hero-project small {
+  color: #626e54;
+  font-size: 8px;
+}
+.sd-app .sd-hero-project span {
+  color: #5e6d56;
+}
+.sd-app .sd-hero-project .sd-round {
+  background: var(--cobalt);
+}
+.sd-app .sd-stage-footnote {
+  position: absolute;
+  bottom: 7px;
+  left: 20px;
+  font-size: 8px;
+  color: #687054;
+}
+.sd-app .sd-intro-row {
+  background: var(--ink);
+  color: #fff8e9;
+  padding: 23px 28px;
+  border: 0;
+  border-radius: 7px;
+}
+.sd-app .sd-intro-row .sd-kicker {
+  color: var(--butter);
+}
+.sd-app .sd-intro-row p {
+  color: #f6f1dc;
+}
+.sd-app .sd-intro-row .sd-sample {
+  color: #e3e9d4;
+  background: #ffffff0c;
+  border-color: #ffffff30;
+}
+.sd-app .sd-handwritten {
+  color: #ac503b;
+}
+.sd-app .sd-brief {
+  border: 1px solid #cecfbf;
+  background: #fffdf7;
+  border-radius: 8px;
+  box-shadow: 4px 5px 0 #e8e4d7;
+}
+.sd-app .sd-brief .sd-brief-label {
+  color: #5c6d50;
+}
+.sd-app .sd-project-grid {
+  gap: 24px;
+}
+.sd-app .sd-project-card {
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  overflow: visible;
+}
+.sd-app .sd-card-art {
+  height: 285px;
+  border-radius: 8px;
+  background: #efb19b;
+  padding: 15px 15px 34px;
+}
+.sd-app .sd-card-art.wrap {
+  background: #b4c0ed;
+}
+.sd-app .sd-card-art.bookmark {
+  background: var(--butter);
+}
+.sd-app .sd-card-art > svg {
+  filter: drop-shadow(0 9px 6px #3a302819);
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.sd-app .sd-card-art:hover > svg {
+  transform: translateY(-7px) rotate(-3deg) scale(1.04);
+}
+.sd-app .sd-card-badge {
+  color: #344332;
+  background: #fffcf0e8;
+  font-size: 10px;
+}
+.sd-app .sd-scene-caption {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  font-weight: 600;
+  color: #503c32;
+}
+.sd-app .sd-card-art.wrap .sd-scene-caption {
+  color: #2e3973;
+}
+.sd-app .sd-card-arrow {
+  background: #fffaf2;
+  width: 36px;
+  height: 36px;
+}
+.sd-app .sd-card-body {
+  padding: 20px 2px;
+}
+.sd-app .sd-card-body h3 {
+  font-size: 27px;
+}
+.sd-app .sd-card-body > .sd-kicker {
+  color: #656a59;
+}
+.sd-app .sd-card-bottom {
+  color: #5f6958;
+  border-color: #d4d7c6;
+}
+.sd-app .sd-card-bottom strong {
+  font-size: 18px;
+  color: var(--ink);
+}
+.sd-app .sd-stock-mini {
+  background: #eeeadd;
+  border-radius: 5px;
+  padding: 20px 5px 13px;
+}
+.sd-app .sd-stock-mini:nth-child(2n) {
+  background: #ede6d9;
+}
+.sd-app .sd-stock-mini small {
+  color: #626851;
+}
+.sd-app .sd-scrap {
+  box-shadow: 4px 6px 0 #34432d18;
+  background-image: repeating-linear-gradient(
+    32deg,
+    #fff2 0px,
+    #fff2 1px,
+    transparent 1px,
+    transparent 4px
+  );
+}
+.sd-app .sd-scrap.fabric {
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      #fff3 0,
+      #fff3 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      #0002 0,
+      #0002 1px,
+      transparent 1px,
+      transparent 3px
+    );
+}
+.sd-app .sd-how article > span {
+  color: var(--cobalt);
+  font-weight: 650;
+}
+.sd-app .sd-studio-grid {
+  grid-template-columns: 1.45fr 1fr;
+  gap: 5%;
+}
+.sd-app .sd-studio-stage {
+  background-color: #eeeccf;
+  border: 0;
+  border-radius: 10px;
+  background-image:
+    linear-gradient(#65755814 1px, transparent 1px),
+    linear-gradient(90deg, #65755814 1px, transparent 1px);
+  background-size: 28px 28px;
+  box-shadow: 6px 7px 0 #e5e1d4;
+}
+.sd-app .sd-studio-stage.sd-scene-wrap {
+  background-color: #d9dff3;
+  background-image:
+    linear-gradient(#5c70b41a 1px, transparent 1px),
+    linear-gradient(90deg, #5c70b41a 1px, transparent 1px);
+}
+.sd-app .sd-studio-stage.sd-scene-bookmark {
+  background-color: #f6e9b5;
+}
+.sd-app .sd-studio-stage .sd-viewer {
+  height: 540px;
+}
+.sd-app .sd-stage-top .sd-kicker {
+  color: #4b5d3f;
+  font-size: 9px;
+}
+.sd-app .sd-scene-note {
+  background: #fffdf3c9;
+  border-color: #d9dcc5;
+}
+.sd-app .sd-scene-note small {
+  color: #677057;
+}
+.sd-app .sd-stage-toolbar > span {
+  color: #566547;
+}
+.sd-app .sd-toggle {
+  background: #fffdf4;
+  border-color: #d4d7c9;
+  box-shadow: 0 3px 6px #42513e0a;
+}
+.sd-app .sd-toggle button.selected {
+  background: var(--cobalt);
+}
+.sd-app .sd-customize h1 {
+  font-size: 44px;
+  font-weight: 650;
+}
+.sd-app .sd-option-heading > span {
+  color: #5d6c53;
+}
+.sd-app .sd-swatches > button.selected i {
+  outline-color: var(--cobalt);
+}
+.sd-app .sd-swatches > button:hover i {
+  transform: translateY(-3px);
+}
+.sd-app .sd-swatches i {
+  transition: transform 0.2s;
+}
+.sd-app .sd-swatches > button > small {
+  color: #68735c;
+}
+@media (min-width: 1600px) {
+  .sd-app .sd-hero {
+    padding-top: 65px;
+  }
+}
+@media (max-width: 1000px) and (min-width: 701px) {
+  .sd-app .sd-hero {
+    gap: 4%;
+    min-height: 570px;
+  }
+  .sd-app .sd-hero h1 {
+    font-size: 58px;
+  }
+  .sd-app .sd-hero-stage {
+    height: 485px;
+    min-height: 485px;
+  }
+  .sd-app .sd-hero-stage > .sd-viewer {
+    height: 300px;
+    top: 65px;
+  }
+  .sd-app .sd-transform-play {
+    top: 339px;
+  }
+  .sd-app .sd-maker-seal {
+    width: 85px;
+    height: 85px;
+    right: -3px;
+  }
+  .sd-app .sd-material-ticket {
+    left: -10px;
+    top: 62px;
+    padding: 8px;
+  }
+  .sd-app .sd-card-art {
+    height: 235px;
+  }
+  .sd-app .sd-studio-stage .sd-viewer {
+    height: 450px;
+  }
+}
+@media (max-width: 700px) {
+  .sd-app .sd-hero {
+    grid-template-columns: 1fr;
+    gap: 25px;
+    padding: 34px 0 40px;
+  }
+  .sd-app .sd-hero h1 {
+    font-size: clamp(49px, 10.5vw, 70px);
+  }
+  .sd-app .sd-hero-copy > p {
+    max-width: 430px;
+    font-size: 15px;
+    margin: 22px 0;
+  }
+  .sd-app .sd-hero-copy > .sd-kicker {
+    font-size: 8px;
+    margin-bottom: 20px;
+  }
+  .sd-app .sd-hero-foot {
+    margin-top: 25px;
+  }
+  .sd-app .sd-hero-stage {
+    height: 470px;
+    min-height: 470px;
+    margin: 10px 7px 0;
+  }
+  .sd-app .sd-hero-stage > .sd-viewer {
+    height: 300px;
+    top: 61px;
+  }
+  .sd-app .sd-stage-orbit {
+    width: 75%;
+    left: 12.5%;
+    top: 65px;
+    max-height: 320px;
+  }
+  .sd-app .sd-material-ticket {
+    left: -10px;
+    top: 65px;
+    padding: 9px;
+  }
+  .sd-app .sd-maker-seal {
+    right: -8px;
+    width: 88px;
+    height: 88px;
+    font-size: 9px;
+  }
+  .sd-app .sd-maker-seal b {
+    font-size: 14px;
+  }
+  .sd-app .sd-transform-play {
+    top: 336px;
+    right: 14px;
+  }
+  .sd-app .sd-hero-project {
+    left: 14px;
+    right: 14px;
+    bottom: 30px;
+  }
+  .sd-app .sd-hero-project strong {
+    font-size: 21px;
+  }
+  .sd-app .sd-intro-row {
+    padding: 22px;
+    align-items: flex-start;
+  }
+  .sd-app .sd-card-art {
+    height: 290px;
+  }
+  .sd-app .sd-card-body h3 {
+    font-size: 26px;
+  }
+  .sd-app .sd-stock-mini {
+    padding: 15px 5px 10px;
+  }
+  .sd-app .sd-studio-grid {
+    grid-template-columns: 1fr;
+  }
+  .sd-app .sd-studio-stage {
+    position: relative;
+    top: 0;
+    margin-bottom: 25px;
+  }
+  .sd-app .sd-studio-stage .sd-viewer {
+    height: 410px;
+  }
+  .sd-app .sd-customize h1 {
+    font-size: 36px;
+  }
+}
+@media (max-width: 380px) {
+  .sd-app .sd-hero h1 {
+    font-size: 45px;
+  }
+  .sd-app .sd-hero-stage {
+    height: 440px;
+    min-height: 440px;
+  }
+  .sd-app .sd-hero-stage > .sd-viewer {
+    top: 65px;
+    height: 265px;
+  }
+  .sd-app .sd-transform-play {
+    top: 306px;
+    font-size: 9px;
+  }
+  .sd-app .sd-stage-label {
+    left: 14px;
+    font-size: 8px;
+  }
+  .sd-app .sd-material-ticket {
+    font-size: 9px;
+  }
+  .sd-app .sd-studio-stage .sd-viewer {
+    height: 340px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sd-app .sd-card-art > svg,
+  .sd-app .sd-swatches i,
+  .sd-app .sd-hero-actions .sd-btn {
+    transition: none;
+  }
+}

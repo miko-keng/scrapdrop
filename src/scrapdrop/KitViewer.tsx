@@ -5,6 +5,7 @@ import type { Kit } from "./model";
 import { Art } from "./ProjectArt";
 type Props = {
   kit: Kit;
+  presentation?: boolean;
   exploded?: boolean;
   selected?: string;
   step?: number;
@@ -13,6 +14,7 @@ type Props = {
 };
 export default function KitViewer({
   kit,
+  presentation = false,
   exploded = false,
   selected = "",
   step = 0,
@@ -44,6 +46,8 @@ export default function KitViewer({
     const scene = new THREE.Scene(),
       camera = new THREE.PerspectiveCamera(35, 1, 1, 3000),
       controls = new OrbitControls(camera, renderer.domElement);
+    camera.zoom = presentation ? 1.65 : 1.08;
+    camera.updateProjectionMatrix();
     controls.enableDamping = true;
     controls.dampingFactor = 0.09;
     controls.minDistance = 120;
@@ -57,6 +61,38 @@ export default function KitViewer({
     const fill = new THREE.DirectionalLight(0xffffff, 1.2);
     fill.position.set(-200, 100, -100);
     scene.add(fill);
+    // Original procedural surface studies; illustrative grain, never uploaded photos.
+    const surfaceTextures = new Map<string, THREE.CanvasTexture>();
+    function surface(type: string) {
+      if (surfaceTextures.has(type)) return surfaceTextures.get(type)!;
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = 128;
+      const ctx = canvas.getContext("2d")!;
+      const pixels = ctx.createImageData(128, 128);
+      let seed = 19;
+      for (let y = 0; y < 128; y++)
+        for (let x = 0; x < 128; x++) {
+          seed = (seed * 1664525 + 1013904223) >>> 0;
+          const fiber =
+            type === "fabric"
+              ? (x % 4 === 0 ? 25 : 0) + (y % 4 === 0 ? 20 : 0)
+              : type === "ribbon"
+                ? x % 3 === 0
+                  ? 24
+                  : 0
+                : 0;
+          const v = 135 + (seed % 45) + fiber,
+            i = (y * 128 + x) * 4;
+          pixels.data[i] = pixels.data[i + 1] = pixels.data[i + 2] = v;
+          pixels.data[i + 3] = 255;
+        }
+      ctx.putImageData(pixels, 0, 0);
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(type === "card" ? 5 : 3, type === "card" ? 5 : 3);
+      surfaceTextures.set(type, texture);
+      return texture;
+    }
     const group = new THREE.Group();
     scene.add(group);
     const shadow = new THREE.Mesh(
@@ -131,7 +167,7 @@ export default function KitViewer({
       meshes = [];
     }
     const resetCamera = () => {
-      const box = new THREE.Box3().setFromObject(group);
+      const box = new THREE.Box3();
       for (const mesh of meshes) {
         const half = new THREE.Vector3(...mesh.userData.size).multiplyScalar(
           0.5,
@@ -141,32 +177,52 @@ export default function KitViewer({
       }
       const center = box.getCenter(new THREE.Vector3()),
         size = box.getSize(new THREE.Vector3()),
-        s = Math.max(size.x, size.y, size.z, 100);
+        s = Math.max(size.x / Math.min(camera.aspect, 1.4), size.y, size.z, 85);
       controls.target.copy(center);
       camera.position.set(
-        center.x + s * 1.8,
-        center.y + s * 1.35,
-        center.z + s * 2.3,
+        center.x + s * 1.45,
+        center.y + s * 1.1,
+        center.z + s * 1.85,
       );
       controls.update();
       movingUntil = Date.now() + 1500;
     };
     runtime.current = {
       update: (k: Kit, explode: boolean, chosen: string, assembly: number) => {
+        const previousByIndex = meshes.map((mesh) => ({
+          position: mesh.position.clone(),
+          color: (mesh.material as THREE.MeshStandardMaterial).color.clone(),
+        }));
         disposeGroup();
         for (const part of k.parts) {
           const geometry = new THREE.BoxGeometry(...part.size),
             material = new THREE.MeshStandardMaterial({
               color: part.color,
-              roughness: part.stockId?.startsWith("fabric") ? 0.97 : 0.8,
+              roughness:
+                k.materials.find((m) => m.id === part.stockId)?.type ===
+                "fabric"
+                  ? 0.97
+                  : 0.84,
+              bumpMap: part.context
+                ? null
+                : surface(
+                    k.materials.find((m) => m.id === part.stockId)?.type ||
+                      "card",
+                  ),
+              bumpScale: 0.12,
               metalness: 0,
               transparent: !!part.context,
               opacity: part.context ? 0.6 : 1,
             });
           const mesh = new THREE.Mesh(geometry, material);
-          mesh.position.set(...part.position);
+          const old = previousByIndex[meshes.length];
+          mesh.position.copy(
+            old?.position || new THREE.Vector3(...part.position),
+          );
+          if (old) material.color.copy(old.color);
           mesh.userData = {
             ...part,
+            targetColor: new THREE.Color(part.color),
             target: new THREE.Vector3(
               ...(explode ? part.exploded : part.position),
             ),
@@ -198,7 +254,9 @@ export default function KitViewer({
         }
         shadow.scale.set(
           k.config.width * 0.9 + 30,
-          k.config.depth * 0.8 + 30,
+          (k.template.id === "giftbox" ? k.config.depth : k.config.height) *
+            0.8 +
+            22,
           1,
         );
         movingUntil = Date.now() + 1800;
@@ -209,18 +267,24 @@ export default function KitViewer({
       lastMode = "";
     runtime.current.setKit = (k: Kit, e: boolean, s: string, a: number) => {
       runtime.current.update(k, e, s, a);
-      if (lastTemplate !== k.template.id || lastMode !== `${e}:${a}`) {
+      const mode = `${e}:${a}:${k.config.width}:${k.config.depth}:${k.config.height}`;
+      if (lastTemplate !== k.template.id || lastMode !== mode) {
         resetCamera();
         lastTemplate = k.template.id;
-        lastMode = `${e}:${a}`;
+        lastMode = mode;
       }
     };
     renderer.setAnimationLoop(() => {
       if (!visible || document.hidden) return;
       controls.update();
       if (Date.now() > movingUntil) return;
-      for (const mesh of meshes)
-        mesh.position.lerp(mesh.userData.target, reduced ? 1 : 0.13);
+      for (const mesh of meshes) {
+        mesh.position.lerp(mesh.userData.target, reduced ? 1 : 0.1);
+        (mesh.material as THREE.MeshStandardMaterial).color.lerp(
+          mesh.userData.targetColor,
+          reduced ? 1 : 0.12,
+        );
+      }
       renderer.render(scene, camera);
     });
     const lost = (e: Event) => {
@@ -235,6 +299,7 @@ export default function KitViewer({
       controls.dispose();
       renderer.setAnimationLoop(null);
       disposeGroup();
+      surfaceTextures.forEach((texture) => texture.dispose());
       shadow.geometry.dispose();
       (shadow.material as THREE.Material).dispose();
       renderer.dispose();
