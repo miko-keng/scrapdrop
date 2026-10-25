@@ -9,12 +9,20 @@ export const aiMode = () => process.env.AI_MODE || "fixture";
 export const isLiveAI = () =>
   !!testTransport || (aiMode() === "live" && !!process.env.GEMINI_API_KEY);
 export const aiStatus = () => {
-  const requested = Number(process.env.AI_TEST_REQUEST_BUDGET ?? 3);
+  const judging =
+    process.env.AI_RUNTIME_MODE === "judging" &&
+    process.env.NODE_ENV !== "test";
+  const ceiling = judging ? 30 : 3;
+  const requested = Number(
+    judging
+      ? (process.env.AI_JUDGING_PROCESS_BUDGET ?? 3)
+      : (process.env.AI_TEST_REQUEST_BUDGET ?? 3),
+  );
   return {
     mode: aiMode(),
     liveRequests: calls,
     budget: Number.isFinite(requested)
-      ? Math.min(3, Math.max(0, Math.floor(requested)))
+      ? Math.min(ceiling, Math.max(0, Math.floor(requested)))
       : 0,
   };
 };
@@ -32,7 +40,7 @@ export async function aiFetch(url: string, init: RequestInit) {
   const budget = aiStatus().budget;
   if (calls >= budget)
     throw new Error(
-      "The three-request Gemini verification budget is exhausted. Use manual input.",
+      "The configured Gemini request budget is exhausted. Use manual input.",
     );
   calls++;
   return fetch(url, init);

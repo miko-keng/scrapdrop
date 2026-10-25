@@ -1,3 +1,4 @@
+import { registerScrap } from "./scrapdrop/routes";
 import { registerMarket } from "./market/routes";
 import { registerProviderProtocol } from "./market/protocol";
 import { accountId } from "./market/store";
@@ -29,6 +30,7 @@ if (process.env.PAYPAL_ENV && process.env.PAYPAL_ENV !== "sandbox")
   throw new Error("This release supports PayPal sandbox only.");
 const db = openStore();
 const app = express();
+let scrapRuntime: ReturnType<typeof registerScrap>;
 const port = Number(process.env.PORT || 4317);
 const origin = process.env.APP_BASE_URL || `http://127.0.0.1:${port}`;
 const production = process.env.NODE_ENV === "production";
@@ -141,6 +143,10 @@ async function reconcile(order: any) {
   }
 }
 async function processEvent(event: any) {
+  if (scrapRuntime && (await scrapRuntime.event(event))) {
+    db.prepare("UPDATE events SET status='processed' WHERE id=?").run(event.id);
+    return;
+  }
   const orderId = event.resource?.supplementary_data?.related_ids?.order_id;
   let order = orderId
     ? (db
@@ -402,6 +408,7 @@ registerMarket(app, db, {
     }
   },
 });
+scrapRuntime = registerScrap(app, db, { demo, limit });
 registerExpert(app, db, {
   demo,
   limit,
@@ -911,10 +918,10 @@ if (production) {
 }
 const server = app.listen(port, process.env.HOST || "127.0.0.1");
 server.on("listening", () =>
-  console.log(`TaskSlice ready at http://127.0.0.1:${port}`),
+  console.log(`ScrapDrop ready at http://127.0.0.1:${port}`),
 );
 server.on("error", (error) => {
-  console.error("TaskSlice could not start: " + error.message);
+  console.error("ScrapDrop could not start: " + error.message);
   process.exit(1);
 });
 let busy = false;
@@ -922,6 +929,7 @@ const worker = setInterval(async () => {
   if (busy) return;
   busy = true;
   try {
+    await scrapRuntime.worker();
     for (const ev of db
       .prepare("SELECT body FROM events WHERE status='received' LIMIT 5")
       .all() as any[])
