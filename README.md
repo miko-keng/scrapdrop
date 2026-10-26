@@ -155,3 +155,6 @@ npm run ai:off  # sets AI_MODE=fixture in .env
 ```
 
 Restart your server after either change. On Render, change **AI_MODE** in the service’s Environment settings and redeploy/restart; a local `.env` change does not change Render. Normal navigation, animation, cutting calculations, progress and economics use no model calls. Routine tests force fixture mode. The existing process, identity/day and database quotas still apply. See [tutorial verification](TUTORIAL_BUILD_REPORT.md), [physical/novice trial pack](MAKING_TRIAL_PACK.md) and [three-minute demonstration outline](SUBMISSION_DEMO.md).
+
+
+For a short practice run, follow [your three-minute demo rehearsal](TEST_GUIDE_AND_E2E_PLAN.md). The [expanded E2E results](EXPANDED_E2E_REPORT.md) distinguish browser checks, input scenarios, model calls and deferred real-world/provider evidence. [The engineering test plan](ENGINEERING_TEST_PLAN.md) retains the detailed campaign scope.

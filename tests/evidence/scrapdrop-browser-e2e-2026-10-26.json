@@ -1,0 +1,590 @@
+[
+  {
+    "id": "B01",
+    "name": "Four-box mixed-material shortfall",
+    "status": "PASS",
+    "evidence": "3 owned sheets + owned ribbon; one $1.90 shop sheet"
+  },
+  {
+    "id": "B02",
+    "name": "Fully owned free plan",
+    "status": "PASS",
+    "evidence": "Save my making plan available without checkout"
+  },
+  {
+    "id": "B03",
+    "name": "Missing glue blocks purchase",
+    "status": "PASS",
+    "evidence": "ONLY THE MISSING MATERIALS\nYour top-up basket.\n\n3 / 4 sheet blanks and 4 / 4 ribbon cuts come from your shelf.\n\n1 \u00d7 Olive card offcut\n$1.90\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$1.90\n\n$5.10 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nYou still need these tools: glue.\n\nCollection window\nTue 27 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nWed 28 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nThu 29 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nReview top-up with PayPal\n\nYou still need shop materials. Save my making plan becomes available when the selected option needs no purchase. Try the no-purchase example above to test saving.\n\nOnly purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
+  },
+  {
+    "id": "B04",
+    "name": "Explicitly arranging glue restores route",
+    "status": "PASS",
+    "evidence": "ONLY THE MISSING MATERIALS\nYour top-up basket.\n\n3 / 4 sheet blanks and 4 / 4 ribbon cuts come from your shelf.\n\n1 \u00d7 Olive card offcut\n$1.90\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$1.90\n\n$5.10 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nArrange before making: glue. These tools are not included in this purchase.\n\nCollection window\nTue 27 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nWed 28 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nThu 29 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nReview top-up with PayPal\n\nYou still need shop materials. Save my making plan becomes available when the selected option needs no purchase. Try the no-purchase example above to test saving.\n\nOnly purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
+  },
+  {
+    "id": "B05",
+    "name": "One minute below estimate blocks route",
+    "status": "PASS",
+    "evidence": "ONLY THE MISSING MATERIALS\nYour top-up basket.\n\n3 / 4 sheet blanks and 4 / 4 ribbon cuts come from your shelf.\n\n1 \u00d7 Olive card offcut\n$1.90\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$1.90\n\n$5.10 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nArrange before making: glue. These tools are not included in this purchase.\n\nAllow at least 110 hands-on minutes at the template pace, including 10 minutes setup. Drying and collection time are extra.\n\nCollection window\nTue 27 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nWed 28 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nThu 29 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nReview top-up with PayPal\n\nYou still need shop materials. Save my making plan becomes available when the selected option needs no purchase. Try the no-purchase example above to test saving.\n\nOnly purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
+  },
+  {
+    "id": "B06",
+    "name": "Exact estimated time accepted",
+    "status": "PASS",
+    "evidence": "110 minutes for four boxes"
+  },
+  {
+    "id": "B07",
+    "name": "Budget one cent below basket",
+    "status": "PASS",
+    "evidence": "ONLY THE MISSING MATERIALS\nYour top-up basket.\n\n3 / 4 sheet blanks and 4 / 4 ribbon cuts come from your shelf.\n\n1 \u00d7 Olive card offcut\n$1.90\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$1.90\n\n$5.10 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nThis materials and service total exceeds your budget. Adjust your permitted dimensions, shades, quantity or budget.\n\nArrange before making: glue. These tools are not included in this purchase.\n\nCollection window\nTue 27 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nWed 28 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nThu 29 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nReview top-up with PayPal\n\nYou still need shop materials. Save my making plan becomes available when the selected option needs no purchase. Try the no-purchase example above to test saving.\n\nOnly purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
+  },
+  {
+    "id": "B08",
+    "name": "Exact budget accepted",
+    "status": "PASS",
+    "evidence": "$1.90 budget and $1.90 basket"
+  },
+  {
+    "id": "B09",
+    "name": "Past deadline blocked",
+    "status": "HARNESS",
+    "evidence": "ONLY THE MISSING MATERIALS\nYour top-up basket.\n\n3 / 4 sheet blanks and 4 / 4 ribbon cuts come from your shelf.\n\n1 \u00d7 Olive card offcut\n$1.90\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$1.90\n\n$5.10 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nArrange before making: glue. These tools are not included in this purchase.\n\nCollection window\nTue 27 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nWed 28 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nThu 29 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nReview top-up with PayPal\n\nYou still need shop materials. Save my making plan becomes available when the selected option needs no purchase. Try the no-purchase example above to test saving.\n\nOnly purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made.",
+    "note": "Date fill did not commit in this browser; input stayed future. Native-keyboard retest B09-R verifies application behavior."
+  },
+  {
+    "id": "B10",
+    "name": "Cutting fee for purchased sheet",
+    "status": "PASS",
+    "evidence": "$1.90 shortfall + $2.50 service"
+  },
+  {
+    "id": "B11",
+    "name": "Service retains owned and detailed cutting",
+    "status": "PASS",
+    "evidence": "STEP 2 OF 8\nCut the box net\n\nCheck the shop\u2019s precut 180 \u00d7 245 mm outer blanks. Still cut your owned sheets and all detailed outlines yourself. Keep unused material.\n\nTools now: scissors, ruler\n\nKeep all four glue tabs attached. Solid lines are cuts; dashed lines are folds.\n\nBatch rhythm: Repeat this operation across 4 pieces where practical. Drying and collection are extra.\n\n I completed this step\nBack\nNext\n1\n2\n3\n4\n5\n6\n7\n8\n\nPreview only. Save a making plan or purchase materials to keep progress with that plan."
+  },
+  {
+    "id": "B12",
+    "name": "Service does not charge fully-owned plan",
+    "status": "PASS",
+    "evidence": "No purchased sheets means $0 service"
+  },
+  {
+    "id": "B09-R",
+    "name": "Past deadline entered through native keyboard",
+    "status": "PASS",
+    "evidence": "ONLY THE MISSING MATERIALS\nYour top-up basket.\n\n3 / 4 sheet blanks and 4 / 4 ribbon cuts come from your shelf.\n\n1 \u00d7 Olive card offcut\n$1.90\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$1.90\n\n$5.10 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nChoose a valid deadline today or later.\n\nNo collection window fits your deadline. Choose a later date and calculate again.\n\nCollection window\nReview top-up with PayPal\n\nYou still need shop materials. Save my making plan becomes available when the selected option needs no purchase. Try the no-purchase example above to test saving.\n\nOnly purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
+  },
+  {
+    "id": "B13",
+    "name": "Invalid quantity and dimension boundaries",
+    "status": "PASS",
+    "evidence": "[{\"label\":\"Finished quantity\",\"value\":\"0\",\"error\":\"Some details are missing or invalid. Please check your input.\",\"blocked\":true},{\"label\":\"Finished quantity\",\"value\":\"101\",\"error\":\"Some details are missing or invalid. Please check your input.\",\"blocked\":true},{\"label\":\"Finished quantity\",\"value\":\"1.5\",\"error\":\"Some details are missing or invalid. Please check your input.\",\"blocked\":true},{\"label\":\"Width (mm)\",\"value\":\"24\",\"error\":\"Some details are missing or invalid. Please check your input.\",\"blocked\":true},{\"label\":\"Width (mm)\",\"value\":\"201\",\"error\":\"Some details are missing or invalid. Please check your input.\",\"blocked\":true},{\"label\":\"Depth (mm)\",\"value\":\"29\",\"error\":\"Some details are missing or invalid. Please check your input.\",\"blocked\":true},{\"label\":\"Height (mm)\",\"value\":\"81\",\"error\":\"Some details are missing or invalid. Please check your input.\",\"blocked\":true}]"
+  },
+  {
+    "id": "B14",
+    "name": "Rotated sheet fits with exact margins",
+    "status": "PASS",
+    "evidence": "249\u00d7184 sheet fits 180\u00d7245 blank after rotation + 2mm margins"
+  },
+  {
+    "id": "B15",
+    "name": "One millimeter under rotated edge requirement is rejected",
+    "status": "PASS",
+    "evidence": "248\u00d7184 cannot fit rotated 245\u00d7180 plus margins"
+  },
+  {
+    "id": "B16",
+    "name": "Fabric cannot substitute for gift-box card",
+    "status": "PASS",
+    "evidence": "ONLY THE MISSING MATERIALS\nYour top-up basket.\n\n0 / 4 sheet blanks and 4 / 4 ribbon cuts come from your shelf.\n\n2 \u00d7 Olive card offcut\n$3.80\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$3.80\n\n$3.20 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nSome owned materials were not used: check type, thickness, size, ribbon width or the mixed-colors setting.\n\nCollection window\nTue 27 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nWed 28 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nThu 29 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nReview top-up with PayPal\n\nYou still need shop materials. Save my making plan becomes available when the selected option needs no purchase. Try the no-purchase example above to test saving.\n\nOnly purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
+  },
+  {
+    "id": "B17",
+    "name": "Different card thickness is not allocated",
+    "status": "PASS",
+    "evidence": "0.5mm owned vs 1mm reference"
+  },
+  {
+    "id": "B18",
+    "name": "Wrong ribbon width is not counted",
+    "status": "HARNESS",
+    "evidence": "5mm owned vs 15mm reference",
+    "note": "Incorrect expectation: narrower ribbon is allowed; width compatibility is <= half project width, not equality to shop reference."
+  },
+  {
+    "id": "B19",
+    "name": "Ribbon shorter than one required cut is not counted",
+    "status": "PASS",
+    "evidence": "559mm available vs 560mm required"
+  },
+  {
+    "id": "B18-R",
+    "name": "Oversized ribbon width rejected",
+    "status": "PASS",
+    "evidence": "46mm ribbon exceeds half of 90mm project width"
+  },
+  {
+    "id": "B20",
+    "name": "Owned color restriction honored",
+    "status": "PASS",
+    "evidence": "Olive owned card excluded when clay only and mixing disabled"
+  },
+  {
+    "id": "B21",
+    "name": "Mixed colors explicitly allowed",
+    "status": "PASS",
+    "evidence": "Same olive owned card accepted with mixing enabled"
+  },
+  {
+    "id": "B22",
+    "name": "Chosen smaller option drives tutorial",
+    "status": "PASS",
+    "evidence": "YOUR MAKING COMPANION \u00b7 RECIPE 1\nMake your layered bookmark.\n\n30 planned \u00b7 34 \u00d7 130 \u00d7 2 mm \u00b7 Geometry checked \u00b7 Physical trial pending\n\n3D steps\n2D cutting guide\nReplay step\nReset view\nPause motion\nPrint all steps\nDrag to rotate; scroll to zoom. Moti"
+  },
+  {
+    "id": "B23",
+    "name": "No resize without permission",
+    "status": "PASS",
+    "evidence": "My target design\n$4.60\n40 \u00d7 140 \u00d7 2 mm \u00b7 Requirements fit\n3 units to buy\nYour chosen dimensions and reference shades."
+  },
+  {
+    "id": "B24",
+    "name": "Minimum larger than target rejected",
+    "status": "PASS",
+    "evidence": "Some details are missing or invalid. Please check your input."
+  },
+  {
+    "id": "B25",
+    "name": "Extra shop shade requires explicit opt-in",
+    "status": "HARNESS",
+    "evidence": "Gift-box alternatives remain explicit; detailed shade constraints also covered in engine tests",
+    "note": "Replaced weak assertion with explicit permitted shade and price check in B25-R."
+  },
+  {
+    "id": "B25-R",
+    "name": "Only explicitly permitted cheaper shade substituted",
+    "status": "PASS",
+    "evidence": "ONLY THE MISSING MATERIALS\nYour top-up basket.\n\n3 / 4 sheet blanks and 4 / 4 ribbon cuts come from your shelf.\n\n1 \u00d7 Oat card offcut\n$1.70\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$1.70\n\n$4.90 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nCollection window\nTue 27 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nWed 28 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nThu 29 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nReview top-up with PayPal\n\nYou still need shop materials. Save my making plan becomes available when the selected option needs no purchase. Try the no-purchase example above to test saving.\n\nOnly purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
+  },
+  {
+    "id": "B26",
+    "name": "Private free plan saved",
+    "status": "PASS",
+    "evidence": "3 \u00d7 The little gift box\nMaterials already owned \u00b7 ready to make\nLearn to make this\nOpen instructions\nRecord what you actually made\nMark batch made"
+  },
+  {
+    "id": "B27",
+    "name": "Saved step and tick survive full reload",
+    "status": "PASS",
+    "evidence": "Reopened at corner-tabs step with completed tick"
+  },
+  {
+    "id": "B28",
+    "name": "Measured 2D fallback equivalent",
+    "status": "PASS",
+    "evidence": "180\u00d7245 measured net and current step text"
+  },
+  {
+    "id": "B29",
+    "name": "Keyboard step navigation",
+    "status": "PASS",
+    "evidence": "Right arrow advanced outside form input"
+  },
+  {
+    "id": "B30",
+    "name": "Escape closes modal and restores focus",
+    "status": "PASS",
+    "evidence": "Focus after Escape: Learn to make this"
+  },
+  {
+    "id": "B31",
+    "name": "Two plans keep independent tutorial progress",
+    "status": "PASS",
+    "evidence": "New two-box plan starts at step 1; three-box plan retained step 6"
+  },
+  {
+    "id": "B32",
+    "name": "Stale two-tab progress cannot overwrite",
+    "status": "PASS",
+    "evidence": "Tutorial progress changed in another window. Reopen the guide. Close and reopen this guide to reload saved progress."
+  },
+  {
+    "id": "B33",
+    "name": "Stale material editor cannot overwrite inventory",
+    "status": "PASS",
+    "evidence": "Your saved materials changed in another window. Reload them before saving."
+  },
+  {
+    "id": "B34",
+    "name": "Zero good units avoid division and incomplete finish",
+    "status": "PASS",
+    "evidence": "Revenue\n$0.00\nBatch cost incl. labor\n$18.00\nContribution before tax\n-$18.00\nCost per good unit\nNo good units"
+  },
+  {
+    "id": "B35",
+    "name": "Actual contribution includes labor and spoilage",
+    "status": "PASS",
+    "evidence": "Revenue\n$10.00\nBatch cost incl. labor\n$21.50\nContribution before tax\n-$11.50\nCost per good unit\n$10.75"
+  },
+  {
+    "id": "B36",
+    "name": "Oversized offcut rejected atomically",
+    "status": "PASS",
+    "evidence": "Offcut dimensions must fit their original allocated material."
+  },
+  {
+    "id": "B37",
+    "name": "Draft results preserve inventory",
+    "status": "PASS",
+    "evidence": "3 sheets and 1 ribbon segment remain before finalization"
+  },
+  {
+    "id": "B38",
+    "name": "Draft actual data survive reload",
+    "status": "PASS",
+    "evidence": "Restored outcome, time, cost and offcut draft"
+  },
+  {
+    "id": "B39",
+    "name": "Stale production results rejected",
+    "status": "PASS",
+    "evidence": "Production results changed in another window. Reload them."
+  },
+  {
+    "id": "B40",
+    "name": "Final results deduct and credit once",
+    "status": "PASS",
+    "evidence": "[\"0\",\"0\",\"1\"]"
+  },
+  {
+    "id": "B41",
+    "name": "Repeated finish and legacy mark-made cannot duplicate",
+    "status": "PASS",
+    "evidence": "[\"0\",\"0\",\"1\"]"
+  },
+  {
+    "id": "B42",
+    "name": "Other plan cannot consume already-used materials",
+    "status": "PASS",
+    "evidence": "Owned materials no longer match this plan. Update your inventory and replan before marking it made."
+  },
+  {
+    "id": "B43",
+    "name": "Checkout requires explicit tools/collection confirmation",
+    "status": "PASS",
+    "evidence": "Confirmed $4.40 quote includes purchased outer-blank cutting only"
+  },
+  {
+    "id": "B44",
+    "name": "Closing unpaid quote preserves planner",
+    "status": "PASS",
+    "evidence": "Returned to unchanged selected plan without an order"
+  },
+  {
+    "id": "B45",
+    "name": "Repeated simulated checkout produces one paid order",
+    "status": "PASS",
+    "evidence": "http://127.0.0.1:4350/orders/kit_75804057-f71e-4a5c-ac81-decf083424dc"
+  },
+  {
+    "id": "B46",
+    "name": "Server blocks recording before collection",
+    "status": "PASS",
+    "evidence": "Collect your paid materials before recording production results."
+  },
+  {
+    "id": "B47",
+    "name": "Paid tutorial retains purchased dimensions",
+    "status": "PASS",
+    "evidence": "Frozen four-box plan opens; production save remains gated"
+  },
+  {
+    "id": "B48",
+    "name": "Another buyer cannot read private order",
+    "status": "PASS",
+    "evidence": "Foreign order URL returned no purchased data"
+  },
+  {
+    "id": "B49",
+    "name": "Another buyer cannot see saved plans or owned materials",
+    "status": "PASS",
+    "evidence": "Other buyer has no first-buyer plans/materials"
+  },
+  {
+    "id": "B50",
+    "name": "Buyer cannot manage shop stock",
+    "status": "PASS",
+    "evidence": "No operator stock/order controls exposed to buyer"
+  },
+  {
+    "id": "B51",
+    "name": "Allocated stock cannot be silently repriced",
+    "status": "PASS",
+    "evidence": "Price edit refused; paid order remains $4.40"
+  },
+  {
+    "id": "B52",
+    "name": "Shop pack list contains purchased shortfall only",
+    "status": "PASS",
+    "evidence": "One purchased sheet; precut its outer blank; retain detailed cuts for buyer"
+  },
+  {
+    "id": "B53",
+    "name": "Ready order exposes private one-use pickup to owner",
+    "status": "PASS",
+    "evidence": "Paid order ready; pickup code obtained without storing it in report"
+  },
+  {
+    "id": "B54",
+    "name": "Well-formed incorrect pickup code refused",
+    "status": "PASS",
+    "evidence": "A SECOND BEGINNING STARTS ON YOUR SHELF\nThe studio desk.\n\nConfirmed materials become possibilities. Paid orders become ready-to-make kits.\n\nMaterials\nOrders & pickup\n\nThis pickup code is not ready, has already been used, or was canceled.\n\nOne code. One happy pickup.\n\nConfirm the exact kit is ready, then enter the buyer's pickup code.\n\nConfirm collection\nSimulated payment \u00b7 kit_75804057-f71e-4a5c-ac81-decf083424dc\nThe little gift box \u00d7 4\n\nReady to collect\n\n$4.40\nExact pick list and purchased design"
+  },
+  {
+    "id": "B55",
+    "name": "Correct code collects paid materials",
+    "status": "PASS",
+    "evidence": "Operator confirmed the exact paid order"
+  },
+  {
+    "id": "B56",
+    "name": "Used pickup code cannot collect again",
+    "status": "PASS",
+    "evidence": "A SECOND BEGINNING STARTS ON YOUR SHELF\nThe studio desk.\n\nConfirmed materials become possibilities. Paid orders become ready-to-make kits.\n\nMaterials\nOrders & pickup\n\nThis pickup code is not ready, has already been used, or was canceled.\n\nKit collected. This code cannot be used again.\n\nOne code. One happy pickup.\n\nConfirm the exact kit is ready, then enter the buyer's pickup code.\n\nConfirm collection\nSimulated payment \u00b7 kit_75804057-f71e-4a5c-ac81-decf083424dc\nThe little gift box \u00d7 4\n\nCollected\n\n$4.40\nExact pick list and purchased design"
+  },
+  {
+    "id": "B57",
+    "name": "Collected paid order accepts actual results",
+    "status": "PASS",
+    "evidence": "Same order progressed from checkout through shop packing to production entry"
+  },
+  {
+    "id": "B58",
+    "name": "Paid journey saves post-collection results with costs",
+    "status": "PASS",
+    "evidence": "Revenue\n$40.00\nBatch cost incl. labor\n$29.90\nContribution before tax\n$10.10\nCost per good unit\n$7.48"
+  },
+  {
+    "id": "B61",
+    "name": "Unavailable 3D download falls back without blank page",
+    "status": "PASS",
+    "evidence": "Intentionally withheld only the local generated scene file; full 2D tutorial remains usable"
+  },
+  {
+    "id": "B59",
+    "name": "Fixture help uses current authored step without AI",
+    "status": "PASS",
+    "evidence": "Explain this step / troubleshoot\nYour question\nOptional photo \u00b7 JPEG/PNG, up to 2 MB\nThe photo stays in this browser until you ask. Images are resized and metadata removed; the server does not store the image.Explain this step\nLocal recipe help\n\nTurn the four tabs inward against the side walls. Apply suitable craft glue and hold the corners square. Follow the adhesive\u2019s drying instructions. Drying time is extra.\n\nCheck the measured cutting diagram.\nCompare your piece with the illustrated step.\nLocal recipe guidance; no Gemini request."
+  },
+  {
+    "id": "B60",
+    "name": "Changing steps clears prior answer",
+    "status": "PASS",
+    "evidence": "Step 6 does not show answer for step 5"
+  },
+  {
+    "id": "B62",
+    "name": "Photo requires explicit consent",
+    "status": "PASS",
+    "evidence": "Synthetic screenshot selected; help disabled until consent"
+  },
+  {
+    "id": "B63",
+    "name": "Fixture photo response never claims assessment",
+    "status": "PASS",
+    "evidence": "Fixture notice and mandatory uncertainty visible"
+  },
+  {
+    "id": "B64",
+    "name": "Invalid replacement photo clears previous image and consent",
+    "status": "FAIL_FIXED",
+    "evidence": "Choose a JPEG or PNG under 2 MB.",
+    "note": "Fixed by clearing previous photo/consent before validation; B64-R passed."
+  },
+  {
+    "id": "B64-R",
+    "name": "Invalid replacement clears prior photo and consent",
+    "status": "PASS",
+    "evidence": "Choose a JPEG or PNG under 2 MB."
+  },
+  {
+    "id": "B65",
+    "name": "Phone tutorial has no horizontal overflow",
+    "status": "HARNESS",
+    "evidence": "{\"scroll\":1123,\"width\":1123}",
+    "note": "Viewport override applied to a different active browser surface; not a valid mobile assertion."
+  },
+  {
+    "id": "B66",
+    "name": "Tablet tutorial has no horizontal overflow",
+    "status": "HARNESS",
+    "evidence": "{\"scroll\":1123,\"width\":1123}",
+    "note": "Same viewport targeting issue; rerun in dedicated active test tab."
+  },
+  {
+    "id": "B65-R",
+    "name": "Actual phone breakpoint is usable",
+    "status": "PASS",
+    "evidence": "{\"scroll\":320,\"viewport\":390,\"width\":320}"
+  },
+  {
+    "id": "B66-R",
+    "name": "Actual tablet breakpoint has no horizontal overflow",
+    "status": "PASS",
+    "evidence": "{\"scroll\":698,\"viewport\":768,\"width\":698}"
+  },
+  {
+    "id": "I01",
+    "name": "giftbox 90\u00d760\u00d735 quantity 4",
+    "status": "PASS",
+    "evidence": {
+      "expectedReady": true,
+      "enabled": true,
+      "basket": "ONLY THE MISSING MATERIALS\nYour top-up basket.\n\n3 / 4 sheet blanks and 4 / 4 ribbon cuts come from your shelf.\n\n1 \u00d7 Olive card offcut\n$1.90\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$1.90\n\n$5.10 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nCollection window\nTue 27 Oct \u00b7 10am\u20134pm MYT \u00b7 11 places\nWed 28 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nThu 29 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nReview top-up with PayPal\n\nYou still need shop materials. Save my making plan becomes available when the selected option needs no purchase. Try the no-purchase example above to test saving.\n\nOnly purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
+    }
+  },
+  {
+    "id": "I02",
+    "name": "giftbox 90\u00d760\u00d735 quantity 3",
+    "status": "PASS",
+    "evidence": {
+      "expectedReady": true,
+      "enabled": true,
+      "basket": "ONLY THE MISSING MATERIALS\nYour materials are covered.\n\n3 / 3 sheet blanks and 3 / 3 ribbon cuts come from your shelf.\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$0.00\n\n$6.20 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nSave my making plan\nNo payment or collection needed. Your materials are updated only after you mark the batch made."
+    }
+  },
+  {
+    "id": "I03",
+    "name": "giftbox 60\u00d740\u00d720 quantity 6",
+    "status": "PASS",
+    "evidence": {
+      "expectedReady": true,
+      "enabled": true,
+      "basket": "ONLY THE MISSING MATERIALS\nYour materials are covered.\n\n6 / 6 sheet blanks and 6 / 6 ribbon cuts come from your shelf.\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$0.00\n\n$6.20 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nSave my making plan\nNo payment or collection needed. Your materials are updated only after you mark the batch made."
+    }
+  },
+  {
+    "id": "I04",
+    "name": "giftbox 120\u00d780\u00d745 quantity 2",
+    "status": "PASS",
+    "evidence": {
+      "expectedReady": true,
+      "enabled": true,
+      "basket": "ONLY THE MISSING MATERIALS\nYour top-up basket.\n\n0 / 2 sheet blanks and 2 / 2 ribbon cuts come from your shelf.\n\n2 \u00d7 Olive card offcut\n$3.80\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$3.80\n\n$1.60 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nSome owned materials were not used: check type, thickness, size, ribbon width or the mixed-colors setting.\n\nCollection window\nTue 27 Oct \u00b7 10am\u20134pm MYT \u00b7 11 places\nWed 28 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nThu 29 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nReview top-up with PayPal\n\nYou still need shop materials. Save my making plan becomes available when the selected option needs no purchase. Try the no-purchase example above to test saving.\n\nOnly purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
+    }
+  },
+  {
+    "id": "I05",
+    "name": "giftbox 200\u00d7240\u00d780 quantity 1",
+    "status": "PASS",
+    "evidence": {
+      "expectedReady": false,
+      "enabled": false,
+      "basket": "ONLY THE MISSING MATERIALS\nNo fitting material plan yet.\n\n0 / 1 sheet blanks and 1 / 1 ribbon cuts come from your shelf.\n\nOptional cutting service\n$0.00\n\nTotal unavailable\n\u2014\n\nThe shop cannot supply this shortfall with current stock. Choose another shade, reduce the batch, or add more owned material.\n\nSome owned materials were not used: check type, thickness, size, ribbon width or the mixed-colors setting.\n\nAdjust materials or dimensions\nSome required pieces cannot be supplied. Change the dimensions or add compatible owned materials, then compare again. This is not a free making plan."
+    }
+  },
+  {
+    "id": "I06",
+    "name": "wrap 100\u00d7145\u00d712 quantity 1",
+    "status": "PASS",
+    "evidence": {
+      "expectedReady": true,
+      "enabled": true,
+      "basket": "ONLY THE MISSING MATERIALS\nYour top-up basket.\n\n0 / 1 sheet blanks and 0 / 1 ribbon cuts come from your shelf.\n\n1 \u00d7 Indigo cotton offcut\n$2.60\n\n1 \u00d7 Cream ribbon \u00b7 900 mm\n$0.80\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$3.40\n\nCollection window\nTue 27 Oct \u00b7 10am\u20134pm MYT \u00b7 11 places\nWed 28 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nThu 29 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nReview top-up with PayPal\n\nYou still need shop materials. Save my making plan becomes available when the selected option needs no purchase. Try the no-purchase example above to test saving.\n\nOnly purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
+    }
+  },
+  {
+    "id": "I07",
+    "name": "wrap 80\u00d7120\u00d710 quantity 3",
+    "status": "PASS",
+    "evidence": {
+      "expectedReady": true,
+      "enabled": true,
+      "basket": "ONLY THE MISSING MATERIALS\nYour top-up basket.\n\n2 / 3 sheet blanks and 3 / 3 ribbon cuts come from your shelf.\n\n1 \u00d7 Indigo cotton offcut\n$2.60\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$2.60\n\n$4.20 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nCollection window\nTue 27 Oct \u00b7 10am\u20134pm MYT \u00b7 11 places\nWed 28 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nThu 29 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nReview top-up with PayPal\n\nYou still need shop materials. Save my making plan becomes available when the selected option needs no purchase. Try the no-purchase example above to test saving.\n\nOnly purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
+    }
+  },
+  {
+    "id": "I08",
+    "name": "wrap 150\u00d7210\u00d720 quantity 2",
+    "status": "PASS",
+    "evidence": {
+      "expectedReady": false,
+      "enabled": false,
+      "basket": "ONLY THE MISSING MATERIALS\nNo fitting material plan yet.\n\n0 / 2 sheet blanks and 2 / 2 ribbon cuts come from your shelf.\n\nOptional cutting service\n$0.00\n\nTotal unavailable\n\u2014\n\nThe shop cannot supply this shortfall with current stock. Choose another shade, reduce the batch, or add more owned material.\n\nSome owned materials were not used: check type, thickness, size, ribbon width or the mixed-colors setting.\n\nAdjust materials or dimensions\nSome required pieces cannot be supplied. Change the dimensions or add compatible owned materials, then compare again. This is not a free making plan."
+    }
+  },
+  {
+    "id": "I09",
+    "name": "bookmark 40\u00d7140\u00d72 quantity 30",
+    "status": "PASS",
+    "evidence": {
+      "expectedReady": true,
+      "enabled": true,
+      "basket": "ONLY THE MISSING MATERIALS\nYour top-up basket.\n\n18 / 30 sheet blanks and 28 / 30 ribbon cuts come from your shelf.\n\n2 \u00d7 Olive card offcut\n$3.80\n\n1 \u00d7 Cream ribbon \u00b7 900 mm\n$0.80\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$4.60\n\n$11.30 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nCollection window\nTue 27 Oct \u00b7 10am\u20134pm MYT \u00b7 11 places\nWed 28 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nThu 29 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nReview top-up with PayPal\n\nYou still need shop materials. Save my making plan becomes available when the selected option needs no purchase. Try the no-purchase example above to test saving.\n\nOnly purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
+    }
+  },
+  {
+    "id": "I10",
+    "name": "bookmark 34\u00d7119\u00d72 quantity 30",
+    "status": "PASS",
+    "evidence": {
+      "expectedReady": true,
+      "enabled": true,
+      "basket": "ONLY THE MISSING MATERIALS\nYour top-up basket.\n\n30 / 30 sheet blanks and 28 / 30 ribbon cuts come from your shelf.\n\n1 \u00d7 Cream ribbon \u00b7 900 mm\n$0.80\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$0.80\n\n$11.30 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nCollection window\nTue 27 Oct \u00b7 10am\u20134pm MYT \u00b7 11 places\nWed 28 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nThu 29 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nReview top-up with PayPal\n\nYou still need shop materials. Save my making plan becomes available when the selected option needs no purchase. Try the no-purchase example above to test saving.\n\nOnly purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
+    }
+  },
+  {
+    "id": "I11",
+    "name": "bookmark 50\u00d7200\u00d72 quantity 1",
+    "status": "PASS",
+    "evidence": {
+      "expectedReady": true,
+      "enabled": true,
+      "basket": "ONLY THE MISSING MATERIALS\nYour materials are covered.\n\n1 / 1 sheet blanks and 1 / 1 ribbon cuts come from your shelf.\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$0.00\n\n$2.70 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nSave my making plan\nNo payment or collection needed. Your materials are updated only after you mark the batch made."
+    }
+  },
+  {
+    "id": "I12",
+    "name": "bookmark 40\u00d7140\u00d72 quantity 100",
+    "status": "PASS",
+    "evidence": {
+      "expectedReady": false,
+      "enabled": false,
+      "basket": "ONLY THE MISSING MATERIALS\nYour top-up basket.\n\n18 / 100 sheet blanks and 28 / 100 ribbon cuts come from your shelf.\n\n14 \u00d7 Olive card offcut\n$26.60\n\n18 \u00d7 Cream ribbon \u00b7 900 mm\n$14.40\n\nOptional cutting service\n$0.00\n\nTotal \u00b7 USD\n$41.00\n\n$11.30 less in new materials than buying all new materials at the selected shop unit prices (availability not assumed). Cutting service excluded from comparison.\n\nThe shop cannot supply this shortfall with current stock. Choose another shade, reduce the batch, or add more owned material.\n\nCollection window\nTue 27 Oct \u00b7 10am\u20134pm MYT \u00b7 11 places\nWed 28 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nThu 29 Oct \u00b7 10am\u20134pm MYT \u00b7 12 places\nReview top-up with PayPal\n\nYou still need shop materials. Save my making plan becomes available when the selected option needs no purchase. Try the no-purchase example above to test saving.\n\nOnly purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
+    }
+  },
+  {
+    "id": "B67",
+    "name": "Wrap tutorial has its own pocket and notebook guidance",
+    "status": "PASS",
+    "evidence": "Wrap-specific pocket hinge, glue guidance and removable notebook"
+  },
+  {
+    "id": "B68",
+    "name": "Failed progress save is visible and recoverable",
+    "status": "PASS",
+    "evidence": "Failed to fetch Close and reopen this guide to reload saved progress."
+  },
+  {
+    "id": "B69",
+    "name": "Restart keeps last successful step",
+    "status": "PASS",
+    "evidence": "Step 3 persisted; failed step-4 write did not overwrite it"
+  },
+  {
+    "id": "B70",
+    "name": "Restart preserves paid outcome draft and economics",
+    "status": "PASS",
+    "evidence": "Collected paid order, results and costs persisted across a process restart"
+  },
+  {
+    "id": "B71",
+    "name": "Pre-collection UI now explains when results unlock",
+    "status": "PASS",
+    "evidence": "New paid/uncollected order shows explanation instead of a form that cannot be saved"
+  }
+]

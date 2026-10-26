@@ -69,7 +69,10 @@ export default function TutorialScene({
           kit.materials[0].color,
         ribbon =
           kit.batch?.plan.allocations.find((a) => a.type === "ribbon")?.color ||
-          kit.materials[1].color;
+          kit.materials[1].color,
+        ribbonWidth =
+          kit.batch?.plan.allocations.find((a) => a.type === "ribbon")?.width ||
+          kit.materials[1].width;
       function box(
         parent: THREE.Object3D,
         size: [number, number, number],
@@ -129,7 +132,7 @@ export default function TutorialScene({
         const g = new THREE.TubeGeometry(
           curve,
           100,
-          Math.max(0.7, kit.materials[1].width / 9),
+          Math.max(0.7, ribbonWidth / 9),
           5,
           false,
         );

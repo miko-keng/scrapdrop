@@ -1,3 +1,4 @@
+import { PreviewBoundary } from "./PreviewBoundary";
 import { LearnButton } from "./Tutorial";
 import { ProductionResults } from "./MakingRecords";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
@@ -556,15 +557,17 @@ function HeroProject({ kit, onOpen }: { kit: Kit; onOpen: () => void }) {
         </span>
         <ArrowRight size={18} />
       </div>
-      <Suspense
-        fallback={
-          <div className="sd-stage-loading">
-            <Loader />
-          </div>
-        }
-      >
-        <KitViewer kit={kit} exploded={exploded} presentation />
-      </Suspense>
+      <PreviewBoundary fallback={<Art kit={kit} />}>
+        <Suspense
+          fallback={
+            <div className="sd-stage-loading">
+              <Loader />
+            </div>
+          }
+        >
+          <KitViewer kit={kit} exploded={exploded} presentation />
+        </Suspense>
+      </PreviewBoundary>
       <button
         className="sd-transform-play"
         onClick={() =>
@@ -1150,9 +1153,11 @@ function OrderPage({
           <div className="sd-order-layout">
             <section>
               <div className="sd-order-visual">
-                <Suspense fallback={<Loader />}>
-                  <KitViewer kit={order.kit} />
-                </Suspense>
+                <PreviewBoundary fallback={<Art kit={order.kit} />}>
+                  <Suspense fallback={<Loader />}>
+                    <KitViewer kit={order.kit} />
+                  </Suspense>
+                </PreviewBoundary>
               </div>
               <h2>{order.kit.template.title}</h2>
               <p>
@@ -1323,10 +1328,17 @@ function OrderPage({
                       target={{ kind: "order", id: order.id }}
                     />
                     <BatchGuide kit={order.kit} />
-                    <ProductionResults
-                      kit={order.kit}
-                      target={{ kind: "order", id: order.id }}
-                    />
+                    {order.fulfillment === "collected" ? (
+                      <ProductionResults
+                        kit={order.kit}
+                        target={{ kind: "order", id: order.id }}
+                      />
+                    ) : (
+                      <p className="sd-batch-callout">
+                        Record your actual making results after collecting your
+                        materials. You can explore the tutorial now.
+                      </p>
+                    )}
                     <BatchCompletion order={order} />
                   </>
                 ) : (

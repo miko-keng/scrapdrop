@@ -17,6 +17,7 @@ import {
   RECIPE_VERSION,
   recipeName,
 } from "./recipes";
+import { PreviewBoundary } from "./PreviewBoundary";
 import { CutDiagram } from "./ProjectArt";
 import "./tutorial.css";
 const Scene = lazy(() => import("./TutorialScene"));
@@ -168,6 +169,10 @@ function Tutorial({
   }
   async function choosePhoto(file?: File) {
     if (!file) return;
+    const seq = ++request.current;
+    setPhoto(null);
+    setConsent(false);
+    setHelp(null);
     setError("");
     try {
       if (
@@ -186,10 +191,9 @@ function Tutorial({
       bitmap.close();
       const data = canvas.toDataURL("image/jpeg", 0.75).split(",")[1];
       if (data.length > 1300000) throw Error("Use a smaller image.");
-      setPhoto({ type: "image/jpeg", data });
-      setConsent(false);
+      if (request.current === seq) setPhoto({ type: "image/jpeg", data });
     } catch (e) {
-      setError((e as Error).message);
+      if (request.current === seq) setError((e as Error).message);
     }
   }
   async function ask() {
@@ -288,22 +292,32 @@ function Tutorial({
                 </button>
               </div>
               {mode === "3d" && supported && validation.valid ? (
-                <Suspense fallback={<p>Preparing your fold sequence…</p>}>
-                  <Scene
-                    kit={kit}
-                    step={step}
-                    replay={replay}
-                    resetView={resetView}
-                    paused={paused}
-                    reduced={reduced}
-                    onFailure={() => {
-                      setMode("2d");
-                      setStatus(
-                        "3D is unavailable here. The full 2D guide remains usable.",
-                      );
-                    }}
-                  />
-                </Suspense>
+                <PreviewBoundary
+                  fallback={<CutDiagram kit={kit} />}
+                  onFailure={() => {
+                    setMode("2d");
+                    setStatus(
+                      "3D could not load. Your measured 2D guide and saved steps are still available.",
+                    );
+                  }}
+                >
+                  <Suspense fallback={<p>Preparing your fold sequence…</p>}>
+                    <Scene
+                      kit={kit}
+                      step={step}
+                      replay={replay}
+                      resetView={resetView}
+                      paused={paused}
+                      reduced={reduced}
+                      onFailure={() => {
+                        setMode("2d");
+                        setStatus(
+                          "3D is unavailable here. The full 2D guide remains usable.",
+                        );
+                      }}
+                    />
+                  </Suspense>
+                </PreviewBoundary>
               ) : (
                 <CutDiagram kit={kit} />
               )}
@@ -437,7 +451,11 @@ function Tutorial({
               <textarea
                 value={question}
                 maxLength={600}
-                onChange={(e) => setQuestion(e.target.value)}
+                onChange={(e) => {
+                  request.current++;
+                  setHelp(null);
+                  setQuestion(e.target.value);
+                }}
               />
             </label>
             <label>
@@ -466,8 +484,10 @@ function Tutorial({
                 <button
                   className="sd-text"
                   onClick={() => {
+                    request.current++;
                     setPhoto(null);
                     setConsent(false);
+                    setHelp(null);
                   }}
                 >
                   Remove photo

@@ -1,3 +1,4 @@
+import { PreviewBoundary } from "./PreviewBoundary";
 import { LearnButton } from "./Tutorial";
 import { BatchEconomics, ProductionResults } from "./MakingRecords";
 import {
@@ -1219,9 +1220,11 @@ export default function BatchPlanner({
                 <div
                   className={"sd-studio-stage sd-scene-" + selected.template.id}
                 >
-                  <Suspense fallback={<Art kit={selected} />}>
-                    <Viewer kit={selected} exploded={exploded} />
-                  </Suspense>
+                  <PreviewBoundary fallback={<Art kit={selected} />}>
+                    <Suspense fallback={<Art kit={selected} />}>
+                      <Viewer kit={selected} exploded={exploded} />
+                    </Suspense>
+                  </PreviewBoundary>
                   <div className="sd-stage-toolbar">
                     <LearnButton kit={selected} />
                     <button
