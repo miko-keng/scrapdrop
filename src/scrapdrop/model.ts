@@ -1,3 +1,4 @@
+import { blankDimensions, recipeCut } from "./recipes";
 import { z } from "zod";
 import type { BatchInput, BatchPlan } from "./batch";
 export type Material = {
@@ -96,6 +97,7 @@ export type Part = {
 };
 export type Kit = {
   schemaVersion: 1;
+  recipeVersion?: number;
   batch?: { input: BatchInput; plan: BatchPlan; pickupPlaces: 1 };
   fulfillmentTerms?: {
     pickupSlotId: string;
@@ -141,25 +143,8 @@ export const money = (cents: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
     cents / 100,
   );
-export function materialFit(
-  templateId: TemplateId,
-  w: number,
-  d: number,
-  h: number,
-) {
-  if (templateId === "giftbox")
-    return {
-      width: w + 2 * h + 20,
-      height: 2 * d + 3 * h + 20,
-      ribbon: 2 * w + 2 * d + 4 * h + 120,
-    };
-  if (templateId === "wrap")
-    return {
-      width: 2 * w + h + 60,
-      height: d + 40,
-      ribbon: 2 * d + 2 * h + 150,
-    };
-  return { width: 2 * w + 10, height: d + 10, ribbon: 200 };
+export function materialFit(id: TemplateId, w: number, d: number, h: number) {
+  return blankDimensions(id, w, d, h);
 }
 export function buildKit(
   raw: unknown,
@@ -360,49 +345,6 @@ export function buildKit(
   }));
   const subtotal = lines.reduce((s, l) => s + l.total, 0),
     preparation = 150 * q;
-  let rects: Kit["cut"]["rects"],
-    folds: Kit["cut"]["folds"] = [];
-  if (t.id === "giftbox") {
-    const x = h + 10,
-      y = h + 10;
-    rects = [
-      { x, y, width: w, height: d, label: "Base" },
-      { x, y: 10, width: w, height: h, label: "Back" },
-      { x, y: y + d, width: w, height: h, label: "Front" },
-      { x: 10, y, width: h, height: d, label: "Left" },
-      { x: x + w, y, width: h, height: d, label: "Right" },
-      { x, y: y + d + h, width: w, height: d, label: "Lid" },
-      { x: x - 10, y: y + d, width: 10, height: h, label: "Glue tab" },
-      { x: x + w, y: y + d, width: 10, height: h, label: "Glue tab" },
-      { x: x - 10, y: 10, width: 10, height: h, label: "Glue tab" },
-      { x: x + w, y: 10, width: 10, height: h, label: "Glue tab" },
-    ];
-    folds = [
-      { x1: x, y1: y, x2: x + w, y2: y },
-      { x1: x, y1: y + d, x2: x + w, y2: y + d },
-      { x1: x, y1: y, x2: x, y2: y + d },
-      { x1: x + w, y1: y, x2: x + w, y2: y + d },
-      { x1: x, y1: y + d + h, x2: x + w, y2: y + d + h },
-    ];
-  } else if (t.id === "wrap") {
-    rects = [
-      {
-        x: 0,
-        y: 0,
-        width: fit.width,
-        height: fit.height,
-        label: "Fabric wrap · includes pockets",
-      },
-    ];
-    folds = [
-      { x1: 30, y1: 0, x2: 30, y2: fit.height },
-      { x1: fit.width - 30, y1: 0, x2: fit.width - 30, y2: fit.height },
-    ];
-  } else
-    rects = [
-      { x: 0, y: 0, width: w, height: d, label: "Front" },
-      { x: w + 10, y: 0, width: w, height: d, label: "Back" },
-    ];
   return {
     schemaVersion: 1,
     config,
@@ -414,19 +356,8 @@ export function buildKit(
     total: subtotal + preparation,
     currency: "USD",
     parts,
-    cut: {
-      width: fit.width,
-      height: fit.height,
-      rects,
-      folds,
-      holes:
-        t.id === "bookmark"
-          ? [
-              { x: w / 2, y: 12, radius: 2 },
-              { x: w + 10 + w / 2, y: 12, radius: 2 },
-            ]
-          : [],
-    },
+    recipeVersion: 1,
+    cut: recipeCut(t.id, w, d, h),
     finished: [w, d, h],
     warnings:
       t.id === "wrap"

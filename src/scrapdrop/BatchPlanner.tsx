@@ -1,3 +1,5 @@
+import { LearnButton } from "./Tutorial";
+import { BatchEconomics, ProductionResults } from "./MakingRecords";
 import {
   lazy,
   Suspense,
@@ -1221,6 +1223,7 @@ export default function BatchPlanner({
                     <Viewer kit={selected} exploded={exploded} />
                   </Suspense>
                   <div className="sd-stage-toolbar">
+                    <LearnButton kit={selected} />
                     <button
                       className="sd-btn small outline"
                       onClick={() => setExploded((v) => !v)}
@@ -1332,6 +1335,7 @@ export default function BatchPlanner({
                   </small>
                 </section>
               </div>
+              <BatchEconomics kit={selected} />
               <BatchGuide kit={selected} />
             </>
           )}
@@ -1361,10 +1365,16 @@ export default function BatchPlanner({
                   : "Materials already owned · ready to make"}
               </small>
             </div>
+            <LearnButton kit={j.kit} target={{ kind: "job", id: j.id }} />
             <details>
               <summary>Open instructions</summary>
               <BatchGuide kit={j.kit} />
             </details>
+            <ProductionResults
+              kit={j.kit}
+              target={{ kind: "job", id: j.id }}
+              onSaved={() => void load()}
+            />
             <button
               className="sd-btn small outline"
               disabled={busy || j.made}

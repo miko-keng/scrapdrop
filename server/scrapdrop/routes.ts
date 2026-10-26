@@ -1,3 +1,4 @@
+import { registerLearning } from "./learning";
 import type { Express, Response } from "express";
 import { z } from "zod";
 import { imageSize } from "image-size";
@@ -57,6 +58,7 @@ export function registerScrap(
   },
 ) {
   initScrap(db);
+  registerLearning(app, db, context.limit);
   const payments = scrapPayments(db);
   const owner = (res: Response) =>
     accountId(db, res.locals.learner) || res.locals.learner;

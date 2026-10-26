@@ -591,8 +591,13 @@ export function saveBatchJob(db: Store, owner: string, raw: unknown) {
   );
   return { id: job, kit };
 }
-export function completeBatch(db: Store, owner: string, job: string) {
-  return transaction(db, () => {
+export function completeBatch(
+  db: Store,
+  owner: string,
+  job: string,
+  insideTransaction = false,
+) {
+  const execute = () => {
     const done = db
       .prepare("SELECT body FROM sd_batch_made WHERE job=? AND owner=?")
       .get(job, owner) as any;
@@ -643,5 +648,6 @@ export function completeBatch(db: Store, owner: string, job: string) {
       Date.now(),
     );
     return result;
-  });
+  };
+  return insideTransaction ? execute() : transaction(db, execute);
 }

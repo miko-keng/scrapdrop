@@ -30,7 +30,8 @@ These public synthetic accounts exist only in the explicitly created local demo 
 4. Sign in as the local buyer. Review the missing-material basket and collection window. **Review top-up with PayPal → Use simulated payment** consumes the exact reserved pieces once. Local demo orders explicitly say they are not PayPal purchases. If all materials are owned, save a free making plan instead.
 5. Sign out and sign in as the local operator. **Shop workspace → Orders & pickup** shows the immutable shop-only pick/cut list. Mark the packed order ready.
 6. As the buyer, open **My projects**, view the private pickup QR/code and print-ready assembly guide. As the operator, confirm collection using that code; repeats are refused.
-7. After collection and making, **Mark batch made** deducts the whole owned sheets/segments used, once. Check the updated balance. Measure reusable offcuts separately before adding them as new stock.
+7. Beside the preview, in a saved making plan, or in a paid order, choose **Learn to make this**. Follow the hinged 3D steps or equivalent 2D cutting guide. Paid orders retain their purchased dimensions; signed-in saved plans/orders automatically save your step and completion ticks.
+8. After collection and making, expand **Record what you actually made**. Save a draft, then record good/spoiled quantity, actual hands-on minutes, costs and measured reusable offcuts. **Finish batch & credit offcuts** deducts used whole owned sheets/segments and adds measured offcuts once. **Mark batch made** remains a simpler alternative; it cannot double-deduct materials.
 
 Three supported templates are included: a folded gift box, a removable notebook wrap, and a layered bookmark. The notebook and listed tools are buyer-supplied. These are authored project designs, not arbitrary AI-generated meshes or a verified manufacturing service.
 
@@ -52,7 +53,7 @@ The synthetic prototype is pickup-only with no shipping and an explicitly displa
 
 ## AI and request limits
 
-Gemini interprets the buyer's goal and optionally drafts labels from an operator-selected image. The server independently checks supported templates, tools, dimensions, stock and price. Photo suggestions never establish exact measurements, quantities, material composition or safety. Photo sharing requires an explicit operator action; only the selected image is sent.
+Gemini interprets the buyer's goal, optionally drafts labels from an operator-selected image, and answers explicitly requested tutorial questions grounded in the current recipe. Tutorial answers are cached per identity, recipe snapshot, step, question, photo and AI configuration. The server independently checks supported templates, tools, dimensions, stock and price. Photo suggestions never establish exact measurements, quantities, material composition or safety. Photo sharing requires an explicit action by the person uploading it; only the selected image is sent.
 
 - `AI_MODE=fixture` is the default. Routine tests make zero live requests even with a key present.
 - `AI_MODE=live` plus a valid `GEMINI_API_KEY` enables explicit requests. The configured `GEMINI_MODEL` must support the requested modality/schema.
@@ -132,3 +133,25 @@ This release unifies project planning, brief interpretation, explicit design fle
 See [planner browser E2E results](PLANNER_E2E_REPORT.md) for the verified flows and reproduction steps.
 
 The expanded [varied-input browser E2E report](PLANNER_INPUT_MATRIX_E2E_REPORT.md) covers materials, dimensions, quantity and budget variations as well as the full simulated collection lifecycle. Worked examples reset the optional cutting service. A design with no fitting supply shows an unavailable total rather than presenting its unpriced shortfall as a free making plan.
+
+
+## Making tutorials, results and economics
+
+**Learn to make this** opens eight authored steps with Back/Next, numbered navigation, completion ticks, replay, pause, camera reset and measurements. Left/Right arrows navigate outside form fields; Escape closes. Your operating system’s reduced-motion setting snaps to each step’s final pose. Switch to **2D cutting guide** if preferred or if WebGL is unavailable. **Print all steps** prints the measured diagram and every step; printouts must be checked with a real ruler.
+
+The gift box uses real wall/tab/lid hinge rotations from the shared recipe. Notebook-wrap hems and pockets rotate; layered bookmarks bond, punch and receive ribbon. These are illustrative assembly motions, not cloth/knot/adhesive physics. `src/scrapdrop/recipes.ts` owns dimensions, cuts, folds, authored steps and gift-box hinge definitions. Automated checks match the flat gift-box net to its assembled centerline geometry at several sizes. **Physical assembly trials are still pending**, and that status is visible in the tutorial. Do not represent these checks as physically verified fit or strength.
+
+The tutorial uses frozen saved/purchased plans, distinguishes YOURS and SHOP allocations, and retains detailed/owned-material cutting when purchased outer blanks were precut. Future unsupported recipe versions are refused by the saved-progress service rather than silently migrated. Saved progress and production records are private and revision-checked. Paid-order progress requires payment; production results require collection.
+
+**What could this batch earn?** estimates contribution from selling price, purchased materials/service, entered owned-material cost, labor, consumables, overhead and payment fees. **Cash avoided** stays separate and is never added to revenue/profit. Taxes, selling success and any costs you leave at zero are excluded. Actual results recompute contribution using good quantity and recorded time. Finishing requires all planned pieces to be accounted for as good or spoiled. Measured offcuts must fit their source dimensions and remaining material allowance; crediting and owned-material deductions commit atomically once. Self-reported measurements still require your judgment.
+
+**Explain this step / troubleshoot** sends only an explicit question and recipe context. An optional photo is resized/re-encoded, stripped of metadata and sent only after the photo checkbox and help action; raw photos are not saved in tutorial records. Photo suggestions always remain uncertain. Fixture mode explicitly says that no image was assessed. Cached live answers and authored guidance remain labeled.
+
+To toggle Gemini locally without replacing credentials:
+
+```sh
+npm run ai:on   # sets AI_MODE=live in .env
+npm run ai:off  # sets AI_MODE=fixture in .env
+```
+
+Restart your server after either change. On Render, change **AI_MODE** in the service’s Environment settings and redeploy/restart; a local `.env` change does not change Render. Normal navigation, animation, cutting calculations, progress and economics use no model calls. Routine tests force fixture mode. The existing process, identity/day and database quotas still apply. See [tutorial verification](TUTORIAL_BUILD_REPORT.md), [physical/novice trial pack](MAKING_TRIAL_PACK.md) and [three-minute demonstration outline](SUBMISSION_DEMO.md).

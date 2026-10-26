@@ -1,0 +1,293 @@
+.sd-tutorial {
+  --ink: #283e32;
+  color: var(--ink);
+  background: #fffaf0;
+  border: 1px solid #d5dcc8;
+  border-radius: 22px;
+  box-sizing: border-box;
+  width: min(1140px, 94vw);
+  max-height: 92dvh;
+  padding: 28px;
+  box-shadow: 0 30px 100px #152b3440;
+  font-family: "DM Sans Variable", sans-serif;
+}
+.sd-tutorial::backdrop {
+  background: #152d26a8;
+  backdrop-filter: blur(5px);
+}
+.sd-tut-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 20px;
+}
+.sd-tut-header h1 {
+  font-size: clamp(24px, 3vw, 40px);
+  margin: 8px 0;
+}
+.sd-tut-header span,
+.sd-tut-step > span {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  font-weight: 750;
+}
+.sd-tut-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 26px;
+  margin-top: 20px;
+}
+.sd-tut-layout > section {
+  min-width: 0;
+}
+.sd-tutorial-scene {
+  height: 390px;
+  background: radial-gradient(ellipse, #fff9d9, #eae6ce);
+  border-radius: 18px;
+  overflow: hidden;
+  touch-action: none;
+}
+.sd-tutorial-scene canvas {
+  display: block;
+}
+.sd-tut-step {
+  padding: 24px;
+  background: #eef0ff;
+  border: 1px solid #d7daf1;
+  border-radius: 18px;
+}
+.sd-tut-step h2 {
+  font-size: 28px;
+  margin: 12px 0;
+}
+.sd-tut-step p {
+  line-height: 1.65;
+}
+.sd-tut-tip {
+  padding: 12px;
+  background: #fffaf0;
+  border-radius: 10px;
+}
+.sd-tut-actions,
+.sd-tut-view-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+.sd-tut-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 15px;
+}
+.sd-tut-dots button {
+  border: 1px solid #bcc8b2;
+  background: #fffaf0;
+  color: #293e32;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+}
+.sd-tut-dots [aria-current] {
+  background: #4054cf;
+  color: white;
+}
+.sd-tut-view-switch button {
+  padding: 9px 15px;
+  border: 1px solid #d0d7bf;
+  border-radius: 20px;
+  background: white;
+  cursor: pointer;
+}
+.sd-tut-view-switch [aria-pressed="true"] {
+  background: #304e3e;
+  color: white;
+}
+.sd-tutorial .sd-btn,
+.sd-production .sd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 28px;
+  padding: 11px 18px;
+  background: #304e3e;
+  color: white;
+  border: 1px solid #304e3e;
+  cursor: pointer;
+  font: inherit;
+}
+.sd-tutorial .sd-btn.outline,
+.sd-production .sd-btn.outline {
+  background: transparent;
+  color: #304e3e;
+}
+.sd-tutorial button:disabled,
+.sd-production button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.sd-tutorial label,
+.sd-production label {
+  display: block;
+  font-size: 14px;
+  margin: 12px 0;
+}
+.sd-tutorial textarea,
+.sd-production input,
+.sd-production textarea,
+.sd-production select {
+  font: inherit;
+  padding: 10px;
+  border: 1px solid #bccab3;
+  border-radius: 8px;
+  box-sizing: border-box;
+  max-width: 100%;
+  background: #fffef8;
+  color: #293e32;
+}
+.sd-tutorial textarea {
+  display: block;
+  width: 100%;
+  min-height: 80px;
+}
+.sd-tut-materials,
+.sd-tut-help {
+  padding: 18px;
+  border: 1px solid #d9dfc7;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+.sd-tutorial summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.sd-tut-print-all {
+  display: none;
+}
+.sd-tutorial :focus-visible,
+.sd-production :focus-visible {
+  outline: 3px solid #4454cc;
+  outline-offset: 3px;
+}
+.sd-production {
+  border: 1px solid #d5dcc7;
+  border-radius: 16px;
+  padding: 24px;
+  margin: 24px 0;
+  background: #fffdf6;
+}
+.sd-production-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.sd-production-grid input {
+  display: block;
+  width: 100%;
+  margin-top: 5px;
+}
+.sd-economics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: #edf0df;
+  padding: 16px;
+  border-radius: 12px;
+  margin: 15px 0;
+}
+.sd-economics span {
+  flex: 1;
+  min-width: 140px;
+}
+.sd-economics strong {
+  display: block;
+  font-size: 23px;
+}
+.sd-offcut-row {
+  border-top: 1px solid #d8ddcd;
+  margin-top: 15px;
+  padding-top: 15px;
+}
+.sd-offcut-row .sd-production-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+@media (max-width: 720px) {
+  .sd-tutorial {
+    padding: 17px;
+    max-height: 95dvh;
+  }
+  .sd-tut-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sd-tutorial-scene {
+    height: 310px;
+  }
+  .sd-production-grid,
+  .sd-offcut-row .sd-production-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sd-tut-step {
+    padding: 18px;
+  }
+  .sd-tut-header h1 {
+    font-size: 25px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sd-tutorial * {
+    scroll-behavior: auto !important;
+  }
+}
+@media print {
+  body:has(.sd-tutorial[open]) .sd-app {
+    display: none !important;
+  }
+  .sd-tutorial[open] {
+    position: static;
+    display: block;
+    border: 0;
+    box-shadow: none;
+    max-height: none;
+    width: auto;
+    padding: 0;
+    overflow: visible;
+  }
+  .sd-tutorial::backdrop {
+    display: none;
+  }
+  .sd-tut-layout,
+  .sd-tut-help,
+  .sd-tut-dots,
+  .sd-tut-header > button {
+    display: none !important;
+  }
+  .sd-tut-print-all {
+    display: block;
+  }
+  .sd-tut-print-all li {
+    break-inside: avoid;
+  }
+  .sd-production button,
+  .sd-production input,
+  .sd-production textarea {
+    display: none;
+  }
+}
+
+.sd-tut-header .sd-icon {
+  min-width: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #d9d8d1;
+  border-radius: 50%;
+  background: #fffdf7;
+  cursor: pointer;
+}
+
+.sd-tutorial input[type="file"] {
+  max-width: 100%;
+}

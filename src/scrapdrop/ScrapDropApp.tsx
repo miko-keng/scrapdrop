@@ -1,3 +1,5 @@
+import { LearnButton } from "./Tutorial";
+import { ProductionResults } from "./MakingRecords";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { motion, MotionConfig, useReducedMotion } from "motion/react";
 import {
@@ -1316,7 +1318,15 @@ function OrderPage({
                 </p>
                 {order.kit.batch ? (
                   <>
+                    <LearnButton
+                      kit={order.kit}
+                      target={{ kind: "order", id: order.id }}
+                    />
                     <BatchGuide kit={order.kit} />
+                    <ProductionResults
+                      kit={order.kit}
+                      target={{ kind: "order", id: order.id }}
+                    />
                     <BatchCompletion order={order} />
                   </>
                 ) : (

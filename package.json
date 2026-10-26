@@ -13,7 +13,9 @@
     "test": "NODE_ENV=test AI_MODE=fixture node --import tsx --test tests/*.test.ts",
     "typecheck": "tsc --noEmit",
     "start:batchstudio": "node --import tsx examples/batchstudio/server.ts",
-    "demo": "node --env-file-if-exists=.env --import tsx scripts/demo.ts"
+    "demo": "node --env-file-if-exists=.env --import tsx scripts/demo.ts",
+    "ai:on": "node --import tsx scripts/ai-mode.ts live",
+    "ai:off": "node --import tsx scripts/ai-mode.ts fixture"
   },
   "dependencies": {
     "@fontsource-variable/dm-sans": "5.3.0",
