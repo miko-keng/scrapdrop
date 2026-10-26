@@ -275,6 +275,8 @@ export default function BatchPlanner({
     [intentBusy, setIntentBusy] = useState(false);
   const intentGeneration = useRef(0);
   const selected = alternatives[chosen]?.kit;
+  const noSupply =
+    !!selected && !selected.batch!.plan.stockReady && !selected.lines.length;
   const template = templates.find((t) => t.id === input.config.templateId)!;
   const flex = input.flexibility || {
     resize: false,
@@ -478,6 +480,7 @@ export default function BatchPlanner({
       mixColors: true,
       tools: ["scissors", "ruler", "glue", "hole punch"],
       toolsToGet: [],
+      cuttingService: false,
       budget: null,
       allowedMaterialIds: [],
       allowedRibbonIds: [],
@@ -1178,7 +1181,11 @@ export default function BatchPlanner({
                 aria-pressed={i === chosen}
               >
                 <span>{a.label}</span>
-                <b>{money(a.kit.total)}</b>
+                <b>
+                  {!a.kit.batch!.plan.stockReady && !a.kit.lines.length
+                    ? "Unavailable"
+                    : money(a.kit.total)}
+                </b>
                 <small>
                   {a.kit.config.width} × {a.kit.config.depth} ×{" "}
                   {a.kit.config.height} mm ·{" "}
@@ -1213,9 +1220,11 @@ export default function BatchPlanner({
                 <section className="sd-batch-basket">
                   <span className="sd-kicker">ONLY THE MISSING MATERIALS</span>
                   <h2>
-                    {selected.lines.length
-                      ? "Your top-up basket."
-                      : "Your materials are covered."}
+                    {noSupply
+                      ? "No fitting material plan yet."
+                      : selected.lines.length
+                        ? "Your top-up basket."
+                        : "Your materials are covered."}
                   </h2>
                   <p>
                     {selected.batch!.plan.ownedSheetProjects} / {input.quantity}{" "}
@@ -1235,8 +1244,8 @@ export default function BatchPlanner({
                     <strong>{money(selected.preparation)}</strong>
                   </p>
                   <p className="sd-total sd-receipt-line">
-                    <b>Total · USD</b>
-                    <strong>{money(selected.total)}</strong>
+                    <b>{noSupply ? "Total unavailable" : "Total · USD"}</b>
+                    <strong>{noSupply ? "—" : money(selected.total)}</strong>
                   </p>
                   {selected.batch!.plan.comparisonAvailable &&
                     selected.batch!.plan.materialSavings > 0 && (
@@ -1286,9 +1295,11 @@ export default function BatchPlanner({
                     }
                     onClick={review}
                   >
-                    {selected.total
-                      ? "Review top-up with PayPal"
-                      : "Save my making plan"}
+                    {noSupply
+                      ? "Adjust materials or dimensions"
+                      : selected.total
+                        ? "Review top-up with PayPal"
+                        : "Save my making plan"}
                     <ArrowRight size={17} />
                   </button>
                   {selected.total > 0 && (
@@ -1300,9 +1311,11 @@ export default function BatchPlanner({
                     </p>
                   )}
                   <small>
-                    {selected.total
-                      ? "Only purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
-                      : "No payment or collection needed. Your materials are updated only after you mark the batch made."}
+                    {noSupply
+                      ? "Some required pieces cannot be supplied. Change the dimensions or add compatible owned materials, then compare again. This is not a free making plan."
+                      : selected.total
+                        ? "Only purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
+                        : "No payment or collection needed. Your materials are updated only after you mark the batch made."}
                   </small>
                 </section>
               </div>

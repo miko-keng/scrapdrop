@@ -130,3 +130,5 @@ This release unifies project planning, brief interpretation, explicit design fle
 **Save my making plan** appears below the selected comparison result when it needs no purchase (`total = 0`). It is enabled when all readiness checks pass; anonymous buyers are prompted to sign in. A paid shortfall uses **Review top-up with PayPal** instead. Use **3 gift boxes · no purchase → Compare my options → Save my making plan** for the shortest saving demonstration. Saving opens the **Saved making plans** section, where instructions persist after reloading. Saving does not consume owned materials; marking the plan made does.
 
 See [planner browser E2E results](PLANNER_E2E_REPORT.md) for the verified flows and reproduction steps.
+
+The expanded [varied-input browser E2E report](PLANNER_INPUT_MATRIX_E2E_REPORT.md) covers materials, dimensions, quantity and budget variations as well as the full simulated collection lifecycle. Worked examples reset the optional cutting service. A design with no fitting supply shows an unavailable total rather than presenting its unpriced shortfall as a free making plan.
