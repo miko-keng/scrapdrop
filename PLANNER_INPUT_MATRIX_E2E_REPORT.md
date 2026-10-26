@@ -7,7 +7,7 @@ Ran the real production client against an isolated Express/SQLite instance at ht
 ## Issues discovered and fixed
 
 1. Worked examples retained a previously selected cutting service. Each sample now resets it, restoring its advertised baseline price.
-2. A design with no fitting sheet/ribbon supply was correctly blocked but displayed covered materials and a USD 0 total. It now shows Unavailable / Total unavailable, explains which inputs need changing, and offers no free-save claim. Valid free plans still work, including large projects covered by larger owned sheets.
+2. A design with no fitting sheet/ribbon supply was correctly blocked but displayed covered materials and a USD 0 total. It now shows Unavailable / Total unavailable, explains which inputs need changing, and offers no free-save claim. Incomplete production guides are marked as drafts with missing materials; they no longer claim every piece is accounted for. Valid free plans still work, including large projects covered by larger owned sheets.
 
 ## Browser check matrix
 
@@ -66,3 +66,5 @@ The tests followed the guide through buyer sign-in, the bookmark alternatives, e
 Invalid quantity and spine inputs were rejected and comparison remained available for correction. A small owned sheet is ignored, then the shop calculation uses rotated rectangular layouts; it must not be treated as one purchased sheet per finished object. Budget and stock readiness are separate checks. The 100-item material estimate was not purchasable with seeded inventory.
 
 This is browser E2E coverage of the real local application, plus a hosted smoke test after deployment. It does not claim a fresh paid PayPal sandbox capture/webhook lifecycle or live Gemini verification. Printed guide contents and controls were checked; a physical printer and actual craft assembly were not tested.
+
+Additional regression check: the incomplete guide displays **Materials still missing**, an explicit draft warning and **Print / save draft plan**; continuation remains disabled. Complete saved/purchased guides keep their normal production-plan labels.

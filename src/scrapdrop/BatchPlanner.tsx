@@ -48,11 +48,15 @@ export function BatchGuide({
       <span className="sd-kicker">
         {operator
           ? "PACK ONLY THE PURCHASED SHORTFALL"
-          : "YOUR PRODUCTION PLAN"}
+          : p.stockReady
+            ? "YOUR PRODUCTION PLAN"
+            : "DRAFT · MATERIALS INCOMPLETE"}
       </span>
       <h2>
-        {p.quantity} {p.quantity === 1 ? "project" : "projects"}. Every piece
-        accounted for.
+        {p.quantity} {p.quantity === 1 ? "project" : "projects"}.{" "}
+        {p.stockReady
+          ? "Every piece accounted for."
+          : "Materials still missing."}
       </h2>
       <p>
         Finished size: {kit.config.width} × {kit.config.depth} ×{" "}
@@ -63,6 +67,13 @@ export function BatchGuide({
         Buyer-owned materials are self-reported, not verified or supplied by the
         shop.
       </p>
+      {!p.stockReady && (
+        <p className="sd-batch-warning">
+          Draft only: some required pieces cannot be supplied. Resolve the
+          material shortfall before making; the allocations below are
+          incomplete.
+        </p>
+      )}
       {operator && (
         <p className="sd-batch-callout">
           Supply only the shop items below.{" "}
@@ -74,7 +85,9 @@ export function BatchGuide({
       {!operator && (
         <button className="sd-text" onClick={() => window.print()}>
           <Printer size={15} />
-          Print / save production plan
+          {p.stockReady
+            ? "Print / save production plan"
+            : "Print / save draft plan"}
         </button>
       )}
       <p>
