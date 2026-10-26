@@ -7,6 +7,11 @@ import { paypalReady } from "../paypal";
 import { aiStatus, isLiveAI } from "../ai-mode";
 import { buildKit, templates } from "../../src/scrapdrop/model";
 import {
+  ownedMaterials,
+  saveOwned,
+  quoteBatch,
+  saveBatchJob,
+  completeBatch,
   initScrap,
   inventory,
   pickupSlots,
@@ -20,6 +25,7 @@ import {
   fail,
   updateStock,
 } from "./store";
+import { buildBatchKit, batchSchema } from "../../src/scrapdrop/batch";
 import { scrapPayments } from "./payments";
 import { ideas, imageSuggestion } from "./ai";
 const stockSchema = z.object({
@@ -121,6 +127,84 @@ export function registerScrap(
       paypalReady: paypalReady(),
     });
   });
+
+  app.get("/api/scrapdrop/owned", (_req, res) =>
+    res.json(ownedMaterials(db, requireAccount(res))),
+  );
+  app.put("/api/scrapdrop/owned", (req, res) => {
+    const { revision, materials } = z
+      .object({ revision: z.number().int().min(0), materials: z.unknown() })
+      .parse(req.body);
+    res.json(saveOwned(db, requireAccount(res), revision, materials));
+  });
+  app.post("/api/scrapdrop/batch/plan", (req, res) => {
+    context.limit(`sd-batch:${owner(res)}`, 80, 3600000);
+    expireHolds(db);
+    const input = batchSchema.parse(req.body);
+    const kit = buildBatchKit(input, inventory(db));
+    const alternatives = [{ id: "current", label: "Keep my design", kit }];
+    if (input.config.templateId !== "wrap") {
+      const config = {
+        ...input.config,
+        width: Math.max(25, Math.floor(input.config.width * 0.85)),
+        depth: Math.max(30, Math.floor(input.config.depth * 0.85)),
+        height:
+          input.config.templateId === "giftbox"
+            ? Math.max(20, Math.floor(input.config.height * 0.85))
+            : input.config.height,
+      };
+      try {
+        alternatives.push({
+          id: "smaller",
+          label: "A smaller finished size",
+          kit: buildBatchKit({ ...input, config }, inventory(db)),
+        });
+      } catch {}
+    }
+    if (input.mixColors)
+      try {
+        const matching = buildBatchKit(
+          { ...input, mixColors: false },
+          inventory(db),
+        );
+        if (
+          JSON.stringify(matching.batch!.plan.allocations) !==
+          JSON.stringify(kit.batch!.plan.allocations)
+        )
+          alternatives.push({
+            id: "matching",
+            label: "Match the selected colors",
+            kit: matching,
+          });
+      } catch {}
+    res.json({ alternatives });
+  });
+  app.post("/api/scrapdrop/batch/quotes", (req, res) => {
+    context.limit(`sd-batch-quote:${owner(res)}`, 40, 3600000);
+    expireHolds(db);
+    const { input, pickupSlotId } = z
+      .object({ input: z.unknown(), pickupSlotId: z.string().optional() })
+      .parse(req.body);
+    res.json(quoteBatch(db, requireAccount(res), input, pickupSlotId));
+  });
+  app.get("/api/scrapdrop/batch/jobs", (_req, res) => {
+    const aid = requireAccount(res);
+    res.json(
+      (
+        db
+          .prepare(
+            "SELECT j.*,m.job AS made FROM sd_batch_jobs j LEFT JOIN sd_batch_made m ON m.job=j.id WHERE j.owner=? ORDER BY j.created DESC LIMIT 20",
+          )
+          .all(aid) as any[]
+      ).map((j) => ({ id: j.id, kit: JSON.parse(j.body), made: !!j.made })),
+    );
+  });
+  app.post("/api/scrapdrop/batch/jobs", (req, res) =>
+    res.json(saveBatchJob(db, requireAccount(res), req.body)),
+  );
+  app.post("/api/scrapdrop/batch/:id/made", (req, res) =>
+    res.json(completeBatch(db, requireAccount(res), String(req.params.id))),
+  );
   app.post("/api/scrapdrop/ideas", async (req, res) => {
     context.limit(`sd-ideas:${owner(res)}`, 15, 3600000);
     expireHolds(db);

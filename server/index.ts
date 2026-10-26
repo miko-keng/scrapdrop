@@ -224,7 +224,7 @@ app.post("/api/paypal/webhook", async (req, res) => {
 });
 registerProviderProtocol(app, db, limit);
 app.use("/api", (req, res, next) => {
-  if (["POST", "PATCH", "DELETE"].includes(req.method)) {
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
     const incoming = req.headers.origin;
     if (incoming && incoming !== origin)
       return res
@@ -262,7 +262,7 @@ app.use("/api", (req, res, next) => {
   res.locals.learner = session.learner;
   res.locals.csrf = session.csrf;
   if (
-    ["POST", "PATCH", "DELETE"].includes(req.method) &&
+    ["POST", "PUT", "PATCH", "DELETE"].includes(req.method) &&
     req.headers["x-csrf-token"] !== session.csrf
   )
     return res

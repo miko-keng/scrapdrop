@@ -1,0 +1,443 @@
+.sd-app .sd-batch-page {
+  padding-top: 50px;
+  padding-bottom: 70px;
+}
+.sd-app .sd-batch-heading {
+  max-width: 870px;
+  margin-bottom: 38px;
+}
+.sd-app .sd-batch-heading h1 {
+  margin-top: 15px;
+  font-size: clamp(48px, 6vw, 76px);
+  font-weight: 650;
+}
+.sd-app .sd-batch-heading h1 em {
+  color: var(--cobalt);
+  font-style: normal;
+}
+.sd-app .sd-batch-heading > p {
+  max-width: 610px;
+  font-size: 16px;
+}
+.sd-app .sd-batch-examples {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 25px;
+}
+.sd-app .sd-batch-examples > span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.sd-app .sd-batch-examples button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #c9cfb8;
+  background: #eeeccf;
+  border-radius: 30px;
+  padding: 9px 13px;
+  font-size: 12px;
+}
+.sd-app .sd-batch-inputs {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+.sd-app .sd-batch-inputs > section {
+  border: 1px solid var(--line);
+  padding: 27px;
+  background: #fffdf6;
+  border-radius: 10px;
+}
+.sd-app .sd-batch-inputs > section:first-child {
+  background: #eeeccf;
+}
+.sd-app .sd-batch-form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px;
+  margin: 16px 0;
+}
+.sd-app .sd-batch-form-grid label {
+  color: #4f6046;
+  font-size: 12px;
+}
+.sd-app .sd-batch-form-grid input,
+.sd-app .sd-batch-form-grid select {
+  font-size: 14px;
+}
+.sd-app .sd-batch-tools {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  border: 0;
+  padding: 8px 0;
+  margin: 0;
+}
+.sd-app .sd-batch-tools legend {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 0;
+  margin-bottom: 6px;
+}
+.sd-app .sd-batch-tools label {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+.sd-app .sd-batch-section-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+}
+.sd-app .sd-batch-section-title h2 {
+  font-size: 32px;
+  margin-top: 9px;
+}
+.sd-app .sd-batch-inputs > section > p {
+  font-size: 13px;
+  max-width: 720px;
+}
+.sd-app .sd-batch-empty {
+  border: 1px dashed #c6cebb;
+  padding: 25px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  margin: 20px 0;
+}
+.sd-app .sd-owned-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin: 20px 0;
+}
+.sd-app .sd-owned-list > article {
+  background: #f1f1e6;
+  border: 1px solid #dce0d0;
+  border-radius: 8px;
+  padding: 18px;
+}
+.sd-app .sd-owned-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sd-app .sd-owned-title > label {
+  flex: 1;
+}
+.sd-app .sd-owned-list .sd-batch-form-grid {
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 10px;
+}
+.sd-app .sd-batch-inputs .sd-check {
+  margin: 18px 0;
+}
+.sd-app .sd-batch-results {
+  margin-top: 55px;
+}
+.sd-app .sd-batch-alternatives {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+  margin: 25px 0;
+}
+.sd-app .sd-batch-alternatives > button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 8px;
+  border: 1px solid #ccd3be;
+  border-radius: 8px;
+  background: #fffdf6;
+  padding: 20px;
+}
+.sd-app .sd-batch-alternatives > button.selected {
+  border: 2px solid var(--cobalt);
+  padding: 19px;
+  background: #eef0ff;
+}
+.sd-app .sd-batch-alternatives b {
+  font-size: 29px;
+  color: var(--cobalt);
+  letter-spacing: -0.05em;
+}
+.sd-app .sd-batch-alternatives small {
+  font-size: 11px;
+}
+.sd-app .sd-batch-output {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 35px;
+  align-items: start;
+  margin: 35px 0;
+}
+.sd-app .sd-batch-output .sd-studio-stage {
+  position: relative;
+  top: 0;
+}
+.sd-app .sd-batch-basket h2 {
+  margin-top: 12px;
+  font-size: 32px;
+}
+.sd-app .sd-batch-basket > p {
+  font-size: 13px;
+}
+.sd-app .sd-batch-basket > label {
+  margin: 20px 0;
+}
+.sd-app .sd-batch-basket > .sd-btn {
+  width: 100%;
+  margin: 18px 0 10px;
+}
+.sd-app .sd-batch-basket > small {
+  display: block;
+}
+.sd-app .sd-batch-saving,
+.sd-app .sd-batch-callout {
+  background: #e9eddb;
+  color: #435a38;
+  padding: 16px 20px;
+  border-radius: 7px;
+  font-size: 13px;
+}
+.sd-app .sd-batch-warning {
+  background: #fff0dd;
+  color: #7b4a18;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+.sd-app .sd-batch-guide {
+  border-top: 1px solid var(--line);
+  padding-top: 30px;
+  margin: 30px 0;
+}
+.sd-app .sd-batch-guide h2 {
+  font-size: 32px;
+  margin-top: 12px;
+}
+.sd-app .sd-batch-guide > p {
+  font-size: 13px;
+  max-width: 850px;
+}
+.sd-app .sd-batch-cuts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 17px;
+  margin: 25px 0;
+}
+.sd-app .sd-cut-sheet {
+  border: 1px solid #d9ddcd;
+  border-radius: 8px;
+  padding: 20px;
+  background: #fffdf6;
+  min-width: 0;
+}
+.sd-app .sd-cut-sheet h3 {
+  font-size: 20px;
+  margin-top: 12px;
+  letter-spacing: -0.035em;
+}
+.sd-app .sd-cut-sheet p {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.sd-app .sd-cut-sheet small {
+  font-size: 11px;
+}
+.sd-app .sd-cut-sheet > svg {
+  display: block;
+  height: 230px;
+  max-width: 100%;
+  margin: 22px auto;
+}
+.sd-app .sd-source {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  background: #e7ebd3;
+  color: #435638;
+  padding: 4px 8px;
+  border-radius: 3px;
+}
+.sd-app .sd-source.shop {
+  background: #e5e9fc;
+  color: #3041a7;
+}
+.sd-app .sd-ribbon-layout {
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  border-left: 20px solid;
+  margin: 25px 0;
+  background: #f6f2e4;
+  font-size: 13px;
+}
+.sd-app .sd-ribbon-layout span {
+  font-size: 11px;
+}
+.sd-app .sd-batch-sequence {
+  background: #eeeccf;
+  border-radius: 8px;
+  padding: 25px;
+  margin-top: 25px;
+}
+.sd-app .sd-batch-sequence h3 {
+  font-size: 23px;
+}
+.sd-app .sd-batch-guide li {
+  font-size: 13px;
+  margin: 10px 0;
+}
+.sd-app .sd-batch-guide details {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.sd-app .sd-batch-guide details .sd-cut {
+  max-height: 350px;
+  margin: 25px auto;
+  display: block;
+}
+.sd-app .sd-batch-jobs {
+  margin-top: 45px;
+}
+.sd-app .sd-batch-jobs > article {
+  padding: 22px 0;
+  border-bottom: 1px solid var(--line);
+}
+.sd-app .sd-batch-jobs > article > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+.sd-app .sd-batch-jobs > article > details {
+  margin: 15px 0;
+}
+.sd-app .sd-batch-link {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  border: 1px solid #cbd1ec;
+  background: #edf0ff;
+  color: #3042a6;
+  border-radius: 7px;
+  padding: 15px 20px;
+  margin: 0 0 22px;
+  text-align: left;
+  font-size: 12px;
+}
+.sd-app .sd-batch-complete {
+  border-top: 1px solid var(--line);
+  margin-top: 25px;
+  padding-top: 20px;
+}
+.sd-app .sd-batch-complete p {
+  font-size: 13px;
+}
+.sd-app .sd-batch-complete small {
+  display: block;
+  margin-top: 8px;
+}
+@media (max-width: 900px) {
+  .sd-app .sd-batch-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sd-app .sd-owned-list {
+    grid-template-columns: 1fr;
+  }
+  .sd-app .sd-batch-output {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  .sd-app .sd-batch-alternatives {
+    gap: 9px;
+  }
+  .sd-app .sd-batch-alternatives > button {
+    padding: 14px;
+  }
+  .sd-app .sd-batch-alternatives > button.selected {
+    padding: 13px;
+  }
+}
+@media (max-width: 600px) {
+  .sd-app .sd-header nav {
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .sd-app .sd-header nav button {
+    font-size: 10px;
+  }
+  .sd-app .sd-batch-page {
+    padding-top: 30px;
+  }
+  .sd-app .sd-batch-inputs > section {
+    padding: 20px;
+  }
+  .sd-app .sd-batch-section-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .sd-app .sd-batch-alternatives {
+    grid-template-columns: 1fr;
+  }
+  .sd-app .sd-batch-alternatives > button {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+  .sd-app .sd-batch-alternatives small {
+    grid-column: 1/-1;
+  }
+  .sd-app .sd-batch-form-grid input,
+  .sd-app .sd-batch-form-grid select {
+    font-size: 16px;
+  }
+  .sd-app .sd-owned-list .sd-batch-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sd-app .sd-batch-cuts {
+    grid-template-columns: 1fr;
+  }
+  .sd-app .sd-batch-guide h2 {
+    font-size: 28px;
+  }
+  .sd-app .sd-batch-sequence {
+    padding: 20px;
+  }
+}
+@media print {
+  .sd-app .sd-batch-heading,
+  .sd-app .sd-batch-inputs,
+  .sd-app .sd-batch-alternatives,
+  .sd-app .sd-batch-basket,
+  .sd-app .sd-batch-output,
+  .sd-app .sd-batch-complete {
+    display: none;
+  }
+  .sd-app .sd-batch-cuts {
+    display: block;
+  }
+  .sd-app .sd-cut-sheet {
+    break-inside: avoid;
+    margin-bottom: 20px;
+  }
+  .sd-app .sd-cut-sheet > svg {
+    height: 200px;
+  }
+  .sd-app .sd-batch-guide details {
+    display: none;
+  }
+}

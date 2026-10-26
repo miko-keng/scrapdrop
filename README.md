@@ -102,3 +102,15 @@ No unverified universal fit, image-to-CAD, safety certification, production ship
 Source and original illustrations are MIT-licensed. Third-party dependencies retain their own licenses; see `LICENSE` and `ATTRIBUTIONS.md`.
 
 Collection windows are capacity-limited and frozen with each order; unpaid cancellation releases capacity. Demo windows are generated for the next three days in Malaysia time.
+
+## Owned materials and batch top-ups
+
+Open `/batch` (or **Plan a batch**). Supported projects can be planned in quantities of 1–100. Add your measured card/fabric sheets and unbroken ribbon segments, deadline, available hands-on minutes and tools. Account inventories are private and revision-checked.
+
+1. Try **3 sheets → 4 gift boxes**: three 200 × 300 mm owned sheets plus one 2,600 mm ribbon segment leave one shop sheet to buy, USD 1.90 at seed prices.
+2. Try **30 event bookmarks**: three 300 × 420 mm sheets and two 3,000 mm ribbon segments cover 18 card blanks and 28 ribbons. The original 40 × 140 mm design needs two shop sheets plus one ribbon segment, USD 4.60. A 34 × 119 mm alternative uses the owned sheets for all 30 projects and needs only one USD 0.80 ribbon segment.
+3. Compare dimensions and required purchases, inspect 3D and the labeled sheet layouts, then review the top-up. Shop stock, prices, owned inventory revision and pickup capacity are rechecked server-side; quantities/prices from the browser are never trusted.
+4. Optional cutting of **purchased sheets only** adds USD 2.50 per order. Ribbon-only purchases do not attract this fee. The operator sees the frozen shop-only pick/cut list. A batch occupies one pickup booking.
+5. If you own everything, save a free making plan without PayPal. After making it, choose **Mark batch made**. Paid top-up plans require collection first. The inventory update is atomic and idempotent, and cannot make quantities negative.
+
+The layout uses conservative rectangular grids with both orientations, 2 mm edge margins and 3 mm gaps. It is not a general industrial nesting optimizer. Pattern/grain constraints, machine scheduling, costed labor, multi-supplier purchasing and certified manufacturing specifications are outside this version. Time is a conservative template pace plus setup, not a measured labor prediction. Owned materials are self-reported and are not reserved across simultaneous plans; competing plans are checked when marked made. The balance subtracts whole used sheets/segments: measure and add usable offcuts separately rather than treating leftover area as guaranteed usable stock. Cash avoided is compared at selected shop unit prices, not claimed as profit or verified productivity gains.

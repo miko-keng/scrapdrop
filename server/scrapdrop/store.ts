@@ -5,6 +5,14 @@ import {
   type Material,
   type KitConfig,
 } from "../../src/scrapdrop/model";
+import {
+  buildBatchKit,
+  batchSchema,
+  ownedSchema,
+  type OwnedMaterial,
+} from "../../src/scrapdrop/batch";
+import type { Kit } from "../../src/scrapdrop/model";
+import { z } from "zod";
 export const hash = (value: string) =>
   createHash("sha256").update(value).digest("hex");
 export const fail = (message: string, status = 400): never => {
@@ -21,6 +29,9 @@ export function initScrap(db: Store) {
  CREATE TABLE IF NOT EXISTS sd_captures(id TEXT PRIMARY KEY,order_id TEXT NOT NULL UNIQUE,amount INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS sd_pickups(order_id TEXT PRIMARY KEY,code_hash TEXT UNIQUE NOT NULL,code TEXT NOT NULL,used INTEGER NOT NULL DEFAULT 0);
  CREATE TABLE IF NOT EXISTS sd_ledger(id TEXT PRIMARY KEY,item TEXT NOT NULL,units INTEGER NOT NULL,kind TEXT NOT NULL,event_key TEXT UNIQUE NOT NULL,created INTEGER NOT NULL);
+ CREATE TABLE IF NOT EXISTS sd_owned(owner TEXT PRIMARY KEY,revision INTEGER NOT NULL,body TEXT NOT NULL);
+ CREATE TABLE IF NOT EXISTS sd_batch_jobs(id TEXT PRIMARY KEY,owner TEXT NOT NULL,body TEXT NOT NULL,created INTEGER NOT NULL);
+ CREATE TABLE IF NOT EXISTS sd_batch_made(job TEXT PRIMARY KEY,owner TEXT NOT NULL,body TEXT NOT NULL,created INTEGER NOT NULL);
  CREATE TABLE IF NOT EXISTS sd_ai_usage(owner TEXT NOT NULL,day TEXT NOT NULL,n INTEGER NOT NULL,PRIMARY KEY(owner,day));`);
   db.prepare(
     "INSERT OR IGNORE INTO sd_meta VALUES('schema-version','1')",
@@ -223,7 +234,7 @@ export function pickupSlots(db: Store, now = Date.now()) {
     const used = (
       db
         .prepare(
-          "SELECT COALESCE(sum(json_extract(body,'$.config.quantity')),0) n FROM sd_orders WHERE json_extract(body,'$.fulfillmentTerms.pickupSlotId')=? AND (payment IN ('creating','needs_creation','awaiting_buyer','capture_requested','pending','needs_reconciliation','paid') OR fulfillment='collected')",
+          "SELECT COALESCE(sum(COALESCE(json_extract(body,'$.batch.pickupPlaces'),json_extract(body,'$.config.quantity'))),0) n FROM sd_orders WHERE json_extract(body,'$.fulfillmentTerms.pickupSlotId')=? AND (payment IN ('creating','needs_creation','awaiting_buyer','capture_requested','pending','needs_reconciliation','paid') OR fulfillment='collected')",
         )
         .get(slot.id) as any
     ).n;
@@ -237,11 +248,19 @@ export function quote(
   slotId?: string,
 ) {
   const base = buildKit(config, inventory(db));
+  return quoteSnapshot(db, owner, base, slotId);
+}
+function quoteSnapshot(db: Store, owner: string, base: Kit, slotId?: string) {
   const slot = pickupSlots(db).find(
     (slot) => slot.id === (slotId || pickupSlots(db)[0]?.id),
   );
-  if (!slot || slot.available < base.config.quantity)
+  if (!slot || slot.available < (base.batch ? 1 : base.config.quantity))
     fail("Choose a pickup window with enough capacity.", 409);
+  if (
+    base.batch &&
+    slot.ends > Date.parse(base.batch.input.deadline + "T23:59:59+08:00")
+  )
+    fail("Choose a pickup window on or before your deadline.", 409);
   const kit = {
       ...base,
       fulfillmentTerms: {
@@ -286,7 +305,9 @@ export function reserveKit(
     if (!q || q.expires <= now)
       fail("Your quote expired. Refresh the design before reserving.", 409);
     const snapshot = JSON.parse(q.body),
-      kit = buildKit(snapshot.config, inventory(db));
+      kit = snapshot.batch
+        ? checkedBatch(db, owner, snapshot.batch.input)
+        : buildKit(snapshot.config, inventory(db));
     if (
       JSON.stringify(kit.lines) !== JSON.stringify(snapshot.lines) ||
       kit.total !== snapshot.total
@@ -295,7 +316,7 @@ export function reserveKit(
     const slot = pickupSlots(db, now).find(
       (slot) => slot.id === snapshot.fulfillmentTerms?.pickupSlotId,
     );
-    if (!slot || slot.available < kit.config.quantity)
+    if (!slot || slot.available < (kit.batch ? 1 : kit.config.quantity))
       fail("This pickup window filled up. Choose another window.", 409);
     const orderId = id("kit"),
       expires =
@@ -494,5 +515,133 @@ export function updateStock(db: Store, itemId: string, body: any) {
       id("stock-adjustment"),
       Date.now(),
     );
+  });
+}
+
+export function ownedMaterials(
+  db: Store,
+  owner: string,
+): { revision: number; materials: OwnedMaterial[] } {
+  const row = db
+    .prepare("SELECT * FROM sd_owned WHERE owner=?")
+    .get(owner) as any;
+  return row
+    ? { revision: row.revision, materials: JSON.parse(row.body) }
+    : { revision: 0, materials: [] };
+}
+export function saveOwned(
+  db: Store,
+  owner: string,
+  revision: number,
+  raw: unknown,
+) {
+  const materials = z.array(ownedSchema).max(20).parse(raw);
+  if (new Set(materials.map((m) => m.id)).size !== materials.length)
+    fail("Material IDs must be unique.");
+  return transaction(db, () => {
+    const old = ownedMaterials(db, owner);
+    if (old.revision !== revision)
+      fail(
+        "Your saved materials changed in another window. Reload them before saving.",
+        409,
+      );
+    db.prepare(
+      "INSERT INTO sd_owned VALUES(?,?,?) ON CONFLICT(owner) DO UPDATE SET revision=excluded.revision,body=excluded.body",
+    ).run(owner, revision + 1, JSON.stringify(materials));
+    return ownedMaterials(db, owner);
+  });
+}
+function checkedBatch(db: Store, owner: string, raw: unknown) {
+  const input = batchSchema.parse(raw),
+    saved = ownedMaterials(db, owner);
+  if (
+    input.ownedRevision !== saved.revision ||
+    JSON.stringify(input.owned) !== JSON.stringify(saved.materials)
+  )
+    fail("Your materials changed. Save and calculate the batch again.", 409);
+  const kit = buildBatchKit(input, inventory(db));
+  if (!kit.batch!.plan.ready) fail(kit.warnings.join(" "), 409);
+  return kit;
+}
+export function quoteBatch(
+  db: Store,
+  owner: string,
+  raw: unknown,
+  slotId?: string,
+) {
+  const kit = checkedBatch(db, owner, raw);
+  if (!kit.lines.length || kit.total <= 0)
+    fail(
+      "You already have the materials. Save the making plan without checkout.",
+    );
+  return quoteSnapshot(db, owner, kit, slotId);
+}
+export function saveBatchJob(db: Store, owner: string, raw: unknown) {
+  const kit = checkedBatch(db, owner, raw);
+  if (kit.lines.length)
+    fail(
+      "Purchase the missing materials before saving a completed-materials job.",
+    );
+  const job = id("batch");
+  db.prepare("INSERT INTO sd_batch_jobs VALUES(?,?,?,?)").run(
+    job,
+    owner,
+    JSON.stringify(kit),
+    Date.now(),
+  );
+  return { id: job, kit };
+}
+export function completeBatch(db: Store, owner: string, job: string) {
+  return transaction(db, () => {
+    const done = db
+      .prepare("SELECT body FROM sd_batch_made WHERE job=? AND owner=?")
+      .get(job, owner) as any;
+    if (done) return JSON.parse(done.body);
+    const order = db
+      .prepare("SELECT * FROM sd_orders WHERE id=? AND owner=?")
+      .get(job, owner) as any;
+    const free = db
+      .prepare("SELECT * FROM sd_batch_jobs WHERE id=? AND owner=?")
+      .get(job, owner) as any;
+    if (!order && !free) fail("Batch not found.", 404);
+    if (
+      order &&
+      (order.payment !== "paid" || order.fulfillment !== "collected")
+    )
+      fail("Collect the paid materials before marking the batch made.", 409);
+    const kit = JSON.parse((order || free).body) as Kit;
+    if (!kit.batch) fail("This order is not a batch plan.");
+    const saved = ownedMaterials(db, owner),
+      materials = saved.materials.map((m) => ({ ...m }));
+    for (const a of kit.batch!.plan.allocations.filter(
+      (a) => a.source === "owned",
+    )) {
+      const m = materials.find((m) => m.id === a.itemId),
+        original = kit.batch!.input.owned.find((m) => m.id === a.itemId)!;
+      if (
+        !m ||
+        m.quantity < a.units ||
+        ["width", "length", "thickness", "type", "color"].some(
+          (k) => (m as any)[k] !== (original as any)[k],
+        )
+      )
+        fail(
+          "Owned materials no longer match this plan. Update your inventory and replan before marking it made.",
+          409,
+        );
+      m!.quantity -= a.units;
+    }
+    db.prepare(
+      "INSERT INTO sd_owned VALUES(?,?,?) ON CONFLICT(owner) DO UPDATE SET revision=excluded.revision,body=excluded.body",
+    ).run(owner, saved.revision + 1, JSON.stringify(materials));
+    const next = ownedMaterials(db, owner);
+    const result = { ...next, job, made: true, kit };
+    db.prepare("INSERT INTO sd_batch_made VALUES(?,?,?,?)").run(
+      job,
+      owner,
+      JSON.stringify(result),
+      Date.now(),
+    );
+    return result;
   });
 }

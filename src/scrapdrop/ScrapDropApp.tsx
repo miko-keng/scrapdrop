@@ -39,6 +39,7 @@ import {
 import type { Config } from "../shared/types";
 import "./style.css";
 import "./studio-theme.css";
+import BatchPlanner, { BatchGuide, BatchCompletion } from "./BatchPlanner";
 import { Art, CutDiagram } from "./ProjectArt";
 const KitViewer = lazy(() => import("./KitViewer"));
 const Loader = () => <LoaderCircle size={17} className="sd-spin" />;
@@ -259,6 +260,12 @@ export default function ScrapDropApp() {
           </button>
           <nav aria-label="Main navigation">
             <button
+              className={path === "/batch" ? "active" : ""}
+              onClick={() => nav("/batch")}
+            >
+              Plan a batch
+            </button>
+            <button
               className={path === "/" || path === "/studio" ? "active" : ""}
               onClick={() => nav("/")}
             >
@@ -334,6 +341,23 @@ export default function ScrapDropApp() {
                 : "Gathering a few good possibilities…"}
             </p>
           </main>
+        ) : path === "/batch" ? (
+          <BatchPlanner
+            inventory={shop.inventory}
+            slots={shop.pickupSlots}
+            accountId={shop.accountId}
+            initial={selected}
+            requireAccount={requireAccount}
+            checkout={(quote, close) => (
+              <Checkout
+                quote={quote}
+                config={config}
+                demo={shop.demo}
+                close={close}
+                onOrder={(id) => nav("/orders/" + id)}
+              />
+            )}
+          />
         ) : path === "/studio" ? (
           <Studio
             shop={shop}
@@ -343,6 +367,7 @@ export default function ScrapDropApp() {
             openOrder={(id) => nav("/orders/" + id)}
             back={() => nav("/")}
             refresh={refresh}
+            planBatch={() => nav("/batch")}
           />
         ) : orderId ? (
           <OrderPage
@@ -373,24 +398,12 @@ export default function ScrapDropApp() {
                     <em>Big possibilities.</em>
                   </h1>
                   <p>
-                    Turn the studio’s leftover materials into your next lovely
-                    thing. Choose a project, make it yours in 3D, and collect a
-                    kit with every piece.
+                    Make more from what’s already on your shelf. Plan a batch,
+                    explore it in 3D, and buy only the missing materials.
                   </p>
                   <div className="sd-hero-actions">
-                    <button
-                      className="sd-btn"
-                      onClick={() =>
-                        document.getElementById("make-a-kit")?.scrollIntoView({
-                          behavior: matchMedia(
-                            "(prefers-reduced-motion:reduce)",
-                          ).matches
-                            ? "auto"
-                            : "smooth",
-                        })
-                      }
-                    >
-                      Find my next project
+                    <button className="sd-btn" onClick={() => nav("/batch")}>
+                      Plan with my materials
                       <ArrowRight size={18} />
                     </button>
                     <span>
@@ -805,6 +818,7 @@ function Brief({
   );
 }
 function Studio({
+  planBatch,
   shop,
   initial,
   config,
@@ -813,6 +827,7 @@ function Studio({
   back,
   refresh,
 }: {
+  planBatch: () => void;
   shop: Shop;
   initial: KitConfig;
   config: Config;
@@ -893,6 +908,10 @@ function Studio({
           03 Collect
         </span>
       </div>
+      <button className="sd-batch-link" onClick={planBatch}>
+        Have your own materials, or making a batch? Plan it and buy only the
+        difference <ArrowRight size={16} />
+      </button>
       <div className="sd-studio-grid">
         <section className={"sd-studio-stage sd-scene-" + display.template.id}>
           <div className="sd-stage-top">
@@ -1414,6 +1433,13 @@ function Checkout({
         <h3>
           {quote.kit.template.title} × {quote.kit.config.quantity}
         </h3>
+        {quote.kit.batch && (
+          <p className="sd-batch-callout">
+            This payment buys only the listed shortfall for{" "}
+            {quote.kit.config.quantity} projects. Your own materials are not
+            included in this purchase.
+          </p>
+        )}
         {quote.kit.lines.map((l: any) => (
           <p className="sd-receipt-line" key={l.itemId}>
             <span>
@@ -1423,7 +1449,9 @@ function Checkout({
           </p>
         ))}
         <p className="sd-receipt-line">
-          <span>Kit preparation</span>
+          <span>
+            {quote.kit.batch ? "Optional cutting service" : "Kit preparation"}
+          </span>
           <strong>{money(quote.kit.preparation)}</strong>
         </p>
         <p className="sd-total sd-receipt-line">
@@ -1553,8 +1581,13 @@ function Orders({
                 </small>
                 <h3>{o.kit.template.title}</h3>
                 <p>
-                  {o.kit.config.quantity} kit
-                  {o.kit.config.quantity > 1 ? "s" : ""} · {statusLabel(o)}
+                  {o.kit.config.quantity}{" "}
+                  {o.kit.batch
+                    ? "planned projects · top-up"
+                    : o.kit.config.quantity > 1
+                      ? "kits"
+                      : "kit"}{" "}
+                  · {statusLabel(o)}
                 </p>
               </span>
               <strong>{money(o.kit.total)}</strong>
@@ -1687,14 +1720,22 @@ function OrderPage({
               <h2>{order.kit.template.title}</h2>
               <p>
                 {order.kit.config.width} × {order.kit.config.depth} ×{" "}
-                {order.kit.config.height} mm · {order.kit.config.quantity} kit
-                {order.kit.config.quantity > 1 ? "s" : ""}
+                {order.kit.config.height} mm · {order.kit.config.quantity}{" "}
+                {order.kit.batch
+                  ? "planned projects"
+                  : order.kit.config.quantity > 1
+                    ? "kits"
+                    : "kit"}
               </p>
               <p>
                 {order.kit.fulfillmentTerms?.label} ·{" "}
                 {order.kit.fulfillmentTerms?.location}
               </p>
-              <h3>Exactly what's in your kit</h3>
+              <h3>
+                {order.kit.batch
+                  ? "Purchased top-up materials"
+                  : "Exactly what's in your kit"}
+              </h3>
               {order.kit.lines.map((l: any) => (
                 <p className="sd-receipt-line" key={l.itemId}>
                   <span>
@@ -1704,7 +1745,9 @@ function OrderPage({
                 </p>
               ))}
               <p className="sd-receipt-line">
-                <span>Preparation</span>
+                <span>
+                  {order.kit.batch ? "Optional cutting service" : "Preparation"}
+                </span>
                 <strong>{money(order.kit.preparation)}</strong>
               </p>
               <p className="sd-total sd-receipt-line">
@@ -1836,21 +1879,28 @@ function OrderPage({
                     : ""}{" "}
                   Allow extra drying time.
                 </p>
-                <div className="sd-guide-grid">
-                  <ol>
-                    {order.kit.template.guide.map((s: string) => (
-                      <li key={s}>{s}</li>
-                    ))}
-                  </ol>
-                  <div>
-                    <CutDiagram kit={order.kit} />
-                    <small>
-                      Cut layout: {order.kit.cut.width} × {order.kit.cut.height}{" "}
-                      mm. Solid lines cut; dashed fold. Print scaling
-                      varies—measure before cutting.
-                    </small>
+                {order.kit.batch ? (
+                  <>
+                    <BatchGuide kit={order.kit} />
+                    <BatchCompletion order={order} />
+                  </>
+                ) : (
+                  <div className="sd-guide-grid">
+                    <ol>
+                      {order.kit.template.guide.map((s: string) => (
+                        <li key={s}>{s}</li>
+                      ))}
+                    </ol>
+                    <div>
+                      <CutDiagram kit={order.kit} />
+                      <small>
+                        Cut layout: {order.kit.cut.width} ×{" "}
+                        {order.kit.cut.height} mm. Solid lines cut; dashed fold.
+                        Print scaling varies—measure before cutting.
+                      </small>
+                    </div>
                   </div>
-                </div>
+                )}
               </section>
             )}
           {resume && (
@@ -2467,6 +2517,7 @@ function ShopWorkspace({
                         {l.units} × {l.name} · {l.itemId}
                       </p>
                     ))}
+                    {o.kit.batch && <BatchGuide kit={o.kit} operator />}
                     <p>
                       Final dimensions: {o.kit.config.width} ×{" "}
                       {o.kit.config.depth} × {o.kit.config.height} mm

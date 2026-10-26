@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { BatchInput, BatchPlan } from "./batch";
 export type Material = {
   id: string;
   name: string;
@@ -95,6 +96,7 @@ export type Part = {
 };
 export type Kit = {
   schemaVersion: 1;
+  batch?: { input: BatchInput; plan: BatchPlan; pickupPlaces: 1 };
   fulfillmentTerms?: {
     pickupSlotId: string;
     label: string;
