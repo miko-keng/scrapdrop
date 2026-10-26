@@ -25,7 +25,7 @@ These public synthetic accounts exist only in the explicitly created local demo 
 ## Complete demonstration
 
 1. Choose **Make a project** (`/make`). Start from a written idea or choose a supported template. An idea is interpreted only when you press **Fill my plan from this idea**; review and apply its draft. Fixture interpretation is labeled, and omitted details stay for you to complete.
-2. Enter quantity (1–100), dimensions, deadline, available hands-on minutes, optional USD materials/service budget and measured owned materials. Mark tools you have or explicitly commit to obtaining them; tools are not sold. Confirm the requirements before comparing.
+2. Enter quantity (1–100), dimensions, deadline, available hands-on minutes, optional USD materials/service budget and measured owned materials. Mark tools you have or explicitly commit to obtaining them; tools are not sold. Click **Compare my options** directly; editing fields clears stale results but does not disable comparison. Issues appear in the results and block saving/checkout until resolved.
 3. Optionally allow smaller sizes with explicit minimums, and select any additional acceptable shop shades. **Compare my options** checks material fit, stock, tools, time, deadline and budget. Drag the 3D preview, inspect parts and read the measured sheet layouts.
 4. Sign in as the local buyer. Review the missing-material basket and collection window. **Review top-up with PayPal → Use simulated payment** consumes the exact reserved pieces once. Local demo orders explicitly say they are not PayPal purchases. If all materials are owned, save a free making plan instead.
 5. Sign out and sign in as the local operator. **Shop workspace → Orders & pickup** shows the immutable shop-only pick/cut list. Mark the packed order ready.
@@ -122,3 +122,11 @@ The idea interpreter fills an editable requirements draft; it does not calculate
 The server recomputes every option and final quote using the same verified template engine. Dimensions can change only when resizing is enabled, and only within the buyer’s stated minimums. Additional shop shades require explicit permission. The comparison samples target, midpoint and minimum dimensions, checking up to 400 combinations; it is a bounded comparison, not a claim of a globally optimal nesting solution. Quantity, tools and deadline are retained across options. Budget covers materials plus the optional cutting service; separately arranged tools and travel are not priced.
 
 This release unifies project planning, brief interpretation, explicit design flexibility, missing-tool arrangements and cutting-service copy. Job profit calculations and actual-versus-estimated production feedback are deferred.
+
+## Planner buttons and end-to-end checks
+
+**Compare my options** is available on initial load and after editing. It is temporarily disabled only while a planner operation is in progress (comparison, saving materials, preparing checkout, saving a making plan or marking one made). No requirements-confirmation checkbox is needed. Invalid inputs return an error; missing tools, insufficient time, expired deadlines, stock shortfalls and exceeded budgets are shown in computed results and prevent continuation.
+
+**Save my making plan** appears below the selected comparison result when it needs no purchase (`total = 0`). It is enabled when all readiness checks pass; anonymous buyers are prompted to sign in. A paid shortfall uses **Review top-up with PayPal** instead. Use **3 gift boxes · no purchase → Compare my options → Save my making plan** for the shortest saving demonstration. Saving opens the **Saved making plans** section, where instructions persist after reloading. Saving does not consume owned materials; marking the plan made does.
+
+See [planner browser E2E results](PLANNER_E2E_REPORT.md) for the verified flows and reproduction steps.

@@ -272,8 +272,7 @@ export default function BatchPlanner({
     generation = useRef(0);
   const [brief, setBrief] = useState(initialBrief),
     [intent, setIntent] = useState<any>(null),
-    [intentBusy, setIntentBusy] = useState(false),
-    [confirmed, setConfirmed] = useState(false);
+    [intentBusy, setIntentBusy] = useState(false);
   const intentGeneration = useRef(0);
   const selected = alternatives[chosen]?.kit;
   const template = templates.find((t) => t.id === input.config.templateId)!;
@@ -360,7 +359,7 @@ export default function BatchPlanner({
     });
     setIntent(null);
     setNotice(
-      "Draft applied. Review the dimensions, quantity, deadline, budget and tools, then confirm the requirements below.",
+      "Draft applied. Review the details below, then compare your options.",
     );
     document.getElementById("sd-project-requirements")?.scrollIntoView({
       behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -436,7 +435,6 @@ export default function BatchPlanner({
   }, [accountId]);
   function change(patch: Partial<BatchInput>) {
     generation.current++;
-    setConfirmed(false);
     setInput((v) => ({ ...v, ...patch }));
     setAlternatives([]);
     setError("");
@@ -446,11 +444,9 @@ export default function BatchPlanner({
     dirty.current = true;
     change({ owned });
   }
-  function sample(kind: "four" | "thirty") {
-    const cfg = defaultConfig(
-        kind === "four" ? "giftbox" : "bookmark",
-        inventory,
-      ),
+  function sample(kind: "four" | "thirty" | "three") {
+    const box = kind !== "thirty";
+    const cfg = defaultConfig(box ? "giftbox" : "bookmark", inventory),
       m = inventory.find((m) => m.id === cfg.materialId)!,
       r = inventory.find((m) => m.id === cfg.ribbonId)!;
     ownChange([
@@ -458,8 +454,8 @@ export default function BatchPlanner({
         id: "example-card",
         name: "My measured card sheets",
         type: "card",
-        width: kind === "four" ? 200 : 300,
-        length: kind === "four" ? 300 : 420,
+        width: box ? 200 : 300,
+        length: box ? 300 : 420,
         thickness: m.thickness,
         quantity: 3,
         color: m.color,
@@ -469,16 +465,16 @@ export default function BatchPlanner({
         name: "My cream ribbon",
         type: "ribbon",
         width: r.width,
-        length: kind === "four" ? 2600 : 3000,
+        length: box ? 2600 : 3000,
         thickness: r.thickness,
-        quantity: kind === "four" ? 1 : 2,
+        quantity: box ? 1 : 2,
         color: r.color,
       },
     ]);
     change({
       config: cfg,
-      quantity: kind === "four" ? 4 : 30,
-      availableMinutes: kind === "four" ? 120 : 480,
+      quantity: box ? (kind === "three" ? 3 : 4) : 30,
+      availableMinutes: box ? 120 : 480,
       mixColors: true,
       tools: ["scissors", "ruler", "glue", "hole punch"],
       toolsToGet: [],
@@ -488,12 +484,11 @@ export default function BatchPlanner({
       deadline: futureDate(),
       flexibility: {
         resize: true,
-        minWidth: kind === "four" ? 76 : 34,
-        minDepth: kind === "four" ? 51 : 119,
-        minHeight: kind === "four" ? 29 : 2,
+        minWidth: box ? 76 : 34,
+        minDepth: box ? 51 : 119,
+        minHeight: box ? 29 : 2,
       },
     });
-    setConfirmed(true);
   }
   async function saveMaterials() {
     const saved = await api("/scrapdrop/owned", {
@@ -506,10 +501,7 @@ export default function BatchPlanner({
     return saved;
   }
   async function calculate() {
-    if (!confirmed) {
-      setError("Review and confirm your project requirements first.");
-      return;
-    }
+    if (busy) return;
     const gen = ++generation.current;
     setBusy(true);
     setError("");
@@ -554,6 +546,12 @@ export default function BatchPlanner({
           "Making plan saved. No purchase needed. Mark it made below when you actually use the materials.",
         );
         await load();
+        document.getElementById("sd-saved-making-plans")?.scrollIntoView({
+          block: "start",
+          behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+            ? "auto"
+            : "smooth",
+        });
       }
     } catch (e) {
       setError((e as Error).message);
@@ -580,6 +578,9 @@ export default function BatchPlanner({
           <span>Try a worked example</span>
           <button onClick={() => sample("four")}>
             3 sheets → 4 gift boxes <ArrowRight size={14} />
+          </button>
+          <button onClick={() => sample("three")}>
+            3 gift boxes · no purchase <ArrowRight size={14} />
           </button>
           <button onClick={() => sample("thirty")}>
             30 event bookmarks <ArrowRight size={14} />
@@ -1129,21 +1130,18 @@ export default function BatchPlanner({
             outer blanks and remaining material; your own sheets, detailed cuts,
             ribbon trimming, folding and assembly are yours.
           </label>
-          <label className="sd-check sd-requirements-confirm">
-            <input
-              type="checkbox"
-              checked={confirmed}
-              onChange={(e) => setConfirmed(e.target.checked)}
-            />
-            I've checked the project, quantity, dimensions, budget, deadline and
-            tool arrangements.
-          </label>
+          <p id="sd-compare-help">
+            Comparison is free. Missing tools, time or budget issues appear in
+            the results. If your materials cover the plan, you can save it
+            without checkout.
+          </p>
           <button
             className="sd-btn"
-            disabled={busy || !confirmed}
+            disabled={busy}
+            aria-describedby="sd-compare-help"
             onClick={calculate}
           >
-            {busy ? "Calculating…" : "Compare my options"}
+            {busy ? "Please wait…" : "Compare my options"}
             <ArrowRight size={17} />
           </button>
         </section>
@@ -1153,7 +1151,7 @@ export default function BatchPlanner({
           {error}
         </p>
       )}
-      {notice && (
+      {notice && !notice.startsWith("Making plan saved.") && (
         <p className="sd-batch-callout" role="status">
           {notice}
         </p>
@@ -1217,7 +1215,7 @@ export default function BatchPlanner({
                   <h2>
                     {selected.lines.length
                       ? "Your top-up basket."
-                      : "You have what you need."}
+                      : "Your materials are covered."}
                   </h2>
                   <p>
                     {selected.batch!.plan.ownedSheetProjects} / {input.quantity}{" "}
@@ -1293,6 +1291,14 @@ export default function BatchPlanner({
                       : "Save my making plan"}
                     <ArrowRight size={17} />
                   </button>
+                  {selected.total > 0 && (
+                    <p>
+                      You still need shop materials. <b>Save my making plan</b>{" "}
+                      becomes available when the selected option needs no
+                      purchase. Try the no-purchase example above to test
+                      saving.
+                    </p>
+                  )}
                   <small>
                     {selected.total
                       ? "Only purchased stock is reserved at checkout. Your owned materials remain a self-reported planning balance until you mark the batch made."
@@ -1305,53 +1311,61 @@ export default function BatchPlanner({
           )}
         </section>
       )}
-      {!!jobs.length && (
-        <section className="sd-batch-jobs">
-          <h2>Saved making plans</h2>
-          {jobs.map((j) => (
-            <article key={j.id}>
-              <div>
-                <b>
-                  {j.kit.config.quantity} × {j.kit.template.title}
-                </b>
-                <small>
-                  {j.made
-                    ? "Made · inventory updated"
-                    : "Materials already owned · ready to make"}
-                </small>
-              </div>
-              <details>
-                <summary>Open instructions</summary>
-                <BatchGuide kit={j.kit} />
-              </details>
-              <button
-                className="sd-btn small outline"
-                disabled={busy || j.made}
-                onClick={async () => {
-                  setBusy(true);
-                  setError("");
-                  try {
-                    await send("/scrapdrop/batch/" + j.id + "/made", {});
-                    dirty.current = false;
-                    await load();
-                    setAlternatives([]);
-                    setNotice(
-                      "Batch marked made. Used whole units were subtracted once; measure offcuts before adding them as new stock.",
-                    );
-                  } catch (e) {
-                    setError((e as Error).message);
-                  } finally {
-                    setBusy(false);
-                  }
-                }}
-              >
-                {j.made ? <Check size={15} /> : <Scissors size={15} />}
-                {j.made ? "Made" : "Mark batch made"}
-              </button>
-            </article>
-          ))}
-        </section>
-      )}
+      <section className="sd-batch-jobs" id="sd-saved-making-plans">
+        <h2>Saved making plans</h2>
+        {notice.startsWith("Making plan saved.") && (
+          <p role="status">{notice}</p>
+        )}
+        {!jobs.length && (
+          <p>
+            No making plans saved yet. After comparing, choose a $0 option and
+            click <b>Save my making plan</b>. Plans needing shop materials use
+            PayPal checkout instead. Sign in to keep your plans.
+          </p>
+        )}
+        {jobs.map((j) => (
+          <article key={j.id}>
+            <div>
+              <b>
+                {j.kit.config.quantity} × {j.kit.template.title}
+              </b>
+              <small>
+                {j.made
+                  ? "Made · inventory updated"
+                  : "Materials already owned · ready to make"}
+              </small>
+            </div>
+            <details>
+              <summary>Open instructions</summary>
+              <BatchGuide kit={j.kit} />
+            </details>
+            <button
+              className="sd-btn small outline"
+              disabled={busy || j.made}
+              onClick={async () => {
+                setBusy(true);
+                setError("");
+                try {
+                  await send("/scrapdrop/batch/" + j.id + "/made", {});
+                  dirty.current = false;
+                  await load();
+                  setAlternatives([]);
+                  setNotice(
+                    "Batch marked made. Used whole units were subtracted once; measure offcuts before adding them as new stock.",
+                  );
+                } catch (e) {
+                  setError((e as Error).message);
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            >
+              {j.made ? <Check size={15} /> : <Scissors size={15} />}
+              {j.made ? "Made" : "Mark batch made"}
+            </button>
+          </article>
+        ))}
+      </section>
       {quote && checkout(quote, () => setQuote(null))}
     </main>
   );

@@ -580,12 +580,6 @@
   border-radius: 50%;
   border: 1px solid #263f3322;
 }
-.sd-app .sd-requirements-confirm {
-  background: #eef0e1;
-  border: 1px solid #d3dcc1;
-  padding: 15px;
-  border-radius: 7px;
-}
 .sd-app .sd-brief > .sd-btn {
   margin: 15px 0;
 }
