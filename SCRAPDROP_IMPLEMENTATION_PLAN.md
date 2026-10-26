@@ -625,3 +625,15 @@ The winner comparison informed product patterns; it does not establish that this
 - Render persistent storage: https://render.com/docs/disks
 
 Verify exact SDK versions, model availability/multimodal support, applicable capture/refund event names, and deployment settings against their official documentation when those phases begin. This planning change makes no Gemini calls, submits no payments, and does not deploy or purchase infrastructure.
+
+## 25. Unified project planner — implemented 26 October 2026
+
+Approved scope: priorities 1–5 only. `/make` replaces the separate single-kit studio and batch entry flow; `/studio` and `/batch` remain redirect aliases. The same quantities, owned inventory, template geometry, 3D preview, production guide and server-priced checkout apply to one project or up to 100.
+
+An explicitly submitted written brief produces an editable draft containing the supported template, quantity, budget in USD cents, deadline, hands-on time, target/minimum dimensions, permitted colors and explicitly owned tools. Unknown details remain null. The buyer reviews applied form values before comparison. Fixture mode uses a conservative local parser; live mode uses schema-validated Gemini output and existing per-identity/database/process caps. Manual input remains available on failure. No automatic model calls occur during editing, layout comparison, 3D, pricing or checkout.
+
+Design changes require explicit minimum dimensions and allowed extra shop shade IDs. The bounded solver samples each target, midpoint and minimum and evaluates up to 400 configurations, excluding infeasible alternatives and redundant inferior choices. It retains quantity, deadline, time and tool arrangements. Every selected option is recalculated against current stock and owned-inventory revision at quotation.
+
+Missing tools block readiness until the buyer marks them owned or explicitly agrees to obtain them separately. Tool arrangements are frozen in the guide and displayed at checkout; no unstocked tool is added to the basket. Purchased-sheet cutting is USD 2.50/order when sheet units are purchased, zero for ribbon-only top-ups. It covers outer blank cuts with remaining material included. Buyer-owned cutting, detailed cuts, ribbon trimming, scoring/folding, hole punching, gluing and assembly remain buyer responsibilities. The USD budget includes selected service fees, but separately arranged tools/travel are unpriced.
+
+Deferred: full job economics, actual production feedback, industrial nesting/grain handling and arbitrary manufacturing recipes. This release does not claim measured profitability or labor savings.

@@ -41,6 +41,10 @@ function setup() {
       .toISOString()
       .slice(0, 10),
     tools: ["scissors", "ruler", "glue", "hole punch"],
+    toolsToGet: [],
+    budget: null,
+    allowedMaterialIds: [],
+    allowedRibbonIds: [],
     owned: [
       {
         id: "my-card",
@@ -339,6 +343,25 @@ test("batch HTTP owns inventory and jobs, rejects untrusted pricing, and returns
       )
     ).data.revision;
     assert.equal((await call("other", "/owned")).data.materials.length, 0);
+    const interpreted = await call("buyer", "/planner/interpret", {
+      text: "30 bookmarks under $10 by Friday",
+    });
+    assert.equal(interpreted.status, 200);
+    assert.equal(interpreted.data.source, "fixture");
+    assert.equal(interpreted.data.draft.quantity, 30);
+    assert.equal(
+      (
+        await call("buyer", "/batch/quotes", {
+          input: { ...input, tools: [], cuttingService: true },
+        })
+      ).status,
+      409,
+    );
+    assert.equal(
+      (await call("buyer", "/batch/quotes", { input: { ...input, budget: 0 } }))
+        .status,
+      409,
+    );
     const plan = await call("buyer", "/batch/plan", input);
     assert.equal(plan.status, 200);
     assert.equal(plan.data.alternatives[0].kit.total, 190);

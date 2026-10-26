@@ -24,13 +24,13 @@ These public synthetic accounts exist only in the explicitly created local demo 
 
 ## Complete demonstration
 
-1. On the homepage, describe a gift or notebook project. Pick your budget, hands-on time, and tools. **Find my possibilities** uses labeled fixtures by default; direct project selection also works.
-2. Open **The little gift box**. Drag the 3D object, change a card or ribbon shade, use **See the parts**, change dimensions, and inspect the measured cutting guide. Color choices select actual compatible stock; dimensions must fit the supplied rectangle.
-3. Sign in as the local buyer. **Review this kit → Use simulated payment** consumes the exact reserved pieces once. The order page explicitly says it is not a PayPal purchase.
-4. Sign out and sign in as the local operator. **Shop workspace → Orders & pickup** shows the immutable pick list. Mark the packed kit ready.
-5. Sign back in as the buyer, open **My kits**, and view its private pickup QR/code and print-ready assembly guide.
-6. As the operator, enter that code in **Orders & pickup → Confirm collection**. A second attempt is refused.
-7. Inventory availability reflects the allocated pieces. The test suite also starts two separate processes competing for the last piece and verifies that only one succeeds.
+1. Choose **Make a project** (`/make`). Start from a written idea or choose a supported template. An idea is interpreted only when you press **Fill my plan from this idea**; review and apply its draft. Fixture interpretation is labeled, and omitted details stay for you to complete.
+2. Enter quantity (1–100), dimensions, deadline, available hands-on minutes, optional USD materials/service budget and measured owned materials. Mark tools you have or explicitly commit to obtaining them; tools are not sold. Confirm the requirements before comparing.
+3. Optionally allow smaller sizes with explicit minimums, and select any additional acceptable shop shades. **Compare my options** checks material fit, stock, tools, time, deadline and budget. Drag the 3D preview, inspect parts and read the measured sheet layouts.
+4. Sign in as the local buyer. Review the missing-material basket and collection window. **Review top-up with PayPal → Use simulated payment** consumes the exact reserved pieces once. Local demo orders explicitly say they are not PayPal purchases. If all materials are owned, save a free making plan instead.
+5. Sign out and sign in as the local operator. **Shop workspace → Orders & pickup** shows the immutable shop-only pick/cut list. Mark the packed order ready.
+6. As the buyer, open **My projects**, view the private pickup QR/code and print-ready assembly guide. As the operator, confirm collection using that code; repeats are refused.
+7. After collection and making, **Mark batch made** deducts the whole owned sheets/segments used, once. Check the updated balance. Measure reusable offcuts separately before adding them as new stock.
 
 Three supported templates are included: a folded gift box, a removable notebook wrap, and a layered bookmark. The notebook and listed tools are buyer-supplied. These are authored project designs, not arbitrary AI-generated meshes or a verified manufacturing service.
 
@@ -46,7 +46,7 @@ PORT=4321 APP_BASE_URL=http://127.0.0.1:4321 APP_MODE=sandbox AI_MODE=fixture np
 
 Before shop management, create/sign in to your own account and open **Shop workspace**. With no operator configured it displays your account ID. Set that existing account as `SCRAPDROP_OPERATOR_ACCOUNT_ID`, then restart. Public signup never automatically grants inventory privileges. Configure the operator before inviting judges.
 
-PayPal checkout charges the frozen, server-priced materials kit in USD, including the displayed preparation fee. It reserves whole units for ten minutes before capture, locks them while payment is uncertain, verifies canonical capture amount/currency/seller/order, then allocates stock exactly once. Canceled unpaid holds release; refunds do not automatically restock used physical materials. The existing `/api/paypal/webhook` verifies notifications and dispatches new kit orders separately from retained legacy software orders.
+PayPal checkout charges the frozen, server-priced materials kit in USD, including any selected purchased-sheet cutting fee. It reserves whole units for ten minutes before capture, locks them while payment is uncertain, verifies canonical capture amount/currency/seller/order, then allocates stock exactly once. Canceled unpaid holds release; refunds do not automatically restock used physical materials. The existing `/api/paypal/webhook` verifies notifications and dispatches new kit orders separately from retained legacy software orders.
 
 The synthetic prototype is pickup-only with no shipping and an explicitly displayed $0 tax assumption. It does not implement production tax calculation, independent seller onboarding/payouts, escrow, or real physical shop fulfillment.
 
@@ -105,12 +105,20 @@ Collection windows are capacity-limited and frozen with each order; unpaid cance
 
 ## Owned materials and batch top-ups
 
-Open `/batch` (or **Plan a batch**). Supported projects can be planned in quantities of 1–100. Add your measured card/fabric sheets and unbroken ribbon segments, deadline, available hands-on minutes and tools. Account inventories are private and revision-checked.
+Open `/make` (**Make a project**). Older `/batch` and `/studio` links redirect to this same planner. Supported projects can be planned in quantities of 1–100. Add your measured card/fabric sheets and unbroken ribbon segments, deadline, available hands-on minutes and tools. Account inventories are private and revision-checked.
 
 1. Try **3 sheets → 4 gift boxes**: three 200 × 300 mm owned sheets plus one 2,600 mm ribbon segment leave one shop sheet to buy, USD 1.90 at seed prices.
-2. Try **30 event bookmarks**: three 300 × 420 mm sheets and two 3,000 mm ribbon segments cover 18 card blanks and 28 ribbons. The original 40 × 140 mm design needs two shop sheets plus one ribbon segment, USD 4.60. A 34 × 119 mm alternative uses the owned sheets for all 30 projects and needs only one USD 0.80 ribbon segment.
+2. Try **30 event bookmarks**: three 300 × 420 mm sheets and two 3,000 mm ribbon segments cover 18 card blanks and 28 ribbons. The original 40 × 140 mm design needs two shop sheets plus one ribbon segment, USD 4.60. Within the example’s explicitly permitted minimums of 34 × 119 mm, a 34 × 130 mm alternative uses the owned sheets for all 30 projects and needs only one USD 0.80 ribbon segment.
 3. Compare dimensions and required purchases, inspect 3D and the labeled sheet layouts, then review the top-up. Shop stock, prices, owned inventory revision and pickup capacity are rechecked server-side; quantities/prices from the browser are never trusted.
-4. Optional cutting of **purchased sheets only** adds USD 2.50 per order. Ribbon-only purchases do not attract this fee. The operator sees the frozen shop-only pick/cut list. A batch occupies one pickup booking.
+4. Optional cutting of **purchased sheets only** adds USD 2.50 per order. Ribbon-only purchases do not attract this fee. The service cuts purchased outer sheet blanks and includes the remaining material. Buyer-owned sheets, detailed cuts, ribbon trimming, folding, hole punching and assembly remain the buyer’s work; required tools are not removed. The operator sees the frozen shop-only pick/cut list. A batch occupies one pickup booking.
 5. If you own everything, save a free making plan without PayPal. After making it, choose **Mark batch made**. Paid top-up plans require collection first. The inventory update is atomic and idempotent, and cannot make quantities negative.
 
 The layout uses conservative rectangular grids with both orientations, 2 mm edge margins and 3 mm gaps. It is not a general industrial nesting optimizer. Pattern/grain constraints, machine scheduling, costed labor, multi-supplier purchasing and certified manufacturing specifications are outside this version. Time is a conservative template pace plus setup, not a measured labor prediction. Owned materials are self-reported and are not reserved across simultaneous plans; competing plans are checked when marked made. The balance subtracts whole used sheets/segments: measure and add usable offcuts separately rather than treating leftover area as guaranteed usable stock. Cash avoided is compared at selected shop unit prices, not claimed as profit or verified productivity gains.
+
+## Unified planner and AI boundaries
+
+The idea interpreter fills an editable requirements draft; it does not calculate prices, invent measured inventory, sell missing tools or generate new manufacturing recipes. Gemini receives only an explicitly submitted brief. Local fixture mode uses a small deterministic parser and does not have Gemini’s language coverage. Check the source label before presenting an AI demonstration.
+
+The server recomputes every option and final quote using the same verified template engine. Dimensions can change only when resizing is enabled, and only within the buyer’s stated minimums. Additional shop shades require explicit permission. The comparison samples target, midpoint and minimum dimensions, checking up to 400 combinations; it is a bounded comparison, not a claim of a globally optimal nesting solution. Quantity, tools and deadline are retained across options. Budget covers materials plus the optional cutting service; separately arranged tools and travel are not priced.
+
+This release unifies project planning, brief interpretation, explicit design flexibility, missing-tool arrangements and cutting-service copy. Job profit calculations and actual-versus-estimated production feedback are deferred.

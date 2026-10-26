@@ -39,6 +39,7 @@ import {
 import type { Config } from "../shared/types";
 import "./style.css";
 import "./studio-theme.css";
+import { buildBatchKit } from "./batch";
 import BatchPlanner, { BatchGuide, BatchCompletion } from "./BatchPlanner";
 import { Art, CutDiagram } from "./ProjectArt";
 const KitViewer = lazy(() => import("./KitViewer"));
@@ -191,7 +192,12 @@ export default function ScrapDropApp() {
   const [shop, setShop] = useState<Shop | null>(null),
     [account, setAccount] = useState<Account | null>(null),
     [config, setConfig] = useState<Config | null>(null),
-    [path, setPath] = useState(location.pathname),
+    [path, setPath] = useState(
+      ["/batch", "/studio"].includes(location.pathname)
+        ? "/make"
+        : location.pathname,
+    ),
+    [initialBrief, setInitialBrief] = useState(""),
     [auth, setAuth] = useState(false),
     [error, setError] = useState(""),
     [selected, setSelected] = useState<KitConfig | null>(null);
@@ -204,17 +210,26 @@ export default function ScrapDropApp() {
     setAccount(m.account);
   }
   useEffect(() => {
+    if (["/batch", "/studio"].includes(location.pathname))
+      history.replaceState({}, "", "/make");
     getConfig()
       .then((c) => {
         setConfig(c);
         return refresh();
       })
       .catch((e) => setError(e.message));
-    const pop = () => setPath(location.pathname);
+    const pop = () => {
+      const p = ["/batch", "/studio"].includes(location.pathname)
+        ? "/make"
+        : location.pathname;
+      if (p !== location.pathname) history.replaceState({}, "", p);
+      setPath(p);
+    };
     window.addEventListener("popstate", pop);
     return () => window.removeEventListener("popstate", pop);
   }, []);
   function nav(p: string) {
+    if (["/batch", "/studio"].includes(p)) p = "/make";
     history.pushState({}, "", p);
     setPath(p);
     setError("");
@@ -228,20 +243,15 @@ export default function ScrapDropApp() {
   };
   const hero = useMemo(() => {
     try {
-      return shop
-        ? buildKit(
-            defaultConfig("giftbox", shop.inventory),
-            shop.inventory,
-            false,
-          )
-        : null;
+      return shop ? previewProject("giftbox", shop.inventory) : null;
     } catch {
       return null;
     }
   }, [shop]);
   function open(c: KitConfig) {
     setSelected(c);
-    nav("/studio");
+    setInitialBrief("");
+    nav("/make");
   }
   const orderId = path.startsWith("/orders/") ? path.split("/")[2] : null;
   return (
@@ -260,16 +270,10 @@ export default function ScrapDropApp() {
           </button>
           <nav aria-label="Main navigation">
             <button
-              className={path === "/batch" ? "active" : ""}
-              onClick={() => nav("/batch")}
+              className={path === "/make" ? "active" : ""}
+              onClick={() => nav("/make")}
             >
-              Plan a batch
-            </button>
-            <button
-              className={path === "/" || path === "/studio" ? "active" : ""}
-              onClick={() => nav("/")}
-            >
-              Make something
+              Make a project
             </button>
             <button
               className={path.startsWith("/orders") ? "active" : ""}
@@ -277,7 +281,7 @@ export default function ScrapDropApp() {
                 if (requireAccount()) nav("/orders");
               }}
             >
-              My kits
+              My projects
             </button>
             <button
               className={path === "/shop" ? "active" : ""}
@@ -341,12 +345,14 @@ export default function ScrapDropApp() {
                 : "Gathering a few good possibilities…"}
             </p>
           </main>
-        ) : path === "/batch" ? (
+        ) : path === "/make" ? (
           <BatchPlanner
             inventory={shop.inventory}
             slots={shop.pickupSlots}
             accountId={shop.accountId}
             initial={selected}
+            initialBrief={initialBrief}
+            aiMode={shop.ai.mode}
             requireAccount={requireAccount}
             checkout={(quote, close) => (
               <Checkout
@@ -358,17 +364,6 @@ export default function ScrapDropApp() {
               />
             )}
           />
-        ) : path === "/studio" ? (
-          <Studio
-            shop={shop}
-            initial={selected || defaultConfig("giftbox", shop.inventory)}
-            config={config}
-            requireAccount={requireAccount}
-            openOrder={(id) => nav("/orders/" + id)}
-            back={() => nav("/")}
-            refresh={refresh}
-            planBatch={() => nav("/batch")}
-          />
         ) : orderId ? (
           <OrderPage
             id={orderId}
@@ -379,7 +374,7 @@ export default function ScrapDropApp() {
         ) : path === "/orders" ? (
           <Orders
             onOpen={(id) => nav("/orders/" + id)}
-            onMake={() => nav("/")}
+            onMake={() => nav("/make")}
           />
         ) : path === "/shop" ? (
           <ShopWorkspace shop={shop} refresh={refresh} />
@@ -402,7 +397,7 @@ export default function ScrapDropApp() {
                     explore it in 3D, and buy only the missing materials.
                   </p>
                   <div className="sd-hero-actions">
-                    <button className="sd-btn" onClick={() => nav("/batch")}>
+                    <button className="sd-btn" onClick={() => nav("/make")}>
                       Plan with my materials
                       <ArrowRight size={18} />
                     </button>
@@ -438,7 +433,15 @@ export default function ScrapDropApp() {
                 </p>
                 <span className="sd-sample">Sample shop · PayPal sandbox</span>
               </section>
-              <Brief shop={shop} onOpen={open} />
+              <ProjectStart
+                inventory={shop.inventory}
+                onOpen={open}
+                onBrief={(text) => {
+                  setInitialBrief(text);
+                  setSelected(null);
+                  nav("/make");
+                }}
+              />
               <section className="sd-stock-strip">
                 <div>
                   <span className="sd-kicker">
@@ -601,688 +604,107 @@ function HeroProject({ kit, onOpen }: { kit: Kit; onOpen: () => void }) {
   );
 }
 
-function Brief({
-  shop,
-  onOpen,
-}: {
-  shop: Shop;
-  onOpen: (c: KitConfig) => void;
-}) {
-  const [text, setText] = useState(
-      "A thoughtful little birthday gift I can make in an afternoon.",
-    ),
-    [budget, setBudget] = useState(12),
-    [minutes, setMinutes] = useState(30),
-    [tools, setTools] = useState(["scissors", "ruler", "glue", "hole punch"]),
-    [busy, setBusy] = useState(false),
-    [result, setResult] = useState<any>(null),
-    [error, setError] = useState("");
-  const examples = useMemo(
-    () =>
-      templates
-        .map((t) => {
-          try {
-            return buildKit(
-              defaultConfig(t.id, shop.inventory),
-              shop.inventory,
-            );
-          } catch {
-            return null;
-          }
-        })
-        .filter(Boolean) as Kit[],
-    [shop.inventory],
+function previewProject(id: TemplateId, inventory: Material[]) {
+  return buildBatchKit(
+    {
+      config: defaultConfig(id, inventory),
+      quantity: 1,
+      owned: [],
+      mixColors: true,
+      cuttingService: false,
+      availableMinutes: 120,
+      deadline: new Date(Date.now() + 8 * 3600000 + 7 * 86400000)
+        .toISOString()
+        .slice(0, 10),
+      tools: templates.find((t) => t.id === id)!.tools,
+    },
+    inventory,
   );
+}
+function ProjectStart({
+  inventory,
+  onOpen,
+  onBrief,
+}: {
+  inventory: Material[];
+  onOpen: (c: KitConfig) => void;
+  onBrief: (text: string) => void;
+}) {
+  const [text, setText] = useState("");
+  const examples = templates.flatMap((t) => {
+    try {
+      return [previewProject(t.id, inventory)];
+    } catch {
+      return [];
+    }
+  });
   return (
     <section className="sd-discover" id="make-a-kit">
       <div className="sd-section-heading">
         <div>
-          <span className="sd-kicker">START WITH A LITTLE IDEA</span>
+          <span className="sd-kicker">ONE PROJECT OR A WHOLE BATCH</span>
           <h2>What would you like to make?</h2>
         </div>
-        <span className="sd-handwritten">Something you, perhaps. ↙</span>
+        <span className="sd-handwritten">Start with a little idea. ↙</span>
       </div>
-      <div className="sd-brief">
-        <label className="sd-brief-label" htmlFor="sd-brief">
-          Your next project
+      <form
+        className="sd-brief"
+        onSubmit={(e) => {
+          e.preventDefault();
+          onBrief(text);
+        }}
+      >
+        <label htmlFor="sd-home-brief">
+          Your project idea
+          <textarea
+            id="sd-home-brief"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="30 bookmarks under $10 by Friday. Minimum size 34 × 119 mm."
+            maxLength={1500}
+          />
         </label>
-        <textarea
-          id="sd-brief"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          maxLength={1000}
-        />
-        <div className="sd-brief-controls">
-          <label>
-            My budget
-            <select
-              value={budget}
-              onChange={(e) => setBudget(Number(e.target.value))}
-            >
-              {[5, 8, 12, 20, 30].map((v) => (
-                <option key={v} value={v}>
-                  Up to ${v}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Hands-on time
-            <select
-              value={minutes}
-              onChange={(e) => setMinutes(Number(e.target.value))}
-            >
-              {[15, 20, 30, 60].map((v) => (
-                <option key={v} value={v}>
-                  {v} minutes
-                </option>
-              ))}
-            </select>
-          </label>
-          <details>
-            <summary>
-              Tools I already have
-              <ChevronDown size={14} />
-            </summary>
-            <div className="sd-tool-options">
-              {["scissors", "ruler", "glue", "hole punch"].map((t) => (
-                <label key={t}>
-                  <input
-                    type="checkbox"
-                    checked={tools.includes(t)}
-                    onChange={(e) =>
-                      setTools(
-                        e.target.checked
-                          ? [...tools, t]
-                          : tools.filter((v) => v !== t),
-                      )
-                    }
-                  />
-                  {t}
-                </label>
-              ))}
-            </div>
-          </details>
-          <button
-            className="sd-btn"
-            disabled={busy || text.trim().length < 5}
-            onClick={async () => {
-              setBusy(true);
-              setError("");
-              try {
-                setResult(
-                  await send("/scrapdrop/ideas", {
-                    text,
-                    budget: budget * 100,
-                    minutes,
-                    quantity: 1,
-                    tools,
-                  }),
-                );
-              } catch (e) {
-                setError((e as Error).message);
-              } finally {
-                setBusy(false);
-              }
-            }}
-          >
-            {busy ? <Loader /> : <Sparkles size={17} />}Find my possibilities
-            <ArrowRight size={17} />
-          </button>
-        </div>
+        <button className="sd-btn" type="submit">
+          {text.trim() ? "Plan this idea" : "Choose my project"}
+          <ArrowRight size={17} />
+        </button>
         <small>
-          {shop.ai.mode === "fixture"
-            ? "Local example matching · no Gemini request. Choose a project below, or try a different brief."
-            : "AI interprets your brief only when you choose Find my possibilities. Material fit and price are checked by code."}
+          Continue to one planner. Interpret your brief there, or choose the
+          details yourself.
         </small>
-      </div>
-      {error && (
-        <p className="sd-error" role="alert">
-          {error}
-        </p>
-      )}
-      {result && (
-        <p className="sd-result-message" role="status">
-          {result.source === "ai"
-            ? "Gemini interpretation"
-            : result.source === "fixture"
-              ? "Local example interpretation"
-              : "Manual interpretation"}{" "}
-          · {result.explanation}
-        </p>
-      )}
+      </form>
       <div className="sd-project-grid">
-        {(result ? result.kits : examples).map((kit: Kit, i: number) => (
-          <motion.article
-            className="sd-project-card"
-            key={kit.template.id}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06 }}
-          >
+        {examples.map((kit) => (
+          <article className="sd-project-card" key={kit.template.id}>
             <button
               className={"sd-card-art " + kit.template.id}
               onClick={() => onOpen(kit.config)}
-              aria-label={`Customize ${kit.template.title}`}
+              aria-label={"Plan " + kit.template.title}
             >
               <Art kit={kit} scene />
-              <span className="sd-scene-caption" aria-hidden="true">
-                {kit.template.id === "giftbox"
-                  ? "FOR SOMEONE SPECIAL"
-                  : kit.template.id === "wrap"
-                    ? "A NEW CHAPTER"
-                    : "ONE MORE PAGE"}
-              </span>
               <span className="sd-card-badge">
                 <Clock size={12} />
-                {kit.template.minutes} min hands-on
+                {kit.template.minutes} min per project
               </span>
               <span className="sd-card-arrow">
                 <ArrowUpRight size={20} />
               </span>
             </button>
             <div className="sd-card-body">
-              <span className="sd-kicker">
-                {kit.template.type === "fabric"
-                  ? "A LITTLE FABRIC, A FRESH START"
-                  : "GOOD THINGS FROM SMALL PIECES"}
-              </span>
+              <span className="sd-kicker">MAKE IT WITH WHAT YOU HAVE</span>
               <button onClick={() => onOpen(kit.config)}>
                 <h3>{kit.template.title}</h3>
               </button>
               <p>{kit.template.subtitle}</p>
               <div className="sd-card-bottom">
-                <span>
-                  <i style={{ background: kit.materials[0].color }} />
-                  <i style={{ background: kit.materials[1].color }} />
-                  {kit.lines.length} included materials
-                </span>
+                <span>All-new materials, 1 project</span>
                 <strong>{money(kit.total)}</strong>
               </div>
             </div>
-          </motion.article>
+          </article>
         ))}
       </div>
-      {result && !result.kits.length && (
-        <div className="sd-empty">
-          <Leaf />
-          <h3>A small change could open a possibility.</h3>
-          <p>Try increasing your time or budget, or add a tool you have.</p>
-          <button className="sd-text" onClick={() => setResult(null)}>
-            Browse supported projects
-            <ArrowRight size={16} />
-          </button>
-        </div>
-      )}
     </section>
-  );
-}
-function Studio({
-  planBatch,
-  shop,
-  initial,
-  config,
-  requireAccount,
-  openOrder,
-  back,
-  refresh,
-}: {
-  planBatch: () => void;
-  shop: Shop;
-  initial: KitConfig;
-  config: Config;
-  requireAccount: () => boolean;
-  openOrder: (id: string) => void;
-  back: () => void;
-  refresh: () => Promise<void>;
-}) {
-  const [pickupSlotId, setPickupSlotId] = useState(
-    shop.pickupSlots[0]?.id || "",
-  );
-  const [value, setValue] = useState(initial),
-    [exploded, setExploded] = useState(false),
-    [selected, setSelected] = useState(""),
-    [assembly, setAssembly] = useState(0),
-    [reset, setReset] = useState(0),
-    [validated, setValidated] = useState(""),
-    [error, setError] = useState(""),
-    [busy, setBusy] = useState(false),
-    [quote, setQuote] = useState<any>(null);
-  const last = useRef<Kit | null>(null);
-  let kit: Kit | null = null,
-    localError = "";
-  try {
-    kit = buildKit(value, shop.inventory, false);
-    last.current = kit;
-  } catch (e) {
-    localError = (e as Error).message;
-  }
-  const display = kit || last.current;
-  useEffect(() => {
-    setValidated("");
-    setError("");
-    const controller = new AbortController(),
-      timer = setTimeout(() => {
-        api<Kit>("/scrapdrop/configurations/validate", {
-          method: "POST",
-          body: JSON.stringify(value),
-          signal: controller.signal,
-        })
-          .then(() => setValidated(JSON.stringify(value)))
-          .catch((e) => {
-            if (e.name !== "AbortError") setError(e.message);
-          });
-      }, 200);
-    return () => {
-      clearTimeout(timer);
-      controller.abort();
-    };
-  }, [value, shop.inventory]);
-  function change(p: Partial<KitConfig>) {
-    setValidated("");
-    setValue((v) => ({ ...v, ...p }));
-  }
-  if (!display)
-    return (
-      <main className="sd-empty">
-        <Package />
-        <h2>These materials are no longer available.</h2>
-        <p>Choose another project from the shelf.</p>
-        <button className="sd-btn" onClick={back}>
-          Back to projects
-        </button>
-      </main>
-    );
-  const t = display.template;
-  return (
-    <main className="sd-studio">
-      <div className="sd-breadcrumb">
-        <button className="sd-text" onClick={back}>
-          <ArrowLeft size={15} />
-          All possibilities
-        </button>
-        <span>
-          01 Choose <ArrowRight size={12} />
-          <b>02 Make it yours</b>
-          <ArrowRight size={12} />
-          03 Collect
-        </span>
-      </div>
-      <button className="sd-batch-link" onClick={planBatch}>
-        Have your own materials, or making a batch? Plan it and buy only the
-        difference <ArrowRight size={16} />
-      </button>
-      <div className="sd-studio-grid">
-        <section className={"sd-studio-stage sd-scene-" + display.template.id}>
-          <div className="sd-stage-top">
-            <span className="sd-kicker">
-              <span className="sd-live-dot" />
-              YOUR FINISHED PROJECT
-            </span>
-            <button
-              className="sd-icon"
-              aria-label="Reset 3D camera"
-              onClick={() => setReset((v) => v + 1)}
-            >
-              <RotateCcw size={18} />
-            </button>
-          </div>
-          <Suspense
-            fallback={
-              <div className="sd-stage-loading">
-                <Loader />
-              </div>
-            }
-          >
-            <KitViewer
-              kit={display}
-              exploded={exploded}
-              selected={selected}
-              step={assembly}
-              reset={reset}
-              onSelect={setSelected}
-            />
-          </Suspense>
-          <div className="sd-stage-toolbar">
-            <div className="sd-toggle">
-              <button
-                className={!exploded ? "selected" : ""}
-                onClick={() => {
-                  setExploded(false);
-                  setAssembly(0);
-                }}
-              >
-                <Package size={15} />
-                Assembled
-              </button>
-              <button
-                className={exploded ? "selected" : ""}
-                onClick={() => {
-                  setExploded(true);
-                  setAssembly(0);
-                }}
-              >
-                <Layers size={15} />
-                See the parts
-              </button>
-            </div>
-            <span>Drag to rotate · scroll to zoom</span>
-          </div>
-          <div className="sd-scene-note">
-            <span>
-              {value.width} × {value.depth} × {display.config.height} mm · final
-              design
-            </span>
-            <small>Design preview · actual texture and shade may vary.</small>
-          </div>
-        </section>
-        <section className="sd-customize">
-          <span className="sd-kicker">SMALL PIECES. YOUR FINISHING TOUCH.</span>
-          <h1>{t.title}</h1>
-          <p>{t.subtitle}</p>
-          <div className="sd-project-meta">
-            <span>
-              <Clock size={14} />
-              {t.minutes} min + drying
-            </span>
-            <span>
-              <MapPin size={14} />
-              Studio pickup
-            </span>
-          </div>
-          <div className="sd-option">
-            <div className="sd-option-heading">
-              <strong>
-                01 / Pick your {t.type === "card" ? "card" : "fabric"}
-              </strong>
-              <span>{display.materials[0].shade}</span>
-            </div>
-            <div className="sd-swatches">
-              {shop.inventory
-                .filter((m) => m.type === t.type && m.active && m.confirmed)
-                .map((m) => (
-                  <button
-                    key={m.id}
-                    className={value.materialId === m.id ? "selected" : ""}
-                    aria-pressed={value.materialId === m.id}
-                    disabled={m.available < value.quantity}
-                    title={`${m.name} · ${m.available} available`}
-                    onClick={() => {
-                      change({ materialId: m.id });
-                      setSelected(m.id);
-                    }}
-                  >
-                    <i style={{ backgroundColor: m.color }}>
-                      {value.materialId === m.id && <Check size={20} />}
-                    </i>
-                    <span>{m.shade}</span>
-                    <small>
-                      {m.available < value.quantity
-                        ? "Unavailable"
-                        : `${m.available} left`}
-                    </small>
-                  </button>
-                ))}
-            </div>
-          </div>
-          <div className="sd-option">
-            <div className="sd-option-heading">
-              <strong>02 / Tie it together</strong>
-              <span>{display.materials[1].shade}</span>
-            </div>
-            <div className="sd-swatches">
-              {shop.inventory
-                .filter((m) => m.type === "ribbon" && m.active && m.confirmed)
-                .map((m) => (
-                  <button
-                    key={m.id}
-                    className={value.ribbonId === m.id ? "selected" : ""}
-                    aria-pressed={value.ribbonId === m.id}
-                    disabled={m.available < value.quantity}
-                    onClick={() => {
-                      change({ ribbonId: m.id });
-                      setSelected(m.id);
-                    }}
-                  >
-                    <i style={{ backgroundColor: m.color }}>
-                      {value.ribbonId === m.id && <Check size={20} />}
-                    </i>
-                    <span>{m.shade}</span>
-                    <small>
-                      {m.available < value.quantity
-                        ? "Unavailable"
-                        : `${m.available} left`}
-                    </small>
-                  </button>
-                ))}
-            </div>
-          </div>
-          <details className="sd-size">
-            <summary>
-              Make the size yours
-              <Maximize2 size={15} />
-            </summary>
-            {(["width", "depth", "height"] as const).map((key, i) => (
-              <label key={key}>
-                {t.labels[i]}
-                <span>
-                  <input
-                    type="number"
-                    value={
-                      t.id === "bookmark" && key === "height"
-                        ? display.config.height
-                        : value[key]
-                    }
-                    min={key === "height" ? 1 : 25}
-                    max={key === "depth" ? 240 : key === "height" ? 80 : 200}
-                    disabled={t.id === "bookmark" && key === "height"}
-                    onChange={(e) => change({ [key]: Number(e.target.value) })}
-                  />
-                  mm
-                </span>
-              </label>
-            ))}
-            <small>
-              Every change checks the cutting plan against the actual available
-              piece.
-            </small>
-          </details>
-          <label className="sd-pickup-select">
-            Pick a collection window
-            <select
-              value={pickupSlotId}
-              onChange={(e) => setPickupSlotId(e.target.value)}
-            >
-              {shop.pickupSlots.map((slot) => (
-                <option
-                  key={slot.id}
-                  value={slot.id}
-                  disabled={slot.available < value.quantity}
-                >
-                  {slot.label} · {slot.available} kit places
-                </option>
-              ))}
-            </select>
-            <small>
-              Collect within your window after the shop marks the kit ready.
-            </small>
-          </label>
-          <div className="sd-purchase-summary">
-            <div>
-              <strong>How many kits?</strong>
-              <div className="sd-quantity">
-                <button
-                  className="sd-icon"
-                  aria-label="One fewer kit"
-                  disabled={value.quantity <= 1}
-                  onClick={() => change({ quantity: value.quantity - 1 })}
-                >
-                  <Minus size={14} />
-                </button>
-                <span>{value.quantity}</span>
-                <button
-                  className="sd-icon"
-                  aria-label="One more kit"
-                  disabled={value.quantity >= 6}
-                  onClick={() => change({ quantity: value.quantity + 1 })}
-                >
-                  <Plus size={14} />
-                </button>
-              </div>
-            </div>
-            <div>
-              <span>Included materials</span>
-              <span>{money(display.subtotal)}</span>
-            </div>
-            <div>
-              <span>Kit preparation</span>
-              <span>{money(display.preparation)}</span>
-            </div>
-            <div className="sd-total">
-              <strong>Your kit total</strong>
-              <strong>
-                {money(display.total)}
-                <small> USD</small>
-              </strong>
-            </div>
-            <small>
-              Pickup only · no delivery fee · sandbox total, tax $0.
-            </small>
-          </div>
-          {(localError || error) && (
-            <p className="sd-error" role="alert">
-              {localError || error}
-            </p>
-          )}
-          <button
-            className="sd-btn full"
-            disabled={
-              busy || !!localError || validated !== JSON.stringify(value)
-            }
-            onClick={async () => {
-              if (!requireAccount()) return;
-              setBusy(true);
-              setError("");
-              try {
-                setQuote(
-                  await send("/scrapdrop/quotes", { ...value, pickupSlotId }),
-                );
-              } catch (e) {
-                setError((e as Error).message);
-                await refresh();
-              } finally {
-                setBusy(false);
-              }
-            }}
-          >
-            {busy ? <Loader /> : <ShoppingBag size={17} />}Review this kit
-            <ArrowRight size={17} />
-          </button>
-          <small className="sd-center">
-            {validated !== JSON.stringify(value) && !error && !localError
-              ? "Checking the current materials…"
-              : "Materials are reserved only when you begin payment."}
-          </small>
-        </section>
-      </div>
-      <section className="sd-kit-details">
-        <div>
-          <span className="sd-kicker">NO MYSTERY PIECES</span>
-          <h2>What's coming home with you.</h2>
-          <p>Tap a material to find it in your project.</p>
-          <div className="sd-included">
-            {display.materials.map((m, i) => (
-              <button
-                key={m.id}
-                className={selected === m.id ? "selected" : ""}
-                onClick={() => setSelected(selected === m.id ? "" : m.id)}
-              >
-                {m.imageId ? (
-                  <img
-                    src={"/api/scrapdrop/images/" + m.imageId}
-                    alt={m.name}
-                  />
-                ) : (
-                  <div
-                    className={"sd-scrap " + m.type}
-                    style={{ backgroundColor: m.color }}
-                  />
-                )}
-                <span>
-                  <strong>{m.name}</strong>
-                  <small>
-                    {m.width} × {m.length} mm · {display.lines[i].units} whole{" "}
-                    {m.type === "ribbon" ? "segment" : "piece"}
-                    {display.lines[i].units > 1 ? "s" : ""}
-                  </small>
-                  <small>
-                    {i === 0
-                      ? "Includes the unused portion of your allocated piece."
-                      : "No extra ribbon needs to be bought."}
-                  </small>
-                </span>
-                <CheckCircle2 size={19} />
-              </button>
-            ))}
-          </div>
-          <p className="sd-own-tools">
-            <Scissors size={17} />
-            <span>
-              <strong>Bring your own:</strong> {t.tools.join(", ")}.
-              {t.id === "wrap" ? " Your notebook is not included." : ""}
-            </span>
-          </p>
-        </div>
-        <div className="sd-assembly">
-          <span className="sd-kicker">PIECE BY PIECE</span>
-          <h2>See how it comes together.</h2>
-          <div className="sd-assembly-steps">
-            {t.guide.map((text, i) => (
-              <button
-                key={i}
-                className={assembly === i + 1 ? "selected" : ""}
-                onClick={() => {
-                  setAssembly(assembly === i + 1 ? 0 : i + 1);
-                  setExploded(false);
-                  window.scrollTo({
-                    top: 70,
-                    behavior: matchMedia("(prefers-reduced-motion:reduce)")
-                      .matches
-                      ? "auto"
-                      : "smooth",
-                  });
-                }}
-              >
-                <span>{i + 1}</span>
-                <p>{text}</p>
-              </button>
-            ))}
-          </div>
-          <details>
-            <summary>
-              <BookOpen size={15} />
-              Measured cutting guide
-              <ChevronDown size={14} />
-            </summary>
-            <CutDiagram kit={display} />
-            <small>
-              Required rectangle: {display.cut.width} × {display.cut.height} mm.
-              Solid lines cut; dashed lines fold. Supplied material may be
-              larger.
-            </small>
-          </details>
-        </div>
-      </section>
-      {quote && (
-        <Checkout
-          quote={quote}
-          config={config}
-          demo={shop.demo}
-          close={() => setQuote(null)}
-          onOrder={openOrder}
-        />
-      )}
-    </main>
   );
 }
 function useDialog() {
@@ -1466,9 +888,22 @@ function Checkout({
           {quote.kit.fulfillmentTerms?.label}
         </p>
         <p className="sd-own-tools">
-          Bring your own {quote.kit.template.tools.join(", ")}.
+          Required tools: {quote.kit.template.tools.join(", ")}.
           {quote.kit.template.id === "wrap" ? " Notebook not included." : ""}
         </p>
+        {quote.kit.batch?.plan.toolsToGet?.length > 0 && (
+          <p className="sd-batch-warning">
+            You will arrange {quote.kit.batch.plan.toolsToGet.join(", ")}{" "}
+            separately before making. They are not included in this order.
+          </p>
+        )}
+        {quote.kit.preparation > 0 && quote.kit.batch && (
+          <p>
+            Shop service: cut purchased outer sheet blanks only. Your own
+            sheets, detailed cuts, ribbon trimming, folding, gluing and assembly
+            remain yours.
+          </p>
+        )}
         <small>
           Quote valid for 5 minutes. Payment reserves materials for 10 minutes.
           Sandbox only; no real money.
@@ -1479,7 +914,7 @@ function Checkout({
             checked={ack}
             onChange={(e) => setAck(e.target.checked)}
           />
-          I have the listed tools
+          I have, or will obtain before making, the listed tools
           {quote.kit.template.id === "wrap"
             ? " and the matching notebook"
             : ""}{" "}
@@ -1681,7 +1116,7 @@ function OrderPage({
     <main className="sd-page sd-order-page">
       <button className="sd-text" onClick={back}>
         <ArrowLeft size={15} />
-        All my kits
+        All my projects
       </button>
       {error && (
         <p className="sd-error" role="alert">

@@ -441,3 +441,191 @@
     display: none;
   }
 }
+/* One planner: editable brief, explicit flexibility and practical tool arrangements. */
+.sd-app .sd-intent-panel {
+  padding: 28px;
+  background: #edf0ff;
+  border: 1px solid #cbd3ed;
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+.sd-app .sd-intent-panel h2 {
+  font-size: 32px;
+  margin: 9px 0;
+}
+.sd-app .sd-intent-panel p {
+  font-size: 13px;
+  max-width: 750px;
+}
+.sd-app .sd-intent-panel > label {
+  margin: 18px 0;
+}
+.sd-app .sd-intent-panel textarea {
+  min-height: 95px;
+  background: #fffef8;
+  font-size: 16px;
+}
+.sd-app .sd-intent-panel > .sd-btn {
+  background: var(--cobalt);
+}
+.sd-app .sd-intent-panel > small {
+  display: block;
+  margin-top: 12px;
+  color: #4f5a76;
+}
+.sd-app .sd-intent-draft {
+  margin-top: 24px;
+  padding: 22px;
+  background: #fffef8;
+  border-radius: 8px;
+  border: 1px solid #d8decf;
+}
+.sd-app .sd-intent-draft h3 {
+  font-size: 25px;
+  margin: 14px 0;
+}
+.sd-app .sd-intent-draft dl {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 8px 14px;
+  font-size: 13px;
+}
+.sd-app .sd-intent-draft dt {
+  color: #687059;
+}
+.sd-app .sd-intent-draft dd {
+  margin: 0;
+  color: var(--ink);
+}
+.sd-app .sd-intent-draft li {
+  font-size: 12px;
+  color: #59634c;
+  margin: 6px 0;
+}
+.sd-app .sd-batch-tools {
+  display: block;
+  margin-top: 20px;
+}
+.sd-app .sd-batch-tools > p {
+  font-size: 12px;
+  max-width: 750px;
+  margin-top: 0;
+}
+.sd-app .sd-tool-choice {
+  display: grid;
+  grid-template-columns: 145px 1fr;
+  gap: 8px 18px;
+  margin: 12px 0;
+  padding: 14px 16px;
+  border: 1px solid #d9decc;
+  border-radius: 6px;
+  background: #fffdf7;
+}
+.sd-app .sd-tool-choice > label {
+  font-size: 13px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 7px;
+}
+.sd-app .sd-tool-choice > small {
+  font-size: 11px;
+  line-height: 1.7;
+}
+.sd-app .sd-tool-choice .sd-tool-arrange {
+  grid-column: 2;
+  font-size: 12px;
+  color: #70492d;
+  background: #fcf1df;
+  padding: 8px;
+  border-radius: 4px;
+}
+.sd-app .sd-flexibility {
+  margin-top: 25px;
+  border-top: 1px solid #cbd0b9;
+  padding-top: 22px;
+}
+.sd-app .sd-flexibility > small {
+  display: block;
+  max-width: 720px;
+  color: #586548;
+}
+.sd-app .sd-flexibility .sd-check {
+  margin: 14px 0;
+}
+.sd-app .sd-allowed-shades {
+  border: 0;
+  border-top: 1px solid var(--line);
+  padding: 17px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.sd-app .sd-allowed-shades legend {
+  font-size: 12px;
+  color: #56654c;
+  margin-bottom: 10px;
+  padding-right: 15px;
+}
+.sd-app .sd-allowed-shades label {
+  display: flex;
+  flex-direction: row;
+  gap: 7px;
+  align-items: center;
+  font-size: 12px;
+}
+.sd-app .sd-allowed-shades i {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid #263f3322;
+}
+.sd-app .sd-requirements-confirm {
+  background: #eef0e1;
+  border: 1px solid #d3dcc1;
+  padding: 15px;
+  border-radius: 7px;
+}
+.sd-app .sd-brief > .sd-btn {
+  margin: 15px 0;
+}
+.sd-app .sd-brief > small {
+  display: block;
+}
+@media (max-width: 600px) {
+  .sd-app .sd-intent-panel {
+    padding: 20px;
+  }
+  .sd-app .sd-intent-panel h2 {
+    font-size: 29px;
+  }
+  .sd-app .sd-intent-draft {
+    padding: 18px;
+  }
+  .sd-app .sd-intent-draft dl {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+  .sd-app .sd-intent-draft dd {
+    margin-bottom: 9px;
+  }
+  .sd-app .sd-tool-choice {
+    grid-template-columns: 1fr;
+    padding: 13px;
+  }
+  .sd-app .sd-tool-choice .sd-tool-arrange {
+    grid-column: 1;
+  }
+  .sd-app .sd-intent-panel > .sd-btn {
+    font-size: 12px;
+    padding: 13px 16px;
+  }
+  .sd-app .sd-batch-tools {
+    margin-top: 20px;
+  }
+}
+@media print {
+  .sd-app .sd-intent-panel {
+    display: none;
+  }
+}

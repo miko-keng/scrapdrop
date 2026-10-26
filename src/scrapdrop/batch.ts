@@ -37,8 +37,39 @@ export const batchSchema = z
     availableMinutes: z.number().int().min(5).max(100000),
     deadline: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     tools: z.array(z.enum(["scissors", "ruler", "glue", "hole punch"])).max(4),
+    toolsToGet: z
+      .array(z.enum(["scissors", "ruler", "glue", "hole punch"]))
+      .max(4)
+      .default([]),
+    budget: z.number().int().min(0).max(10000000).nullable().default(null),
+    flexibility: z
+      .object({
+        resize: z.boolean(),
+        minWidth: z.number().int().min(25).max(200),
+        minDepth: z.number().int().min(30).max(240),
+        minHeight: z.number().min(0.1).max(80),
+      })
+      .strict()
+      .optional(),
+    allowedMaterialIds: z.array(z.string().min(1).max(100)).max(8).default([]),
+    allowedRibbonIds: z.array(z.string().min(1).max(100)).max(8).default([]),
   })
-  .strict();
+  .strict()
+  .superRefine((value, ctx) => {
+    const f = value.flexibility;
+    if (
+      f?.resize &&
+      (f.minWidth > value.config.width ||
+        f.minDepth > value.config.depth ||
+        (value.config.templateId !== "bookmark" &&
+          f.minHeight > value.config.height))
+    )
+      ctx.addIssue({
+        code: "custom",
+        message: "Minimum dimensions cannot exceed your target dimensions.",
+        path: ["flexibility"],
+      });
+  });
 export type BatchInput = z.infer<typeof batchSchema>;
 export type Placement = {
   x: number;
@@ -102,6 +133,9 @@ export type BatchPlan = {
   ownedRibbonProjects: number;
   allocations: Allocation[];
   missingTools: string[];
+  requiredTools: string[];
+  toolsToGet: string[];
+  budgetFits: boolean;
   estimatedMinutes: number;
   timeFits: boolean;
   deadlineValid: boolean;
@@ -252,7 +286,14 @@ export function buildBatchKit(
       input.cuttingService && lines.some((l) => l.itemId === material.id)
         ? 250
         : 0;
-  const missingTools = t.tools.filter((tool) => !input.tools.includes(tool));
+  const toolsToGet = t.tools.filter(
+    (tool) => !input.tools.includes(tool) && input.toolsToGet.includes(tool),
+  );
+  const missingTools = t.tools.filter(
+    (tool) => !input.tools.includes(tool) && !toolsToGet.includes(tool),
+  );
+  const budgetFits =
+    input.budget === null || subtotal + cuttingFee <= input.budget;
   const estimatedMinutes = input.quantity * t.minutes + 10;
   const deadlineValid =
     Number.isFinite(Date.parse(input.deadline + "T23:59:59+08:00")) &&
@@ -267,11 +308,19 @@ export function buildBatchKit(
     ownedRibbonProjects,
     allocations,
     missingTools,
+    requiredTools: [...t.tools],
+    toolsToGet,
+    budgetFits,
     estimatedMinutes,
     timeFits,
     deadlineValid,
     stockReady,
-    ready: stockReady && !missingTools.length && timeFits && deadlineValid,
+    ready:
+      stockReady &&
+      !missingTools.length &&
+      timeFits &&
+      deadlineValid &&
+      budgetFits,
     warnings: [],
     fullShopSubtotal,
     comparisonAvailable,
@@ -284,6 +333,16 @@ export function buildBatchKit(
   if (!stockReady)
     plan.warnings.push(
       "The shop cannot supply this shortfall with current stock. Choose another shade, reduce the batch, or add more owned material.",
+    );
+  if (!budgetFits)
+    plan.warnings.push(
+      "This materials and service total exceeds your budget. Adjust your permitted dimensions, shades, quantity or budget.",
+    );
+  if (toolsToGet.length)
+    plan.warnings.push(
+      "Arrange before making: " +
+        toolsToGet.join(", ") +
+        ". These tools are not included in this purchase.",
     );
   if (missingTools.length)
     plan.warnings.push(
@@ -316,5 +375,159 @@ export function buildBatchKit(
     stockReady,
     warnings: plan.warnings,
     batch: { input, plan, pickupPlaces: 1 },
+  };
+}
+
+export const toolUse: Record<string, string> = {
+  scissors:
+    "Cut your own sheets, make detailed cuts and trim ribbon. The shop service cuts purchased outer sheet blanks only.",
+  ruler:
+    "Check measurements and mark cuts or fold lines, including on pre-cut blanks.",
+  glue: "Assemble the box, attach the notebook pockets or bond the bookmark layers. Cutting does not include gluing.",
+  "hole punch":
+    "Make the bookmark hole. Sheet cutting does not include hole punching.",
+};
+export function projectAlternatives(raw: unknown, stock: Material[]) {
+  const input = batchSchema.parse(raw),
+    base = buildBatchKit(input, stock);
+  const candidates: { id: string; label: string; reason: string; kit: Kit }[] =
+    [
+      {
+        id: "current",
+        label: "My target design",
+        reason: "Your chosen dimensions and reference shades.",
+        kit: base,
+      },
+    ];
+  const f = input.flexibility;
+  const range = (target: number, min: number) =>
+    [...new Set([target, Math.round((target + min) / 2), min])].filter(
+      (n) => n <= target && n >= min,
+    );
+  const widths = f?.resize
+    ? range(input.config.width, f.minWidth)
+    : [input.config.width];
+  const depths = f?.resize
+    ? range(input.config.depth, f.minDepth)
+    : [input.config.depth];
+  const heights =
+    f?.resize && input.config.templateId !== "bookmark"
+      ? range(input.config.height, f.minHeight)
+      : [input.config.height];
+  const materials = [
+    input.config.materialId,
+    ...input.allowedMaterialIds.filter((id) => id !== input.config.materialId),
+  ]
+    .filter((id) =>
+      stock.some(
+        (m) =>
+          m.id === id &&
+          m.type === base.template.type &&
+          m.active &&
+          m.confirmed,
+      ),
+    )
+    .slice(0, 5);
+  const ribbons = [
+    input.config.ribbonId,
+    ...input.allowedRibbonIds.filter((id) => id !== input.config.ribbonId),
+  ]
+    .filter((id) =>
+      stock.some(
+        (m) => m.id === id && m.type === "ribbon" && m.active && m.confirmed,
+      ),
+    )
+    .slice(0, 5);
+  const valid: Kit[] = [];
+  let tested = 0;
+  outer: for (const w of widths)
+    for (const d of depths)
+      for (const h of heights)
+        for (const m of materials)
+          for (const r of ribbons) {
+            if (tested >= 400) break outer;
+            tested++;
+            try {
+              const kit = buildBatchKit(
+                {
+                  ...input,
+                  config: {
+                    ...input.config,
+                    width: w,
+                    depth: d,
+                    height: h,
+                    materialId: m,
+                    ribbonId: r,
+                  },
+                },
+                stock,
+              );
+              if (kit.batch!.plan.ready) valid.push(kit);
+            } catch {}
+          }
+  const volume = (k: Kit) => k.config.width * k.config.depth * k.config.height;
+  const signature = (k: Kit) => JSON.stringify([k.config, k.total, k.lines]);
+  const choose = (sort: (a: Kit, b: Kit) => number, label: string) => {
+    const kit = [...valid]
+      .sort(sort)
+      .find((k) => !candidates.some((c) => signature(c.kit) === signature(k)));
+    if (!kit) return;
+    if (
+      candidates
+        .slice(1)
+        .some(
+          (c) =>
+            c.kit.total <= kit.total &&
+            c.kit.batch!.plan.purchaseUnits <= kit.batch!.plan.purchaseUnits &&
+            volume(c.kit) >= volume(kit),
+        )
+    )
+      return;
+    if (
+      base.batch!.plan.ready &&
+      kit.total >= base.total &&
+      kit.batch!.plan.purchaseUnits >= base.batch!.plan.purchaseUnits
+    )
+      return;
+    const sizeChanged =
+      kit.config.width !== base.config.width ||
+      kit.config.depth !== base.config.depth ||
+      kit.config.height !== base.config.height;
+    const shadeChanged =
+      kit.config.materialId !== base.config.materialId ||
+      kit.config.ribbonId !== base.config.ribbonId;
+    candidates.push({
+      id: "option-" + candidates.length,
+      label,
+      reason: [
+        sizeChanged
+          ? "Dimensions stay within your minimums."
+          : "Target dimensions retained.",
+        shadeChanged
+          ? "Uses only additional shades you allowed."
+          : "Reference shop shades retained.",
+      ].join(" "),
+      kit,
+    });
+  };
+  choose(
+    (a, b) =>
+      a.total - b.total ||
+      a.batch!.plan.purchaseUnits - b.batch!.plan.purchaseUnits ||
+      volume(b) - volume(a),
+    "Lower spending within my limits",
+  );
+  choose(
+    (a, b) =>
+      a.batch!.plan.purchaseUnits - b.batch!.plan.purchaseUnits ||
+      a.total - b.total ||
+      volume(b) - volume(a),
+    "Fewer new material units",
+  );
+  return {
+    alternatives: candidates,
+    compared: tested,
+    notice:
+      "Comparison uses only the sizes and stocked shades you allowed. Quantity, deadline and tools stay fixed.",
   };
 }

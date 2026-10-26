@@ -21,7 +21,7 @@ const briefSchema = z
   })
   .strict();
 const cache = new Map<string, any>();
-function consumeBudget(db: Store, owner: string) {
+export function consumeBudget(db: Store, owner: string) {
   const day = new Date().toISOString().slice(0, 10),
     cap = Math.min(
       3,

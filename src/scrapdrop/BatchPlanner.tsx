@@ -14,6 +14,7 @@ import {
   Check,
   RotateCcw,
   Printer,
+  Sparkles,
 } from "lucide-react";
 import { api, send } from "../api";
 import {
@@ -24,7 +25,12 @@ import {
   type KitConfig,
   type Material,
 } from "./model";
-import { type BatchInput, type OwnedMaterial, type Allocation } from "./batch";
+import {
+  toolUse,
+  type BatchInput,
+  type OwnedMaterial,
+  type Allocation,
+} from "./batch";
 import { Art, CutDiagram } from "./ProjectArt";
 import "./batch.css";
 const Viewer = lazy(() => import("./KitViewer"));
@@ -42,9 +48,12 @@ export function BatchGuide({
       <span className="sd-kicker">
         {operator
           ? "PACK ONLY THE PURCHASED SHORTFALL"
-          : "YOUR BATCH PRODUCTION PLAN"}
+          : "YOUR PRODUCTION PLAN"}
       </span>
-      <h2>{p.quantity} projects. Every piece accounted for.</h2>
+      <h2>
+        {p.quantity} {p.quantity === 1 ? "project" : "projects"}. Every piece
+        accounted for.
+      </h2>
       <p>
         Finished size: {kit.config.width} × {kit.config.depth} ×{" "}
         {kit.config.height} mm.{" "}
@@ -58,7 +67,7 @@ export function BatchGuide({
         <p className="sd-batch-callout">
           Supply only the shop items below.{" "}
           {kit.preparation
-            ? "Cut the purchased sheets using this layout; include the remaining material. Do not cut buyer-owned stock."
+            ? "Cut the purchased outer sheet blanks using this layout; include remaining material. Buyer completes detailed cuts, folds, holes, gluing and ribbon trimming. Do not cut buyer-owned stock."
             : "Supply whole sheets / ribbon segments; the buyer does the cutting."}
         </p>
       )}
@@ -68,6 +77,15 @@ export function BatchGuide({
           Print / save production plan
         </button>
       )}
+      <p>
+        <b>Tools required:</b>{" "}
+        {(p.requiredTools || kit.template.tools).join(", ")}.{" "}
+        {(p.toolsToGet || []).length > 0
+          ? "You agreed to arrange: " +
+            p.toolsToGet.join(", ") +
+            " before making."
+          : ""}
+      </p>
       <div className="sd-batch-cuts">
         {p.allocations
           .filter((a) => !operator || a.source === "shop")
@@ -85,7 +103,9 @@ export function BatchGuide({
         </ol>
       </details>
       <div className="sd-batch-sequence">
-        <h3>Make the batch in stages</h3>
+        <h3>
+          {p.quantity === 1 ? "Make it in stages" : "Make the batch in stages"}
+        </h3>
         <ol>
           <li>
             Check each material's dimensions and condition before cutting. Label
@@ -205,7 +225,11 @@ export default function BatchPlanner({
   initial,
   requireAccount,
   checkout,
+  initialBrief = "",
+  aiMode = "fixture",
 }: {
+  initialBrief?: string;
+  aiMode?: string;
   inventory: Material[];
   slots: { id: string; label: string; available: number; ends?: number }[];
   accountId: string | null;
@@ -218,18 +242,22 @@ export default function BatchPlanner({
       ...(initial || defaultConfig("giftbox", inventory)),
       quantity: 1,
     },
-    quantity: 4,
+    quantity: initial?.quantity || 1,
     owned: [],
     ownedRevision: 0,
     mixColors: true,
     cuttingService: false,
     availableMinutes: 120,
     deadline: futureDate(),
-    tools: ["scissors", "ruler", "glue", "hole punch"],
+    tools: [],
+    toolsToGet: [],
+    budget: null,
+    allowedMaterialIds: [],
+    allowedRibbonIds: [],
   }));
   const [revision, setRevision] = useState(0),
     [alternatives, setAlternatives] = useState<
-      { id: string; label: string; kit: Kit }[]
+      { id: string; label: string; reason?: string; kit: Kit }[]
     >([]),
     [chosen, setChosen] = useState(0),
     [error, setError] = useState(""),
@@ -242,7 +270,104 @@ export default function BatchPlanner({
   const dirty = useRef(false),
     previousOwner = useRef(accountId),
     generation = useRef(0);
+  const [brief, setBrief] = useState(initialBrief),
+    [intent, setIntent] = useState<any>(null),
+    [intentBusy, setIntentBusy] = useState(false),
+    [confirmed, setConfirmed] = useState(false);
+  const intentGeneration = useRef(0);
   const selected = alternatives[chosen]?.kit;
+  const template = templates.find((t) => t.id === input.config.templateId)!;
+  const flex = input.flexibility || {
+    resize: false,
+    minWidth: input.config.width,
+    minDepth: input.config.depth,
+    minHeight: input.config.height,
+  };
+  async function interpret() {
+    const seq = ++intentGeneration.current;
+    setIntentBusy(true);
+    setError("");
+    try {
+      const r = await send("/scrapdrop/planner/interpret", { text: brief });
+      if (seq === intentGeneration.current) setIntent(r);
+    } catch (e) {
+      if (seq === intentGeneration.current)
+        setError(
+          (e as Error).message + " You can fill the planner manually below.",
+        );
+    } finally {
+      if (seq === intentGeneration.current) setIntentBusy(false);
+    }
+  }
+  function applyIntent() {
+    const d = intent?.draft;
+    if (!d?.supported || !d.templateId) return;
+    const cfg = defaultConfig(d.templateId, inventory);
+    for (const key of ["width", "depth", "height"] as const)
+      if (d[key] !== null) cfg[key] = d[key];
+    const minWidth = d.minWidth ?? cfg.width,
+      minDepth = d.minDepth ?? cfg.depth,
+      minHeight = d.minHeight ?? cfg.height;
+    cfg.width = Math.max(cfg.width, minWidth);
+    cfg.depth = Math.max(cfg.depth, minDepth);
+    if (d.templateId !== "bookmark")
+      cfg.height = Math.max(cfg.height, minHeight);
+    const colors = d.colors.map((c: string) => c.toLowerCase());
+    const matches = inventory.filter(
+      (m) =>
+        m.type === templates.find((t) => t.id === d.templateId)!.type &&
+        colors.includes(m.shade.toLowerCase()),
+    );
+    const ribbons = inventory.filter(
+      (m) => m.type === "ribbon" && colors.includes(m.shade.toLowerCase()),
+    );
+    if (matches[0]) cfg.materialId = matches[0].id;
+    if (ribbons[0]) cfg.ribbonId = ribbons[0].id;
+    change({
+      config: cfg,
+      ...(d.quantity !== null ? { quantity: d.quantity } : {}),
+      ...(d.budget !== null ? { budget: d.budget } : {}),
+      ...(d.deadline !== null ? { deadline: d.deadline } : {}),
+      ...(d.availableMinutes !== null
+        ? { availableMinutes: d.availableMinutes }
+        : {}),
+      ...(d.tools !== null ? { tools: d.tools, toolsToGet: [] } : {}),
+      ...(d.mixedColors !== null ? { mixColors: d.mixedColors } : {}),
+      flexibility: {
+        resize:
+          d.minWidth !== null || d.minDepth !== null || d.minHeight !== null,
+        minWidth,
+        minDepth,
+        minHeight,
+      },
+      allowedMaterialIds: (d.mixedColors === true
+        ? inventory.filter(
+            (m) =>
+              m.type === templates.find((t) => t.id === d.templateId)!.type,
+          )
+        : matches
+      )
+        .map((m) => m.id)
+        .filter((id: string) => id !== cfg.materialId)
+        .slice(0, 8),
+      allowedRibbonIds: (d.mixedColors === true
+        ? inventory.filter((m) => m.type === "ribbon")
+        : ribbons
+      )
+        .map((m) => m.id)
+        .filter((id: string) => id !== cfg.ribbonId)
+        .slice(0, 8),
+    });
+    setIntent(null);
+    setNotice(
+      "Draft applied. Review the dimensions, quantity, deadline, budget and tools, then confirm the requirements below.",
+    );
+    document.getElementById("sd-project-requirements")?.scrollIntoView({
+      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
+  }
   const availableSlots = slots.filter(
     (s) =>
       s.available > 0 &&
@@ -258,14 +383,12 @@ export default function BatchPlanner({
     : availableSlots[0]?.id || "";
   useEffect(() => {
     if (alternatives.length)
-      document
-        .getElementById("sd-batch-results")
-        ?.scrollIntoView({
-          behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
-            ? "auto"
-            : "smooth",
-          block: "start",
-        });
+      document.getElementById("sd-batch-results")?.scrollIntoView({
+        behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "start",
+      });
   }, [alternatives]);
   async function load() {
     if (!accountId) return;
@@ -313,6 +436,7 @@ export default function BatchPlanner({
   }, [accountId]);
   function change(patch: Partial<BatchInput>) {
     generation.current++;
+    setConfirmed(false);
     setInput((v) => ({ ...v, ...patch }));
     setAlternatives([]);
     setError("");
@@ -356,7 +480,20 @@ export default function BatchPlanner({
       quantity: kind === "four" ? 4 : 30,
       availableMinutes: kind === "four" ? 120 : 480,
       mixColors: true,
+      tools: ["scissors", "ruler", "glue", "hole punch"],
+      toolsToGet: [],
+      budget: null,
+      allowedMaterialIds: [],
+      allowedRibbonIds: [],
+      deadline: futureDate(),
+      flexibility: {
+        resize: true,
+        minWidth: kind === "four" ? 76 : 34,
+        minDepth: kind === "four" ? 51 : 119,
+        minHeight: kind === "four" ? 29 : 2,
+      },
     });
+    setConfirmed(true);
   }
   async function saveMaterials() {
     const saved = await api("/scrapdrop/owned", {
@@ -369,6 +506,10 @@ export default function BatchPlanner({
     return saved;
   }
   async function calculate() {
+    if (!confirmed) {
+      setError("Review and confirm your project requirements first.");
+      return;
+    }
     const gen = ++generation.current;
     setBusy(true);
     setError("");
@@ -381,6 +522,7 @@ export default function BatchPlanner({
       if (gen === generation.current) {
         setAlternatives(r.alternatives);
         setChosen(0);
+        setNotice(r.notice || "");
       }
     } catch (e) {
       setError((e as Error).message);
@@ -431,8 +573,8 @@ export default function BatchPlanner({
           <em>Less bought.</em>
         </h1>
         <p>
-          Plan a batch from your own materials. Check the cuts, compare a
-          smaller design, and buy only the missing sheets or ribbon.
+          Make one project or a whole batch. Use your materials first, compare
+          options within your limits, and buy only what is missing.
         </p>
         <div className="sd-batch-examples">
           <span>Try a worked example</span>
@@ -444,8 +586,102 @@ export default function BatchPlanner({
           </button>
         </div>
       </header>
+      <section className="sd-intent-panel">
+        <div>
+          <span className="sd-kicker">
+            START WITH YOUR IDEA · OR FILL THE DETAILS BELOW
+          </span>
+          <h2>What are we making?</h2>
+          <p>
+            Try “30 bookmarks under $10 by Friday. Minimum size 34 × 119 mm.
+            Mixed colors are fine.”
+          </p>
+        </div>
+        <label>
+          Your project brief
+          <textarea
+            value={brief}
+            maxLength={1500}
+            placeholder="Tell us the project, quantity and any limits…"
+            onChange={(e) => {
+              setBrief(e.target.value);
+              intentGeneration.current++;
+              setIntent(null);
+              setIntentBusy(false);
+            }}
+          />
+        </label>
+        <button
+          className="sd-btn"
+          disabled={intentBusy || brief.trim().length < 5}
+          onClick={interpret}
+        >
+          <Sparkles size={16} />
+          {intentBusy ? "Reading your idea…" : "Fill my plan from this idea"}
+          <ArrowRight size={16} />
+        </button>
+        <small>
+          {aiMode === "fixture"
+            ? "Example interpretation · no live AI request."
+            : "Interprets your brief only when you press this button. Measurements and prices are checked separately."}
+        </small>
+        {intent && (
+          <div className="sd-intent-draft" role="status">
+            <span className="sd-source">
+              {intent.source === "ai"
+                ? "Gemini draft"
+                : intent.source === "fixture"
+                  ? "Local example draft"
+                  : "Local draft"}
+            </span>
+            <h3>Check what we understood.</h3>
+            <dl>
+              <dt>Project</dt>
+              <dd>
+                {intent.draft.templateId
+                  ? templates.find((t) => t.id === intent.draft.templateId)
+                      ?.title
+                  : "Unsupported / not specified"}
+              </dd>
+              <dt>Quantity</dt>
+              <dd>{intent.draft.quantity ?? "Not specified"}</dd>
+              <dt>Materials/service budget</dt>
+              <dd>
+                {intent.draft.budget === null
+                  ? "Not specified"
+                  : money(intent.draft.budget)}
+              </dd>
+              <dt>Deadline</dt>
+              <dd>{intent.draft.deadline ?? "Not specified"}</dd>
+              <dt>Hands-on time</dt>
+              <dd>
+                {intent.draft.availableMinutes === null
+                  ? "Not specified"
+                  : intent.draft.availableMinutes + " minutes"}
+              </dd>
+              <dt>Allowed colors</dt>
+              <dd>
+                {intent.draft.mixedColors === true
+                  ? "Mixed colors allowed"
+                  : intent.draft.colors.join(", ") || "Not specified"}
+              </dd>
+            </dl>
+            <p>{intent.draft.explanation}</p>
+            <ul>
+              {intent.questions.map((q: string) => (
+                <li key={q}>{q}</li>
+              ))}
+            </ul>
+            {intent.draft.supported && (
+              <button className="sd-btn small" onClick={applyIntent}>
+                Apply these details <Check size={15} />
+              </button>
+            )}
+          </div>
+        )}
+      </section>
       <div className="sd-batch-inputs">
-        <section>
+        <section id="sd-project-requirements">
           <span className="sd-kicker">01 / WHAT YOU'RE MAKING</span>
           <div className="sd-batch-form-grid">
             <label>
@@ -455,6 +691,9 @@ export default function BatchPlanner({
                 onChange={(e) =>
                   change({
                     config: defaultConfig(e.target.value as any, inventory),
+                    flexibility: undefined,
+                    allowedMaterialIds: [],
+                    allowedRibbonIds: [],
                   })
                 }
               >
@@ -499,6 +738,25 @@ export default function BatchPlanner({
               </label>
             ))}
             <label>
+              Materials + service budget (USD, optional)
+              <input
+                type="number"
+                min={0}
+                max={100000}
+                step="0.01"
+                placeholder="No limit"
+                value={input.budget === null ? "" : input.budget / 100}
+                onChange={(e) =>
+                  change({
+                    budget:
+                      e.target.value === ""
+                        ? null
+                        : Math.round(Number(e.target.value) * 100),
+                  })
+                }
+              />
+            </label>
+            <label>
               Needed by
               <input
                 type="date"
@@ -520,30 +778,119 @@ export default function BatchPlanner({
             </label>
           </div>
           <fieldset className="sd-batch-tools">
-            <legend>Tools I have</legend>
-            {["scissors", "ruler", "glue", "hole punch"].map((tool) => (
-              <label key={tool}>
-                <input
-                  type="checkbox"
-                  checked={input.tools.includes(tool as any)}
-                  onChange={(e) =>
-                    change({
-                      tools: (e.target.checked
-                        ? [...input.tools, tool]
-                        : input.tools.filter((t) => t !== tool)) as any,
-                    })
-                  }
-                />
-                {tool}
-              </label>
+            <legend>Tools for this project</legend>
+            <p>
+              Tools are not sold here. Tell us what you have, or explicitly
+              arrange it before making. Cutting service does not include glue,
+              scoring, hole punching or ribbon trimming.
+            </p>
+            {template.tools.map((tool) => (
+              <div className="sd-tool-choice" key={tool}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={input.tools.includes(tool)}
+                    onChange={(e) =>
+                      change({
+                        tools: e.target.checked
+                          ? [...input.tools, tool]
+                          : input.tools.filter((t) => t !== tool),
+                        toolsToGet: input.toolsToGet.filter((t) => t !== tool),
+                      })
+                    }
+                  />
+                  I have {tool}
+                </label>
+                <small>{toolUse[tool]}</small>
+                {!input.tools.includes(tool) && (
+                  <label className="sd-tool-arrange">
+                    <input
+                      type="checkbox"
+                      checked={input.toolsToGet.includes(tool)}
+                      onChange={(e) =>
+                        change({
+                          toolsToGet: e.target.checked
+                            ? [...input.toolsToGet, tool]
+                            : input.toolsToGet.filter((t) => t !== tool),
+                        })
+                      }
+                    />
+                    I'll obtain {tool} before making · not included in this
+                    order
+                  </label>
+                )}
+              </div>
             ))}
           </fieldset>
+          <div className="sd-flexibility">
+            <span className="sd-kicker">WHAT MAY CHANGE?</span>
+            <label className="sd-check">
+              <input
+                type="checkbox"
+                checked={flex.resize}
+                onChange={(e) =>
+                  change({ flexibility: { ...flex, resize: e.target.checked } })
+                }
+              />
+              Compare smaller sizes within my minimum dimensions
+            </label>
+            {flex.resize && (
+              <div className="sd-batch-form-grid">
+                {(["minWidth", "minDepth", "minHeight"] as const).map(
+                  (key, i) => (
+                    <label key={key}>
+                      Minimum {template.labels[i].toLowerCase()} (mm)
+                      <input
+                        type="number"
+                        min={
+                          i === 0
+                            ? 25
+                            : i === 1
+                              ? 30
+                              : input.config.templateId === "giftbox"
+                                ? 20
+                                : input.config.templateId === "wrap"
+                                  ? 5
+                                  : 0.1
+                        }
+                        max={
+                          i === 0
+                            ? input.config.width
+                            : i === 1
+                              ? input.config.depth
+                              : input.config.height
+                        }
+                        step={i === 2 ? 0.1 : 1}
+                        disabled={
+                          input.config.templateId === "bookmark" && i === 2
+                        }
+                        value={flex[key]}
+                        onChange={(e) =>
+                          change({
+                            flexibility: {
+                              ...flex,
+                              [key]: Number(e.target.value),
+                            },
+                          })
+                        }
+                      />
+                    </label>
+                  ),
+                )}
+              </div>
+            )}
+            <small>
+              Quantity and deadline stay fixed. Only the selected extra shades
+              below may be substituted. Leave resizing off to keep exact
+              dimensions.
+            </small>
+          </div>
         </section>
         <section>
           <div className="sd-batch-section-title">
             <div>
               <span className="sd-kicker">
-                02 / MATERIALS ALREADY ON YOUR SHELF
+                02 / MATERIALS YOU ALREADY HAVE · OPTIONAL
               </span>
               <h2>Start with yours.</h2>
             </div>
@@ -693,7 +1040,7 @@ export default function BatchPlanner({
           </button>
         </section>
         <section>
-          <span className="sd-kicker">03 / IF YOU NEED A TOP-UP</span>
+          <span className="sd-kicker">03 / MATERIALS AND PREPARATION</span>
           <div className="sd-batch-form-grid">
             <label>
               Sheet color to buy
@@ -739,17 +1086,64 @@ export default function BatchPlanner({
               </select>
             </label>
           </div>
+          <fieldset className="sd-allowed-shades">
+            <legend>Extra shop shades I can accept in alternatives</legend>
+            {inventory
+              .filter(
+                (m) =>
+                  (m.type === template.type &&
+                    m.id !== input.config.materialId) ||
+                  (m.type === "ribbon" && m.id !== input.config.ribbonId),
+              )
+              .map((m) => {
+                const field =
+                  m.type === "ribbon"
+                    ? "allowedRibbonIds"
+                    : "allowedMaterialIds";
+                return (
+                  <label key={m.id}>
+                    <input
+                      type="checkbox"
+                      checked={input[field].includes(m.id)}
+                      onChange={(e) =>
+                        change({
+                          [field]: e.target.checked
+                            ? [...input[field], m.id]
+                            : input[field].filter((id) => id !== m.id),
+                        })
+                      }
+                    />
+                    <i style={{ background: m.color }} />
+                    {m.shade} {m.type}
+                  </label>
+                );
+              })}
+          </fieldset>
           <label className="sd-check">
             <input
               type="checkbox"
               checked={input.cuttingService}
               onChange={(e) => change({ cuttingService: e.target.checked })}
             />
-            Cut my purchased sheets to the plan · optional $2.50 per order.
-            Buyer-owned stock stays uncut by the shop.
+            Have the shop cut my new sheets — $2.50 per order. Includes planned
+            outer blanks and remaining material; your own sheets, detailed cuts,
+            ribbon trimming, folding and assembly are yours.
           </label>
-          <button className="sd-btn" disabled={busy} onClick={calculate}>
-            {busy ? "Calculating…" : "Calculate my batch"}
+          <label className="sd-check sd-requirements-confirm">
+            <input
+              type="checkbox"
+              checked={confirmed}
+              onChange={(e) => setConfirmed(e.target.checked)}
+            />
+            I've checked the project, quantity, dimensions, budget, deadline and
+            tool arrangements.
+          </label>
+          <button
+            className="sd-btn"
+            disabled={busy || !confirmed}
+            onClick={calculate}
+          >
+            {busy ? "Calculating…" : "Compare my options"}
             <ArrowRight size={17} />
           </button>
         </section>
@@ -791,10 +1185,11 @@ export default function BatchPlanner({
                   {a.kit.config.width} × {a.kit.config.depth} ×{" "}
                   {a.kit.config.height} mm ·{" "}
                   {a.kit.batch!.plan.ready
-                    ? "Materials and time fit"
+                    ? "Requirements fit"
                     : "Needs adjustment"}
                 </small>
                 <small>{a.kit.batch!.plan.purchaseUnits} units to buy</small>
+                {a.reason && <small>{a.reason}</small>}
               </button>
             ))}
           </div>
@@ -845,14 +1240,15 @@ export default function BatchPlanner({
                     <b>Total · USD</b>
                     <strong>{money(selected.total)}</strong>
                   </p>
-                  {selected.batch!.plan.comparisonAvailable && (
-                    <p className="sd-batch-saving">
-                      {money(selected.batch!.plan.materialSavings)} less in new
-                      materials than buying all new materials at the selected
-                      shop unit prices (availability not assumed). Cutting
-                      service excluded from comparison.
-                    </p>
-                  )}
+                  {selected.batch!.plan.comparisonAvailable &&
+                    selected.batch!.plan.materialSavings > 0 && (
+                      <p className="sd-batch-saving">
+                        {money(selected.batch!.plan.materialSavings)} less in
+                        new materials than buying all new materials at the
+                        selected shop unit prices (availability not assumed).
+                        Cutting service excluded from comparison.
+                      </p>
+                    )}
                   {selected.warnings.map((w) => (
                     <p className="sd-batch-warning" key={w}>
                       {w}
