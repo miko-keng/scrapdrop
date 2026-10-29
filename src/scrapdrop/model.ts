@@ -97,6 +97,8 @@ export type Part = {
 };
 export type Kit = {
   schemaVersion: 1;
+  manufacturingJobId?: string;
+  manufacturing?: import("./manufacturing/engine").Plan;
   recipeVersion?: number;
   batch?: { input: BatchInput; plan: BatchPlan; pickupPlaces: 1 };
   fulfillmentTerms?: {
@@ -107,7 +109,10 @@ export type Kit = {
     location: string;
   };
   config: KitConfig;
-  template: (typeof templates)[number];
+  template: Omit<(typeof templates)[number], "title" | "subtitle"> & {
+    title: string;
+    subtitle: string;
+  };
   materials: Material[];
   lines: {
     itemId: string;

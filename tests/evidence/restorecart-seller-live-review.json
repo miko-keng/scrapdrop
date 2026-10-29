@@ -1,0 +1,9 @@
+{
+  "source": "gemini",
+  "model": "gemini-3.5-flash-lite",
+  "suggestions": 3,
+  "withheld": 0,
+  "questions": 1,
+  "repeatCached": true,
+  "shopRecordsMutated": false
+}

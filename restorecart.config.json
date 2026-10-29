@@ -1,0 +1,16 @@
+{
+  "ai": {
+    "mode": "live",
+    "maxCallsPerRun": 3,
+    "maxToolCallsPerRun": 12,
+    "maxRunSeconds": 90,
+    "processCallBudget": 6
+  },
+  "payments": {
+    "environment": "sandbox"
+  },
+  "shop": {
+    "currency": "USD",
+    "fulfillment": "pickup"
+  }
+}

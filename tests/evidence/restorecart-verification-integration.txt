@@ -1,0 +1,32 @@
+✔ RestoreCart HTTP complete reconstruct / publish / paid order / pickup / recover (327.909375ms)
+✔ RestoreCart HTTP CSRF and seller authorization prevent unauthorized mutation (54.133125ms)
+✔ RestoreCart HTTP private sources and receipts do not leak to unrelated visitors (66.562375ms)
+✔ RestoreCart HTTP different cart totals and invalid quantities (69.903792ms)
+✔ RestoreCart HTTP simultaneous last-unit checkout has exactly one winner (60.6085ms)
+✔ RestoreCart HTTP allocation below sold quantity is rejected (65.477209ms)
+✔ RestoreCart HTTP unsafe external URLs and script source uploads are rejected (50.007792ms)
+✔ RestoreCart HTTP full refund and explicit restock are separate operations (68.530416ms)
+✔ RestoreCart HTTP final export blocks pending payments (68.748875ms)
+✔ RestoreCart HTTP pending refunds block pickup and final recovery (74.145208ms)
+✔ RestoreCart buyer session exposes no seller setup or AI metadata (47.352458ms)
+✔ RestoreCart public directory lists only open published shops without private fields (66.737833ms)
+✔ RestoreCart buyers keep seeing published data while seller edits a private draft (63.0965ms)
+✔ RestoreCart buyer cannot become a seller or mutate management endpoints (62.032958ms)
+✔ RestoreCart buyer receipt returns to its public shop (59.896917ms)
+✔ RestoreCart continuity maps unusual columns, preserves sources, asks questions and confirms a SKU photo (61.795292ms)
+✔ RestoreCart continuity publishes contact snapshots without leaking later draft messages (64.470833ms)
+✔ RestoreCart continuity returns paid/refunded sales and stock once, including a later refund delta (88.457083ms)
+✔ RestoreCart continuity rejects conflicting, stale and insufficient destination records atomically (74.91075ms)
+✔ RestoreCart continuity kits version, include images, import safely, restore and rehearse without copying sales (87.698541ms)
+✔ RestoreCart continuity seller tools retain auth and CSRF protection (67.842125ms)
+✔ RestoreCart continuity new contradictory evidence reopens a prior answer and source-date metadata never becomes a count (66.58925ms)
+✔ RestoreCart UAT portable rescue kit restores in a fresh installation with remapped image evidence (111.818334ms)
+✔ RestoreCart UAT two return previews cannot apply the same stock sale twice (69.844666ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2223.229084

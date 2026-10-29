@@ -1,7 +1,10 @@
+import { RecipeDiagram } from "./manufacturing/RecipeGuide";
 import { useId } from "react";
 import type { Kit } from "./model";
 export function Art({ kit, scene = false }: { kit: Kit; scene?: boolean }) {
   const textureId = useId().replace(/:/g, "");
+  if (kit.manufacturing)
+    return <RecipeDiagram recipe={kit.manufacturing.recipes[0]} />;
   const color = kit.materials[0].color,
     ribbon = kit.materials[1].color;
   return (

@@ -1,3 +1,4 @@
+import { registerManufacturing } from "./manufacturing/routes";
 import { registerLearning } from "./learning";
 import type { Express, Response } from "express";
 import { z } from "zod";
@@ -58,6 +59,7 @@ export function registerScrap(
   },
 ) {
   initScrap(db);
+  registerManufacturing(app, db, context.limit);
   registerLearning(app, db, context.limit);
   const payments = scrapPayments(db);
   const owner = (res: Response) =>
@@ -324,8 +326,15 @@ export function registerScrap(
     const k = JSON.parse(o.body);
     res.json({
       title: k.template.title,
-      steps: k.template.guide,
-      tools: k.template.tools,
+      steps: k.manufacturing
+        ? k.manufacturing.recipes.flatMap((r: any) =>
+            r.steps.map((s: any) => `${r.product.name}: ${s.action}`),
+          )
+        : k.template.guide,
+      tools: k.manufacturing
+        ? [...new Set(k.manufacturing.recipes.flatMap((r: any) => r.tools))]
+        : k.template.tools,
+      ...(k.manufacturing ? { manufacturing: k.manufacturing } : {}),
       cut: k.cut,
       materials: k.lines,
       config: k.config,

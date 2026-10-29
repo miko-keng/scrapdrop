@@ -1,0 +1,23 @@
+
+> scrapdrop@0.1.0 test:production
+> NODE_ENV=test AI_MODE=fixture node --import tsx --test tests/production-http.e2e.test.ts
+
+▶ production full-server E2E campaign
+  ✔ session, CSRF, origin and anonymous boundaries (89.240333ms)
+  ✔ construction and constraint matrix through the HTTP validator (85.184ms)
+  ✔ frozen saves, stale progress and cross-account isolation (17.929792ms)
+  ✔ fixture planning and step help use scoped caches (20.799209ms)
+  ✔ exact shortfall, acknowledgement, idempotent payment and collection gates (29.895083ms)
+  ✔ atomic results, invalid offcuts, economics and exactly-once consumption (15.236709ms)
+  ✔ owned-only, zero-good production and reusable offcut (13.139333ms)
+  ✔ operator schedule persistence and validation (11.797916ms)
+  ✔ server restart preserves sessions, recipes, progress, orders and results (223.44175ms)
+✔ production full-server E2E campaign (804.826417ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 927.211667

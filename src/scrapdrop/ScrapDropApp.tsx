@@ -1,3 +1,8 @@
+import {
+  RecipeDiagram,
+  SheetDiagrams,
+  ManufacturingOrderGuide,
+} from "./manufacturing/RecipeGuide";
 import { PreviewBoundary } from "./PreviewBoundary";
 import { LearnButton } from "./Tutorial";
 import { ProductionResults } from "./MakingRecords";
@@ -45,6 +50,7 @@ import "./studio-theme.css";
 import { buildBatchKit } from "./batch";
 import BatchPlanner, { BatchGuide, BatchCompletion } from "./BatchPlanner";
 import { Art, CutDiagram } from "./ProjectArt";
+const ManufacturingWorkspace = lazy(() => import("./ManufacturingWorkspace"));
 const KitViewer = lazy(() => import("./KitViewer"));
 const Loader = () => <LoaderCircle size={17} className="sd-spin" />;
 type Shop = {
@@ -273,6 +279,12 @@ export default function ScrapDropApp() {
           </button>
           <nav aria-label="Main navigation">
             <button
+              className={path === "/production" ? "active" : ""}
+              onClick={() => nav("/production")}
+            >
+              Plan production
+            </button>
+            <button
               className={path === "/make" ? "active" : ""}
               onClick={() => nav("/make")}
             >
@@ -348,6 +360,33 @@ export default function ScrapDropApp() {
                 : "Gathering a few good possibilities…"}
             </p>
           </main>
+        ) : path === "/production" ? (
+          <PreviewBoundary
+            fallback={
+              <p>
+                The production workspace could not load. Reload to try again.
+              </p>
+            }
+          >
+            <Suspense fallback={<p>Opening production planning…</p>}>
+              <ManufacturingWorkspace
+                inventory={shop.inventory}
+                accountId={shop.accountId}
+                operator={shop.operator}
+                slots={shop.pickupSlots}
+                requireAccount={requireAccount}
+                checkout={(quote, close) => (
+                  <Checkout
+                    quote={quote}
+                    config={config}
+                    demo={shop.demo}
+                    close={close}
+                    onOrder={(id) => nav("/orders/" + id)}
+                  />
+                )}
+              />
+            </Suspense>
+          </PreviewBoundary>
         ) : path === "/make" ? (
           <BatchPlanner
             inventory={shop.inventory}
@@ -400,8 +439,11 @@ export default function ScrapDropApp() {
                     explore it in 3D, and buy only the missing materials.
                   </p>
                   <div className="sd-hero-actions">
-                    <button className="sd-btn" onClick={() => nav("/make")}>
-                      Plan with my materials
+                    <button
+                      className="sd-btn"
+                      onClick={() => nav("/production")}
+                    >
+                      Plan my production batch
                       <ArrowRight size={18} />
                     </button>
                     <span>
@@ -893,8 +935,16 @@ function Checkout({
           {quote.kit.fulfillmentTerms?.label}
         </p>
         <p className="sd-own-tools">
-          Required tools: {quote.kit.template.tools.join(", ")}.
-          {quote.kit.template.id === "wrap" ? " Notebook not included." : ""}
+          Required tools:{" "}
+          {(quote.kit.manufacturing
+            ? [
+                ...new Set(
+                  quote.kit.manufacturing.recipes.flatMap((r: any) => r.tools),
+                ),
+              ]
+            : quote.kit.template.tools
+          ).join(", ")}
+          .{quote.kit.template.id === "wrap" ? " Notebook not included." : ""}
         </p>
         {quote.kit.batch?.plan.toolsToGet?.length > 0 && (
           <p className="sd-batch-warning">
@@ -1153,16 +1203,32 @@ function OrderPage({
           <div className="sd-order-layout">
             <section>
               <div className="sd-order-visual">
-                <PreviewBoundary fallback={<Art kit={order.kit} />}>
-                  <Suspense fallback={<Loader />}>
-                    <KitViewer kit={order.kit} />
-                  </Suspense>
-                </PreviewBoundary>
+                {order.kit.manufacturing ? (
+                  <RecipeDiagram recipe={order.kit.manufacturing.recipes[0]} />
+                ) : (
+                  <PreviewBoundary fallback={<Art kit={order.kit} />}>
+                    <Suspense fallback={<Loader />}>
+                      <KitViewer kit={order.kit} />
+                    </Suspense>
+                  </PreviewBoundary>
+                )}
               </div>
               <h2>{order.kit.template.title}</h2>
               <p>
-                {order.kit.config.width} × {order.kit.config.depth} ×{" "}
-                {order.kit.config.height} mm · {order.kit.config.quantity}{" "}
+                {order.kit.manufacturing ? (
+                  order.kit.manufacturing.recipes
+                    .map(
+                      (r: any) =>
+                        `${r.product.quantity} × ${r.product.name} (${r.product.width} × ${r.product.length} mm)`,
+                    )
+                    .join("; ")
+                ) : (
+                  <>
+                    {order.kit.config.width} × {order.kit.config.depth} ×{" "}
+                    {order.kit.config.height} mm ·{" "}
+                    {order.kit.config.quantity}{" "}
+                  </>
+                )}{" "}
                 {order.kit.batch
                   ? "planned projects"
                   : order.kit.config.quantity > 1
@@ -1315,13 +1381,29 @@ function OrderPage({
                   </button>
                 </div>
                 <p>
-                  Bring your own {order.kit.template.tools.join(", ")}.
+                  Bring your own{" "}
+                  {(order.kit.manufacturing
+                    ? [
+                        ...new Set(
+                          order.kit.manufacturing.recipes.flatMap(
+                            (r: any) => r.tools,
+                          ),
+                        ),
+                      ]
+                    : order.kit.template.tools
+                  ).join(", ")}
+                  .
                   {order.kit.template.id === "wrap"
                     ? " Your notebook is not included."
                     : ""}{" "}
                   Allow extra drying time.
                 </p>
-                {order.kit.batch ? (
+                {order.kit.manufacturing ? (
+                  <ManufacturingOrderGuide
+                    jobId={order.kit.manufacturingJobId}
+                    plan={order.kit.manufacturing}
+                  />
+                ) : order.kit.batch ? (
                   <>
                     <LearnButton
                       kit={order.kit}
@@ -1974,10 +2056,19 @@ function ShopWorkspace({
                         {l.units} × {l.name} · {l.itemId}
                       </p>
                     ))}
+                    {o.kit.manufacturing && (
+                      <SheetDiagrams plan={o.kit.manufacturing} operator />
+                    )}
                     {o.kit.batch && <BatchGuide kit={o.kit} operator />}
                     <p>
-                      Final dimensions: {o.kit.config.width} ×{" "}
-                      {o.kit.config.depth} × {o.kit.config.height} mm
+                      {o.kit.manufacturing ? (
+                        "Use the frozen manufacturing sheet dimensions above. Detailed cutting remains the buyer’s work; this order purchases whole sheets."
+                      ) : (
+                        <>
+                          Final dimensions: {o.kit.config.width} ×{" "}
+                          {o.kit.config.depth} × {o.kit.config.height} mm
+                        </>
+                      )}
                     </p>
                     <small>
                       {o.kit.fulfillmentTerms?.label}

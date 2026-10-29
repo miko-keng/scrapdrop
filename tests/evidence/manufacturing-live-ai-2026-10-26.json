@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-26",
+  "status": "PASS",
+  "source": "gemini",
+  "requests": 3,
+  "tools": [
+    "inspectCapabilities",
+    "inspectInventory",
+    "compileRecipe"
+  ],
+  "ready": true,
+  "totalCents": 170,
+  "violations": [],
+  "message": "The tool-calculated plan is shown below. Review all constraints before saving."
+}

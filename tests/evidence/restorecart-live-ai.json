@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-27T13:02:23.884Z",
+  "kind": "actual Gemini API",
+  "model": "gemini-3.5-flash-lite",
+  "passed": true,
+  "variants": 3,
+  "bluePrices": [
+    "20.00",
+    "18.00"
+  ],
+  "trace": [
+    {
+      "tool": "proposeCatalog",
+      "result": {
+        "valid": true,
+        "variants": 3
+      }
+    }
+  ],
+  "cachedRepeat": true,
+  "calls": 1
+}

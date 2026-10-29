@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-29T07:56:49.475Z",
+  "kind": "Actual Gemini text + owned product-card screenshot smoke test",
+  "passed": true,
+  "scope": "Narrow synthetic example, not a merchant photo accuracy benchmark",
+  "model": "gemini-3.5-flash-lite",
+  "variants": [
+    {
+      "sku": "MUG-BLU",
+      "imageMatched": true,
+      "priceCandidates": [
+        "20.00",
+        "18.00"
+      ]
+    },
+    {
+      "sku": "MUG-RED",
+      "imageMatched": false,
+      "priceCandidates": [
+        "18.00"
+      ]
+    },
+    {
+      "sku": "TOTE-NAT",
+      "imageMatched": false,
+      "priceCandidates": [
+        "12.00"
+      ]
+    }
+  ],
+  "imageMatchedToBlue": true,
+  "conflictingPricesPreserved": true,
+  "calls": 1,
+  "repeatCalls": 0,
+  "cachedRepeat": true
+}

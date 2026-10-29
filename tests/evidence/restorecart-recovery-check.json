@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-29T06:45:31.243Z",
+  "kind": "Recovery verification on database copy; source records contain actual sandbox captures",
+  "passed": true,
+  "originalDatabaseMutated": false,
+  "orderCount": 2,
+  "totals": {
+    "capturedCents": 7000,
+    "refundedCents": 1800,
+    "netCents": 5200
+  },
+  "stock": [
+    {
+      "sku": "MUG-BLU",
+      "available": 1
+    },
+    {
+      "sku": "MUG-RED",
+      "available": 2
+    },
+    {
+      "sku": "TOTE-NAT",
+      "available": 1
+    }
+  ],
+  "repeatExportReused": true,
+  "adjustments": 1
+}

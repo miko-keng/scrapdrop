@@ -25,6 +25,7 @@
     "tests",
     "vite.config.ts",
     "examples/batchstudio/server.ts",
-    "scripts/demo.ts"
+    "scripts/demo.ts",
+    "scripts/manufacturing-mcp.ts"
   ]
 }

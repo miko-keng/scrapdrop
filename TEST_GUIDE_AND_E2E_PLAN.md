@@ -4,6 +4,11 @@ Your job now is to practise **one story**. The edge cases and failure testing ar
 
 **Story:** “I need four gift boxes. I already have three small card sheets and ribbon. ScrapDrop shows what fits, sells me only the missing sheet, and guides me through making the batch.”
 
+| Field | Value |
+|---|---|
+| Email | `scrapdrop-maker-193b09@example.com` |
+| Password | `ScrapTest!7146f62c6fa0` |
+
 ## Prepare before starting the timer
 
 1. Open https://taskslice.onrender.com/make and sign in to your existing **ScrapDrop buyer** account. Your PayPal login is separate. Refresh to load the latest build, then do one relaxed practice run before timing yourself.

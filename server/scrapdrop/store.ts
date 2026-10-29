@@ -1,3 +1,5 @@
+import { checkedManufacturing } from "./manufacturing/store";
+import { manufacturingKit } from "../../src/scrapdrop/manufacturing/engine";
 import { createHash, randomBytes } from "node:crypto";
 import { type Store, id, transaction } from "../store";
 import {
@@ -250,7 +252,12 @@ export function quote(
   const base = buildKit(config, inventory(db));
   return quoteSnapshot(db, owner, base, slotId);
 }
-function quoteSnapshot(db: Store, owner: string, base: Kit, slotId?: string) {
+export function quoteSnapshot(
+  db: Store,
+  owner: string,
+  base: Kit,
+  slotId?: string,
+) {
   const slot = pickupSlots(db).find(
     (slot) => slot.id === (slotId || pickupSlots(db)[0]?.id),
   );
@@ -305,9 +312,14 @@ export function reserveKit(
     if (!q || q.expires <= now)
       fail("Your quote expired. Refresh the design before reserving.", 409);
     const snapshot = JSON.parse(q.body),
-      kit = snapshot.batch
-        ? checkedBatch(db, owner, snapshot.batch.input)
-        : buildKit(snapshot.config, inventory(db));
+      kit = snapshot.manufacturing
+        ? manufacturingKit(
+            checkedManufacturing(db, owner, snapshot.manufacturing.input),
+            inventory(db),
+          )
+        : snapshot.batch
+          ? checkedBatch(db, owner, snapshot.batch.input)
+          : buildKit(snapshot.config, inventory(db));
     if (
       JSON.stringify(kit.lines) !== JSON.stringify(snapshot.lines) ||
       kit.total !== snapshot.total
@@ -318,6 +330,16 @@ export function reserveKit(
     );
     if (!slot || slot.available < (kit.batch ? 1 : kit.config.quantity))
       fail("This pickup window filled up. Choose another window.", 409);
+    if (snapshot.manufacturingJobId) {
+      const saved = db
+        .prepare("SELECT * FROM sd_mfg_jobs WHERE id=? AND owner=?")
+        .get(snapshot.manufacturingJobId, owner) as any;
+      if (!saved || saved.order_id)
+        fail(
+          "This production job already has a checkout or is unavailable.",
+          409,
+        );
+    }
     const orderId = id("kit"),
       expires =
         now +
@@ -329,6 +351,10 @@ export function reserveKit(
     db.prepare(
       "INSERT INTO sd_orders VALUES(?,?,?,?,'creating','awaiting_payment',NULL,NULL,?,?,?)",
     ).run(orderId, owner, quoteId, key, q.body, expires, now);
+    if (snapshot.manufacturingJobId)
+      db.prepare(
+        "UPDATE sd_mfg_jobs SET order_id=? WHERE id=? AND owner=?",
+      ).run(orderId, snapshot.manufacturingJobId, owner);
     for (const l of kit.lines) {
       db.prepare("INSERT INTO sd_holds VALUES(?,?,?,'held')").run(
         orderId,

@@ -1,0 +1,22 @@
+{
+  "schema": "restorecart.original-store.v1",
+  "storeId": "sunday-studio-practice",
+  "revision": 0,
+  "exportedAt": "2026-10-29T00:00:00.000Z",
+  "inventory": [
+    {
+      "sku": "MUG-BLU",
+      "quantity": 8
+    },
+    {
+      "sku": "MUG-RED",
+      "quantity": 5
+    },
+    {
+      "sku": "TOTE-NAT",
+      "quantity": 4
+    }
+  ],
+  "orders": [],
+  "inventoryEvents": []
+}

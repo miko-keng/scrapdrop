@@ -1,0 +1,15 @@
+# Five-step continuity verification
+
+Execution: 29 October 2026. Routine tests use fixture AI and an injected PayPal sandbox API transport; they cannot charge money or consume Gemini credits. Browser testing uses a consistent copy of the existing SQLite database on port 4371. The main shop and existing payment history are preserved.
+
+1. Import a CSV with unusual headers. Preview its original rows, map columns, record an optional source date and reconstruct. Verify prices, separate SKUs and retained original evidence. Reject duplicate/nonexistent column mappings.
+2. Inspect Ready / Needs information / Excluded. Resolve a conflicting price with a note, confirm identity/currency, confirm a proposed exact-SKU photo and count physical stock. Check a count timestamp, invalid allocation, outdated draft revision and publishing before readiness. New contradictory evidence must reopen confirmation.
+3. Publish customer contact, hours and outage text. Verify the buyer receives only the published snapshot; later draft messages remain private. Copy a rescue announcement without sending it.
+4. Exercise two purchases using an injected provider, collect one order in the existing base flow, refund and physically restock another. Close checkouts, compare against Original Store JSON v1, apply, download and repeat. Check captured/refunded totals, stock deltas, zero repeat changes and duplicate apply safety.
+5. Reject unknown payment outcomes, missing SKUs, insufficient destination stock, inconsistent payment references, dropped emergency history, changed records after preview and stale destination exports. Verify the return journal survives reopening a disk database. Later refunds must update financial records without silently restocking physical goods.
+6. Save a versioned kit with sources/images/contact, reuse an unchanged snapshot, create a second version after edits, download/import it and reject tampering. Restore to an operational draft and a rehearsal. Both start unpublished, with zero stock allocation, no copied orders and unresolved product confirmations. Rehearsal publishing is blocked.
+7. Run an isolated return simulation through the same local adapter: one simulated captured order, one stock deduction, a repeated comparison with zero changes and retry-safe application. Verify the source shop is unchanged and no PayPal request occurs.
+8. Check seller authentication and CSRF for every new private route. Buyer search/checkout remains separate.
+9. Browser: sign in, execute mapped import and targeted answers, count stock, publish contact details, save kit, restore rehearsal and run the simulation. Use copied historical sandbox records to verify the return screen, apply and compare again. Save screenshots. Test the layout at a narrow viewport if supported.
+
+One deliberate final Gemini check may use owned sample records and an owned product screenshot. Return the configuration to fixture mode afterward and record actual call counts separately. Do not describe an injected provider test as a new live PayPal checkout, an isolated simulation as a real payment, or the local adapter as a Shopify/WooCommerce integration.

@@ -1,0 +1,46 @@
+
+> scrapdrop@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+✓ 2619 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                1.21 kB │ gzip:     0.55 kB
+dist/assets/manrope-vietnamese-wght-normal-usUDDRr7.woff2      8.52 kB
+dist/assets/manrope-greek-wght-normal-DL7QRZyv.woff2           9.44 kB
+dist/assets/manrope-cyrillic-wght-normal-Dvxsihut.woff2       14.50 kB
+dist/assets/manrope-latin-ext-wght-normal-Ch3YOpNY.woff2      15.12 kB
+dist/assets/dm-sans-latin-ext-wght-normal-BOFOeGcA.woff2      18.22 kB
+dist/assets/manrope-latin-wght-normal-DHIcAJRg.woff2          24.83 kB
+dist/assets/dm-sans-latin-wght-normal-Xz1IZZA0.woff2          36.93 kB
+dist/assets/fa-solid-900-CTAAxXor.woff2                      158.22 kB
+dist/assets/fa-solid-900-D0aA9rwL.ttf                        426.11 kB
+dist/assets/ManufacturingWorkspace-CYS3j4su.css                4.96 kB │ gzip:     1.68 kB
+dist/assets/index-B3k1d8Xa.css                               107.62 kB │ gzip:    24.61 kB
+dist/assets/ProductionSchedule-ntxtw0lx.css                  459.98 kB │ gzip:    79.65 kB
+dist/assets/api-iQ4DCjaB.js                                    0.42 kB │ gzip:     0.30 kB
+dist/assets/rolldown-runtime-XKyaHtl9.js                       0.72 kB │ gzip:     0.42 kB
+dist/assets/preload-helper-Do3gg0W8.js                         1.85 kB │ gzip:     0.97 kB
+dist/assets/RecipeScene-DS8Y1pul.js                            2.68 kB │ gzip:     1.52 kB
+dist/assets/TutorialScene-DiNFJ29u.js                          5.45 kB │ gzip:     2.67 kB
+dist/assets/KitViewer-LoUwiT0A.js                              5.89 kB │ gzip:     2.79 kB
+dist/assets/ProductionPanel-BO8TAvOv.js                        6.88 kB │ gzip:     2.47 kB
+dist/assets/recipes-BnSXOKL2.js                                7.60 kB │ gzip:     3.04 kB
+dist/assets/jsx-runtime-C3cWAN_r.js                            8.24 kB │ gzip:     3.11 kB
+dist/assets/RecipeGuide-BJH0DnTw.js                            8.32 kB │ gzip:     3.09 kB
+dist/assets/browser-DfYHeeW3.js                               23.46 kB │ gzip:     8.86 kB
+dist/assets/ToolCheckout-DD3GAZ7l.js                          32.45 kB │ gzip:    13.26 kB
+dist/assets/ManufacturingWorkspace-Cx9A2cnv.js               153.85 kB │ gzip:    50.35 kB
+dist/assets/index-DALliIDF.js                                411.73 kB │ gzip:   124.65 kB
+dist/assets/OrbitControls-DIz80FjF.js                        587.13 kB │ gzip:   147.41 kB
+dist/assets/ProductionSchedule-CowdEL92.js                 4,582.76 kB │ gzip: 1,746.07 kB
+dist/assets/ProductionInsights-Cd9gBz4e.js                 5,455.69 kB │ gzip: 1,519.02 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 931ms

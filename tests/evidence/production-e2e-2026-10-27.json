@@ -1,0 +1,123 @@
+{
+  "date": "2026-10-27",
+  "target": "local new production workspace, not hosted Render deployment",
+  "baseUrl": "http://127.0.0.1:4361",
+  "database": "/tmp/scrapdrop-production-browser-20261027.sqlite",
+  "ai": "fixture",
+  "payment": "simulated demo",
+  "httpJourneys": 9,
+  "httpMatrix": {
+    "constructionQuantityWidthCombinations": 27,
+    "additionalLengthDepthCases": 3,
+    "materialCases": [
+      "no owned stock",
+      "fabric must not be treated as card",
+      "incompatible owned thickness",
+      "two differently sized/color card lots"
+    ],
+    "otherCases": [
+      "budget",
+      "time",
+      "tools",
+      "required thickness",
+      "strict color",
+      "rotation",
+      "invalid inputs"
+    ]
+  },
+  "suite": {
+    "total": 109,
+    "passed": 104,
+    "failed": 0,
+    "skipped": 5
+  },
+  "browserChecks": [
+    {
+      "id": "B01",
+      "check": "Maker login and load retail example",
+      "result": "pass",
+      "evidence": "4 owned sheets, 1 purchased sheet, $1.70, 79 minutes"
+    },
+    {
+      "id": "B02",
+      "check": "Saved sleeve tutorial progress",
+      "result": "pass",
+      "evidence": "Saved product 3 step 3; reload/resume restored the 60 \u00d7 128 mm sleeve and score measurements"
+    },
+    {
+      "id": "B03",
+      "check": "Switch saved jobs with different quantities",
+      "result": "pass after fix",
+      "evidence": "Small 2-tag job to 12/24/12 retail job; fields now reset to all three products and 79 minutes"
+    },
+    {
+      "id": "B04",
+      "check": "Budget and tool blockers",
+      "result": "pass",
+      "evidence": "Zero budget blocks save; missing glue identified; correcting inputs restores ready plan"
+    },
+    {
+      "id": "B05",
+      "check": "Stale owned material revision",
+      "result": "pass",
+      "evidence": "Old job quote rejected after a later shelf save; refresh/recalculate/new saved job used"
+    },
+    {
+      "id": "B06",
+      "check": "Shortfall checkout dialog",
+      "result": "pass",
+      "evidence": "Close/reopen; disabled without tools acknowledgement; one $1.70 card sheet; explicit simulated payment"
+    },
+    {
+      "id": "B07",
+      "check": "Operator readiness and buyer code",
+      "result": "pass",
+      "evidence": "Ready state exposes private buyer code; operator collects; second redemption rejected"
+    },
+    {
+      "id": "B08",
+      "check": "Production result economics",
+      "result": "pass",
+      "evidence": "48 good units, 84 minutes, $3/unit, $12/hr, $5 owned cost and $0.50 consumables -> $120 contribution"
+    },
+    {
+      "id": "B09",
+      "check": "Schedule conflict/save/reload",
+      "result": "pass after fix",
+      "evidence": "Conflicting score start restored to minute 25; 7 resource-assigned bars persist after rejection, save and reload"
+    },
+    {
+      "id": "B10",
+      "check": "AG Studio and grounded fixture assistant",
+      "result": "pass",
+      "evidence": "Three estimate-only rows; missing actuals stay unrecorded; assistant states zero finalized evidence"
+    },
+    {
+      "id": "B11",
+      "check": "390 \u00d7 844 mobile production layout",
+      "result": "pass after fix",
+      "evidence": "Page width was 641px; after grid fix it is 375px within 390px viewport, including completed results"
+    },
+    {
+      "id": "B12",
+      "check": "Legacy making comparison smoke",
+      "result": "pass",
+      "evidence": "3 sheets to 4 gift boxes still calculates one $1.90 sheet shortfall"
+    },
+    {
+      "id": "B13",
+      "check": "Guide accessibility and sleeve steps",
+      "result": "pass",
+      "evidence": "Enter advances step; Back/Next, 2D fallback, selected glue tab, replay and final step work; Next disabled at final step"
+    }
+  ],
+  "notExecuted": [
+    "Fresh PayPal sandbox capture and webhook delivery",
+    "Fresh live Gemini call/model quality",
+    "Physical manufacturing or novice-user trial",
+    "Native timeline drag propagation in this campaign",
+    "OS print-dialog/PDF output and reduced-motion device emulation",
+    "Browser/device engines other than the in-app browser",
+    "Hosted Render deployment"
+  ]
+}

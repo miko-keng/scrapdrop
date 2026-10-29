@@ -1,0 +1,46 @@
+✔ RestoreCart return journal survives a database restart and rejects ambiguous imported history (9.025375ms)
+✔ RestoreCart readiness separates reported dates, counted stock, stale warnings and changed allocations (0.814875ms)
+✔ RestoreCart readiness requires the current variant photo to be confirmed and handles exclusions (0.9295ms)
+✔ RestoreCart readiness cannot hide a price conflict behind a confirmation checkbox (0.582417ms)
+✔ RestoreCart directory searches every product, including non-preview totes (0.753625ms)
+✔ RestoreCart directory keyword results preserve shop identity, categories and sold-out state (0.171792ms)
+✔ RestoreCart directory derives category labels from published product text with a neutral fallback (0.690583ms)
+✔ RestoreCart product browsing sorts numeric prices in both directions without losing results (4.614625ms)
+✔ RestoreCart product browsing combines search, category and real stock filters (0.104125ms)
+✔ RestoreCart money rejects invalid, zero, negative, scientific and fractional-cent prices (0.528667ms)
+✔ RestoreCart CSV export neutralizes formulas and escapes quotes (0.137417ms)
+✔ RestoreCart parses actual sample PDF/CSV and exposes the 18/20 conflict (225.674417ms)
+✔ RestoreCart deduplicates identical uploads (0.657166ms)
+✔ RestoreCart rejects disguised files and oversized sources (0.475625ms)
+✔ RestoreCart keeps separate SKUs with identical names (0.078083ms)
+✔ RestoreCart reconstruction caches and preserves seller choices (3.793459ms)
+✔ RestoreCart evidence rejects unknown sources and unsupported prices (0.209083ms)
+✔ RestoreCart Gemini tool contract validates proposals, repairs errors and caches (10.500834ms)
+✔ RestoreCart cannot publish unresolved prices, empty stock or missing pickup (0.658583ms)
+✔ RestoreCart excluded invalid product does not block valid variants (0.43675ms)
+✔ RestoreCart canonical order is $52 and capture does not deduct stock twice (0.716583ms)
+✔ RestoreCart duplicate request key returns the same order (0.441125ms)
+✔ RestoreCart one remaining unit can be reserved only once (0.440834ms)
+✔ RestoreCart rejects stale price revision and fractional/duplicate cart lines (0.408958ms)
+✔ RestoreCart safe cancellation and ordinary expiry release stock once (0.588125ms)
+✔ RestoreCart capture-locked stock never expires as an ordinary hold (0.464083ms)
+✔ RestoreCart new catalog invalidates unapproved orders but not locked capture (0.450416ms)
+✔ RestoreCart timeout after successful provider capture reconciles one sale (1.030541ms)
+✔ RestoreCart pending capture stays locked and not paid (0.754959ms)
+✔ RestoreCart mismatched merchant/amount cannot commit a sale (0.6155ms)
+✔ RestoreCart verified full refund records money and restocks only explicitly (0.862542ms)
+✔ RestoreCart final export blocks unknown payment and closes new checkouts (0.625042ms)
+✔ RestoreCart recovery totals, repeated export and refund delta are consistent (0.986958ms)
+✔ RestoreCart rejects an invalid webhook signature without writes (0.39ms)
+✔ RestoreCart worker captures an approved checkout even if the buyer never returns (0.679208ms)
+✔ RestoreCart duplicate and out-of-order verified event processing does not repeat a sale (0.678208ms)
+✔ RestoreCart unmatched verified events back off durably without blocking subsequent work (0.415417ms)
+✔ RestoreCart recognized CSV columns work in a different order and preserve quoted names (0.530375ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 571.948583
