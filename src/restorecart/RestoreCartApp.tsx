@@ -1,3 +1,4 @@
+import { OrderProgress } from "./OrderProgress";
 import { SellerWorkspace } from "./SellerWorkspace";
 import { Basket } from "./Basket";
 import { AccountForm, BuyerAccount } from "./Accounts";
@@ -246,7 +247,8 @@ export default function RestoreCartApp() {
     const s = await refreshSession();
     if (s.seller) {
       const all = await loadList();
-      if (all.length) await load(all[0].id);
+      if (all.length)
+        await load(all.find((i: any) => i.demoPrepared)?.id || all[0].id);
       go("/restorecart/seller");
     } else go("/restorecart/shops");
   }
@@ -301,7 +303,10 @@ export default function RestoreCartApp() {
         if (!alive) return;
         const id = sessionStorage.getItem("rc-current");
         if (all.length)
-          await load(all.some((i: any) => i.id === id) ? id! : all[0].id);
+          await load(
+            all.find((i: any) => i.demoPrepared)?.id ||
+              (all.some((i: any) => i.id === id) ? id! : all[0].id),
+          );
       })
       .catch((e) => {
         if (alive) setError(e.message);
@@ -1073,18 +1078,15 @@ function Receipt({
   useEffect(() => {
     if (
       !o ||
-      ![
-        "capture_requested",
-        "pending",
-        "needs_reconciliation",
-        "creating",
-        "awaiting_buyer",
-      ].includes(o.state)
+      ["failed", "canceled"].includes(o.state) ||
+      (o.state === "paid" && (o.fulfillment === "collected" || o.refunded > 0))
     )
       return;
-    const timer = setInterval(() => refresh().catch(() => {}), 6000);
+    const timer = setInterval(() => {
+      if (document.visibilityState !== "hidden") void refresh().catch(() => {});
+    }, 6000);
     return () => clearInterval(timer);
-  }, [o?.state]);
+  }, [id, o?.state, o?.fulfillment, o?.refunded]);
   if (!o)
     return (
       <main className="rc-receipt">
@@ -1120,6 +1122,11 @@ function Receipt({
           {error}
         </p>
       )}
+      <OrderProgress order={o} />
+      <p>
+        Pickup status refreshes automatically. Keep this receipt link, or return
+        through Your orders.
+      </p>
       <section className="rc-panel">
         <div className="rc-orderhead">
           <h2>{o.snapshot.name}</h2>

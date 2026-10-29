@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
+import { OrderProgress } from "./OrderProgress";
 
 type Props = {
   api: (path: string, body?: any, method?: string) => Promise<any>;
@@ -126,13 +127,32 @@ export function BuyerAccount(p: Props & { user: any }) {
     [carts, setCarts] = useState<any[]>([]),
     [error, setError] = useState("");
   useEffect(() => {
-    if (p.user)
+    if (!p.user) return;
+    let alive = true;
+    const refresh = () => {
+      if (document.visibilityState === "hidden") return;
       Promise.all([p.api("/my-orders"), p.api("/my-carts")])
         .then(([orders, carts]) => {
-          setOrders(orders);
-          setCarts(carts);
+          if (alive) {
+            setOrders(orders);
+            setCarts(carts);
+            setError("");
+          }
         })
-        .catch((e) => setError(e.message));
+        .catch((e) => {
+          if (alive) setError(e.message);
+        });
+    };
+    refresh();
+    const timer = window.setInterval(refresh, 15000);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      alive = false;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, [p.user?.id]);
   return (
     <main className="rc-account-page">
@@ -150,11 +170,16 @@ export function BuyerAccount(p: Props & { user: any }) {
             </p>
           )}
           <h2>Your purchases</h2>
+          <p>
+            Pickup status updates automatically every 15 seconds. This prototype
+            supports collection, not delivery tracking.
+          </p>
           {error && <p role="alert">{error}</p>}
           {orders.length ? (
             orders.map((o) => (
               <article className="rc-panel" key={o.id}>
                 <h3>{o.shopName}</h3>
+                <OrderProgress order={o} />
                 <p>
                   {o.state} · {o.fulfillment} · ${(o.amount / 100).toFixed(2)}{" "}
                   USD

@@ -145,3 +145,16 @@ npm run build
 ```
 
 See [build and test report](docs/restorecart/BUILD_REPORT.md), [implementation proposal](docs/restorecart/IMPLEMENTATION_PLAN.md) and [scenario plan](docs/restorecart/SCENARIO_CASES.md). Test fixtures are distinct from actual Gemini and PayPal sandbox evidence.
+
+
+### Prepared Sunday Studio demo and buyer tracking
+
+Run `npm run restorecart:demo-accounts` locally to prepare **Sunday Studio Demo** for `demo-seller`. The draft includes the sample stock CSV, older catalog PDF and saved pickup/contact details. Products still require seller review: source price conflicts, physical counts, allocations and confirmation. The preload uses explicit sample records, not a live Gemini generation. Use **Review with Gemini** for live assistance. AI configuration remains live.
+
+Preparation is idempotent: it does not reset reviewed work on subsequent runs, overwrite a published shop, create orders or change real payment records. Other shops remain stored. The prepared demo is selected on seller sign-in and its selector shows that shop only. The preparation script refuses production; hosted demo preparation requires a separately reviewed deployment setup.
+
+Under **Orders**, expand **Example order statuses — simulated, no payments** to show checking, to prepare, ready, collected, canceled and refunded examples. These are presentation-only cards, excluded from APIs, inventory, payment totals and recovery. Real orders continue through PayPal sandbox.
+
+A buyer opens **Your orders → View order**, or keeps the receipt URL after checkout, to follow **Payment checking → Preparing → Ready for pickup → Collected**. Seller **Mark ready for pickup** and **Mark collected** update the actual record. The account refreshes every 15 seconds; an active receipt refreshes every 6 seconds until collection, cancellation or refund. These reads do not generate AI requests or initiate payment captures. Pickup only: no shipping or courier tracking is claimed.
+
+Verification: 78 RestoreCart tests and production build pass, including preloaded draft readiness, repeat preparation preserving seller work, publication preservation and payment-aware buyer status mapping. The prepared draft and separate simulated statuses were inspected in the local browser. No new live PayPal transaction was made for this change.

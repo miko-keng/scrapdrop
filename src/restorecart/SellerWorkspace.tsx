@@ -1,3 +1,4 @@
+import { OrderProgress } from "./OrderProgress";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import {
@@ -249,11 +250,13 @@ export function SellerWorkspace(p: Props) {
             <option value="" disabled>
               Select a shop
             </option>
-            {p.incidents.map((i) => (
-              <option key={i.id} value={i.id}>
-                {i.name} · {i.state}
-              </option>
-            ))}
+            {p.incidents
+              .filter((i) => !shop?.demoPrepared || i.id === shop.id)
+              .map((i) => (
+                <option key={i.id} value={i.id}>
+                  {i.name} · {i.state}
+                </option>
+              ))}
           </select>
         </label>
         <form
@@ -362,6 +365,13 @@ export function SellerWorkspace(p: Props) {
           {loadError && (
             <p role="alert" className="rc-alert">
               Could not refresh this workspace: {loadError}
+            </p>
+          )}
+          {shop.demoPrepared && section === "Shop editor" && (
+            <p className="rc-notice">
+              Prepared demo: sample records and shop details are already saved.
+              Complete the product review below. These starting records were
+              preloaded; use Review with Gemini for live AI assistance.
             </p>
           )}
           {message && (
@@ -717,6 +727,60 @@ export function SellerWorkspace(p: Props) {
                   Refresh
                 </button>
               </div>
+              {shop.demoPrepared && (
+                <details className="rc-panel">
+                  <summary>
+                    Example order statuses — simulated, no payments
+                  </summary>
+                  <p>
+                    These examples are not real orders. They do not affect
+                    stock, PayPal totals or recovery reports.
+                  </p>
+                  {[
+                    {
+                      state: "pending",
+                      fulfillment: "not_ready",
+                      refunded: 0,
+                      name: "Payment checking",
+                    },
+                    {
+                      state: "paid",
+                      fulfillment: "not_ready",
+                      refunded: 0,
+                      name: "To prepare",
+                    },
+                    {
+                      state: "paid",
+                      fulfillment: "ready",
+                      refunded: 0,
+                      name: "Ready for pickup",
+                    },
+                    {
+                      state: "paid",
+                      fulfillment: "collected",
+                      refunded: 0,
+                      name: "Collected",
+                    },
+                    {
+                      state: "canceled",
+                      fulfillment: "not_ready",
+                      refunded: 0,
+                      name: "Canceled",
+                    },
+                    {
+                      state: "paid",
+                      fulfillment: "canceled",
+                      refunded: 2000,
+                      name: "Refunded",
+                    },
+                  ].map((example) => (
+                    <article key={example.name}>
+                      <b>Example: {example.name} · 1 × Blue mug · $20.00</b>
+                      <OrderProgress order={example} />
+                    </article>
+                  ))}
+                </details>
+              )}
               <div className="rc-order-filters">
                 {[
                   "All",

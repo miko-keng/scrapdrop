@@ -2161,3 +2161,30 @@
     width: 100%;
   }
 }
+
+.rc-order-progress {
+  padding: 16px 0;
+}
+.rc-order-progress h3 {
+  margin: 0 0 8px;
+}
+.rc-order-progress ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+}
+.rc-order-progress li {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+.rc-order-progress li.reached {
+  background: #e7efdc;
+}
+.rc-order-progress li[aria-current="step"] {
+  border: 2px solid #285544;
+  font-weight: 700;
+}
